@@ -20,7 +20,7 @@ import xsdvi.utils.WriterHelper;
 import xsdvi.utils.XsdErrorHandler;
 
 /**
- * @author Václav Slavìtínský
+ * @author VÃ¡clav SlavÃ¬tÃ­nskÃ½
  * 
  */
 public final class XsdVi {

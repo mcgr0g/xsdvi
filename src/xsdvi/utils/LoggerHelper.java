@@ -9,7 +9,7 @@ import java.util.logging.SimpleFormatter;
 import xsdvi.XsdVi;
 
 /**
- * @author Václav Slavìtínský
+ * @author VÃ¡clav SlavÃ¬tÃ­nskÃ½
  *
  */
 public final class LoggerHelper {

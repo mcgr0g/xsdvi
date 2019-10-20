@@ -1,7 +1,7 @@
 package xsdvi.utils;
 
 /**
- * @author Václav Slavìtínskı
+ * @author VÃ¡clav SlavÃ¬tÃ­nskÃ½
  *
  */
 public class WidthCalculator {
