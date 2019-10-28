@@ -1,25 +1,72 @@
 plugins{
     id 'java'
+    id 'java-library'
 }
 
 repositories {
     jcenter()
+    flatDir { dirs 'lib'}
 }
 
-task l_import{
-    description='legacy import'
-    group='l-migration'
-    ant.importBuild('build.xml') { antTargetName ->
-        'a-' + antTargetName
+dependencies {
+    implementation name: 'xercesImpl'
+//    compile 'xerces:xercesImpl:2.12.0'
+//    compile 'org.apache.xerces:com.springsource.org.apache.xerces:2.9.1'
+    compile 'org.w3c:dom:2.3.0-jaxb-1.0.6'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['res']
+        }
     }
-    println 'import Ant tasks'
 }
 
-task l_build (dependsOn: l_import){
-    description='legacy build'
-    group='l-migration'
+jar {
+    manifest {
+        attributes(
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version,
+//                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Class-Path': 'xercesImpl.jar',
+                'Main-Class': 'xsdvi.XsdVi'
+        )
+    }
+}
+
+version = '1.1.1'
+
+task configure {
+    dependsOn(dependencies)
+//    apply from: "${projectDir}/legacy-ant-tsks.gradle"
+    apply from: "${projectDir}/legacy-ant-props.gradle"
+    dependsOn(showAntProps)
+    println 'TRACER my configure task from main build.gradle'
+}
+
+task distribution {
+    dependsOn(build)
     doLast {
-        println 'Hello, from Ant'
+        println "We build with version=$version"
+        println "get it at ${buildDir}\\${project.ext.buildLocation}"
     }
 }
 
+task release {
+    dependsOn(distribution)
+    doLast {
+        println 'We release now'
+    }
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(":release")) {
+        println "take it baby"
+    } else {
+        version = version + '-SNAPSHOT'
+    }
+}

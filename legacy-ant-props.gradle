@@ -1,0 +1,23 @@
+ext{
+    buildLocation = "libs"
+    examplesDir = "examples"
+    xsdDir = "".concat(sourceSets.main.output.getResourcesDir().toString())
+            .concat('\\')
+            .concat(examplesDir)
+            .concat("\\")
+            .concat("xsd")
+    exampleFile = "faktura"
+    targetFileExt = "svg"
+
+//    publishDir = "web"
+}
+
+task showAntProps{
+    group = 'l_migration'
+    description = 'show all legacy properties'
+    println "exampleFile = $xsdDir"
+            .concat("\\")
+            .concat(exampleFile)
+            .concat(".xsd")
+//    println "publishDir = $publishDir"
+}
