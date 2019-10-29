@@ -70,3 +70,22 @@ gradle.taskGraph.whenReady { taskGraph ->
         version = version + '-SNAPSHOT'
     }
 }
+
+task genFaktura(type:Exec){
+    dependsOn distribution
+    group = 'gen'
+    workingDir projectDir
+    commandLine 'cmd', '/c', 'java -jar build\\libs\\xsdvi-1.1.1-SNAPSHOT.jar build\\resources\\main\\examples\\xsd\\faktura.xsd'
+    standardOutput = new ByteArrayOutputStream()
+    ext.output = {
+        return standardOutput.toString()
+    }
+}
+
+task tests{
+    group = 'gen'
+    dependsOn genFaktura
+    doLast {
+        println('TRACER tests runned')
+    }
+}

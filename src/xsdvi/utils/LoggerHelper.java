@@ -1,12 +1,10 @@
 package xsdvi.utils;
 
-import java.io.IOException;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-
 import xsdvi.XsdVi;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.*;
 
 /**
  * @author Václav Slavìtínský
@@ -37,10 +35,26 @@ public final class LoggerHelper {
 	 * @param uri
 	 */
 	public static void setupLogger(String uri) {
+		logger.setLevel(Level.ALL);
+
+		try {
+			System.out.println("ololo1");
+			InputStream configFile = LoggerHelper.class.getClassLoader()
+					.getResourceAsStream("logging.properties");
+			if (configFile != null) {
+				logger.info("initializing - trying to load configuration file ...");
+				LogManager.getLogManager().readConfiguration(configFile);
+			} else {
+				System.err.println("No such logging.properties in classpath for jdk logging config!");
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+
+		logger.info("initializing - trying to set log file ...");
 		try {
 			FileHandler fileHandler = new FileHandler(uri, true);
 			logger.addHandler(fileHandler);
-			logger.setLevel(Level.ALL);
 			SimpleFormatter formatter = new SimpleFormatter();
 			fileHandler.setFormatter(formatter);
 		} catch (SecurityException e) {
@@ -48,6 +62,7 @@ public final class LoggerHelper {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		logger.info("starting xsdvi app");
 	}
 
 	/**
