@@ -1,28 +1,29 @@
 plugins{
-    id 'java'
+//    id 'java'
     id 'java-library'
 }
 
 repositories {
     jcenter()
-    flatDir { dirs 'lib'}
+    mavenLocal()
+    flatDir{dirs 'lib'}
+//    fileTree(dir: 'lib', include: '*.jar')
 }
 
 dependencies {
-    implementation name: 'xercesImpl'
-//    compile 'xerces:xercesImpl:2.12.0'
-//    compile 'org.apache.xerces:com.springsource.org.apache.xerces:2.9.1'
-    compile 'org.w3c:dom:2.3.0-jaxb-1.0.6'
+//    implementation name: 'xercesImpl'
+    implementation fileTree('lib') {include '*.jar'}
+//    implementation files('lib/xercesImpl.jar')
+//    implementation 'xerces:xercesImpl:2.9.0'
+//    implementation 'org.apache.xerces:com.springsource.org.apache.xerces:2.9.0'
+//    implementation 'org.w3c:dom:2.3.0-jaxb-1.0.6'
+//    implementation 'apache-xerces:xercesImpl:2.9.0'
 }
 
 sourceSets {
     main {
-        java {
-            srcDirs = ['src']
-        }
-        resources {
-            srcDirs = ['res']
-        }
+        java { srcDirs = ['src'] }
+        resources { srcDirs = ['res', 'lib'] }
     }
 }
 
@@ -49,6 +50,7 @@ task configure {
 }
 
 task distribution {
+//    dependsOn(configure)
     dependsOn(build)
     doLast {
         println "We build with version=$version"
@@ -72,7 +74,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 }
 
 task genFaktura(type:Exec){
-    dependsOn distribution
+    dependsOn(distribution)
     group = 'gen'
     workingDir projectDir
     commandLine 'cmd', '/c', 'java -jar build\\libs\\xsdvi-1.1.1-SNAPSHOT.jar build\\resources\\main\\examples\\xsd\\faktura.xsd'

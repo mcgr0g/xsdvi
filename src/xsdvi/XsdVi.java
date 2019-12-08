@@ -1,23 +1,22 @@
 package xsdvi;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.xerces.xs.XSImplementation;
 import org.apache.xerces.xs.XSLoader;
 import org.apache.xerces.xs.XSModel;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMErrorHandler;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-
 import xsdvi.svg.AbstractSymbol;
 import xsdvi.svg.SvgForXsd;
 import xsdvi.utils.LoggerHelper;
 import xsdvi.utils.TreeBuilder;
 import xsdvi.utils.WriterHelper;
 import xsdvi.utils.XsdErrorHandler;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Václav Slavìtínský
@@ -113,8 +112,8 @@ public final class XsdVi {
 	}
 
 	/**
-	 * @param input
-	 * @return
+	 * @param input "full/path/to/directory"
+	 * @return "full/path/to/file.svg"
 	 */
 	private static String outputUrl(String input) {
 		String[] field = input.split("[/\\\\]");

@@ -20,7 +20,7 @@ public final class LoggerHelper {
 	/**
 	 * 
 	 */
-	public static final String DEFAULT_URI = "xsdvi.log";
+	public static final String DEFAULT_URI = "xsdvi-txt.log";
 	
 	private static final Logger logger = Logger.getLogger(LOGGER_NAME);
 	
