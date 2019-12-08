@@ -38,10 +38,10 @@ The default target is `dist`, so you can just run the following command to build
 gradlew show
 ```
 
-Now you can run XsDvi, e. g.:
+Now you can run XsdVi, e. g.:
 
 ```
-java -jar build/libs/xsdvi-1.1.1-SNAPSHOT.jar res/examples/xsd/faktura.xsd
+java -jar build/libs/xsdvi-1.1.1-SNAPSHOT.jar build/resources/main/examples/xsd/faktura.xsd
 firefox faktura.svg
 ```
 
