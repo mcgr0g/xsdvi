@@ -6,61 +6,99 @@ plugins{
 repositories {
     jcenter()
     mavenLocal()
-    flatDir{ dirs 'lib'}
+}
+
+configurations {
+    thirdparty
+    compile.extendsFrom thirdparty
 }
 
 dependencies {
-    implementation name: 'xercesImpl'
+    thirdparty fileTree(dir: 'lib', include: ['*.jar'])
 //    implementation 'xerces:xercesImpl:2.9.0'
 //    implementation 'org.apache.xerces:com.springsource.org.apache.xerces:2.9.0'
 //    implementation 'apache-xerces:xercesImpl:2.9.0'
 }
 
+version = '1.0.1'
+
 sourceSets {
     main {
         java { srcDirs = ['src'] }
-        resources { srcDirs = ['res', 'lib'] }
+        resources { srcDirs = ['lib'] }
+    }
+    test {
+        resources { srcDirs = ['res'] }
     }
 }
 
 jar {
     manifest {
         attributes(
-                'Implementation-Title': project.name,
-                'Implementation-Version': project.version,
-                'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' '),
-                'Main-Class': 'xsdvi.XsdVi'
+            'Implementation-Title': project.name,
+            'Implementation-Version': project.version,
+            'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' '),
+            'Main-Class': 'xsdvi.XsdVi'
+            //'com.github.mcgr0g.xsdvi.cli'
         )
     }
 }
 
-version = '1.1.1'
-
-task configure {
+task configure(group: 'utsk') {
+    group = 'utsk'
+    description = 'user-task: load properies from external gradle config'
     apply from: "${projectDir}/props.gradle"
     println 'TRACER loading ext props'
 }
 
-task distribution {
-    dependsOn(configure)
-    dependsOn(build)
-    doLast {
-        println "We build with version=$version"
-        println "get it at ${buildDir}\\${project.ext.buildSubLocation}"
-    }
-}
 
-task manageResources() {
-    description "Copies the resource jar's to the build directory."
+
+task slimJar(type: Jar, group: 'utsk') {
+    description "Copies the ONLY classpath into the final jar "
+    dependsOn = [configurations.runtime ]
+    manifest.from jar.manifest
+//    archiveClassifier = 'uber'
+    archiveBaseName = "$project.ext.slimName"
+    from {(configurations.runtime - configurations.thirdparty).collect {
+        it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    exclude "xercesImpl*"
+    with jar
     copy {
         from "lib"
         include "*.jar"
-        into "${buildDir}\\${project.ext.buildSubLocation}"
+        into "${jarLibs}"
     }
 }
-manageResources.mustRunAfter distribution
+task fatJar(type: Jar, group: 'utsk') {
+    description "Copies the resource jar's into the final jar "
+    // TODO унаследовтаь манифест как в слиме
+    manifest {
+        attributes(
+            'Implementation-Title': project.name,
+            'Implementation-Version': project.version,
+            'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' '),
+            'Main-Class': 'xsdvi.XsdVi'
+        )
+    }
+    archiveBaseName = "$project.ext.fatName"
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+    with jar
+}
 
-task release {
+task distribution(group: 'utsk') {
+    description = 'user-task: prepare jars for tests and zipping'
+    dependsOn = [configure, build, slimJar]
+    println "get build at ${jarLibs}"
+}
+
+task release(group: 'utsk') {
+    group = 'utsk'
+    description = 'user-task: make relese for maven repo and so on'
     dependsOn(distribution)
     doLast {
         println "We release now: $version"
@@ -68,6 +106,7 @@ task release {
 }
 
 gradle.taskGraph.whenReady { taskGraph ->
+    // TODO починить определение версиии, в тестах подставляется, как будто для релиза
     if (taskGraph.hasTask(":release")) {
         println "take hot release"
     } else {
@@ -75,22 +114,23 @@ gradle.taskGraph.whenReady { taskGraph ->
     }
 }
 
-task genFaktura(type:Exec){
-    group = 'tsts'
-    dependsOn(distribution)
-    workingDir "$buildDir\\tests"
-    commandLine 'cmd', '/c', "java -jar ..\\libs\\${project.name}-${version}-SNAPSHOT.jar ..\\resources\\main\\examples\\xsd\\faktura.xsd"
+task genFaktura(type:Exec, group: 'tsts'){
+    dependsOn = [distribution, processTestResources]
+    workingDir "$project.ext.tstDir"
+    // TODO встроить в цепочку тестов задачи test или после нее
+    commandLine 'cmd', '/c', "java -jar ..\\libs\\$project.ext.slimName-${version}-SNAPSHOT.jar ..\\resources\\test\\examples\\xsd\\faktura.xsd"
     standardOutput = new ByteArrayOutputStream()
     ext.output = {
         return standardOutput.toString()
     }
 }
 
-task testAll{
-    group = 'tsts'
+task testAll(group: 'tsts'){
     dependsOn genFaktura
-    project.file("$buildDir\\tests").mkdirs()
+    project.file("$project.ext.tstDir").mkdirs()
     doLast {
         println('TRACER tests runned')
     }
 }
+// TODO эта инструкция на работает, нужно курнуть еще раз про граф зависимостей
+testAll.mustRunAfter test

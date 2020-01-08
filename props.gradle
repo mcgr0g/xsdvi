@@ -1,5 +1,9 @@
-ext{
-    buildSubLocation = "libs"
+// Set properties
+ext {
+    jarLibs = "$buildDir/libs".replaceAll('\\\\','/')
+    fatName = "$project.name-fat"
+    slimName = "$project.name-slim"
+    tstDir = "$buildDir/tests".replaceAll('\\\\','/')
     examplesDir = "examples"
     xsdDir = "".concat(sourceSets.main.output.getResourcesDir().toString())
             .concat('\\')
@@ -8,14 +12,14 @@ ext{
             .concat("xsd")
     exampleFile = "faktura"
     targetFileExt = "svg"
-
 }
 
 task showExtProps{
-    group = 'user-task'
-    description = 'show all external properties'
+    group = 'utsk'
+    description = 'user-task: show all external properties'
     println "exampleFile = $xsdDir"
             .concat("\\")
             .concat(exampleFile)
             .concat(".xsd")
+    println "jarLibs = $jarLibs"
 }
