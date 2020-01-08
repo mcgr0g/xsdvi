@@ -37,10 +37,8 @@ jar {
 version = '1.1.1'
 
 task configure {
-//    apply from: "${projectDir}/legacy-ant-tsks.gradle"
-    apply from: "${projectDir}/legacy-ant-props.gradle"
-//    dependsOn(showAntProps)
-    println 'TRACER my configure task from main build.gradle'
+    apply from: "${projectDir}/props.gradle"
+    println 'TRACER loading ext props'
 }
 
 task distribution {
@@ -48,7 +46,7 @@ task distribution {
     dependsOn(build)
     doLast {
         println "We build with version=$version"
-        println "get it at ${buildDir}\\${project.ext.buildLocation}"
+        println "get it at ${buildDir}\\${project.ext.buildSubLocation}"
     }
 }
 
@@ -57,7 +55,7 @@ task manageResources() {
     copy {
         from "lib"
         include "*.jar"
-        into "${buildDir}\\${project.ext.buildLocation}"
+        into "${buildDir}\\${project.ext.buildSubLocation}"
     }
 }
 manageResources.mustRunAfter distribution
@@ -65,32 +63,33 @@ manageResources.mustRunAfter distribution
 task release {
     dependsOn(distribution)
     doLast {
-        println 'We release now'
+        println "We release now: $version"
     }
 }
 
 gradle.taskGraph.whenReady { taskGraph ->
     if (taskGraph.hasTask(":release")) {
-        println "take it baby"
+        println "take hot release"
     } else {
         version = version + '-SNAPSHOT'
     }
 }
 
 task genFaktura(type:Exec){
+    group = 'tsts'
     dependsOn(distribution)
-    group = 'gen'
-    workingDir projectDir
-    commandLine 'cmd', '/c', 'java -jar build\\libs\\xsdvi-1.1.1-SNAPSHOT.jar build\\resources\\main\\examples\\xsd\\faktura.xsd'
+    workingDir "$buildDir\\tests"
+    commandLine 'cmd', '/c', "java -jar ..\\libs\\${project.name}-${version}-SNAPSHOT.jar ..\\resources\\main\\examples\\xsd\\faktura.xsd"
     standardOutput = new ByteArrayOutputStream()
     ext.output = {
         return standardOutput.toString()
     }
 }
 
-task tests{
-    group = 'gen'
+task testAll{
+    group = 'tsts'
     dependsOn genFaktura
+    project.file("$buildDir\\tests").mkdirs()
     doLast {
         println('TRACER tests runned')
     }
