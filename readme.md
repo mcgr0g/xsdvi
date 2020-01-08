@@ -29,10 +29,10 @@ Please refer to the [XsdVi SourceForge project page](https://sourceforge.net/pro
 To obtain a list of build targets, run the following command in the directory that contains this README file:
 
 ```
-gradlew distrib
+gradlew distribution
 ```
 
-The default target is `dist`, so you can just run the following command to build XsDvi:
+The default target is `build`, so you can just run the following command to build XsdVi:
 
 ```
 gradlew show
@@ -45,7 +45,7 @@ java -jar build/libs/xsdvi-1.1.1-SNAPSHOT.jar build/resources/main/examples/xsd/
 firefox faktura.svg
 ```
 
-For a short help message, just run XsDvi without any arguments:
+For a short help message, just run XsdVi without any arguments:
 
 ```
 java -jar build/libs/xsdvi-1.1.1-SNAPSHOT.jar

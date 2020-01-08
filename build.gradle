@@ -1,22 +1,18 @@
 plugins{
-//    id 'java'
     id 'java-library'
+    id 'idea'
+    id "com.dorongold.task-tree" version "1.4"
 }
-
 repositories {
     jcenter()
     mavenLocal()
-    flatDir{dirs 'lib'}
-//    fileTree(dir: 'lib', include: '*.jar')
+    flatDir{ dirs 'lib'}
 }
 
 dependencies {
-//    implementation name: 'xercesImpl'
-    implementation fileTree('lib') {include '*.jar'}
-//    implementation files('lib/xercesImpl.jar')
+    implementation name: 'xercesImpl'
 //    implementation 'xerces:xercesImpl:2.9.0'
 //    implementation 'org.apache.xerces:com.springsource.org.apache.xerces:2.9.0'
-//    implementation 'org.w3c:dom:2.3.0-jaxb-1.0.6'
 //    implementation 'apache-xerces:xercesImpl:2.9.0'
 }
 
@@ -32,8 +28,7 @@ jar {
         attributes(
                 'Implementation-Title': project.name,
                 'Implementation-Version': project.version,
-//                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                'Class-Path': 'xercesImpl.jar',
+                'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' '),
                 'Main-Class': 'xsdvi.XsdVi'
         )
     }
@@ -42,21 +37,30 @@ jar {
 version = '1.1.1'
 
 task configure {
-    dependsOn(dependencies)
 //    apply from: "${projectDir}/legacy-ant-tsks.gradle"
     apply from: "${projectDir}/legacy-ant-props.gradle"
-    dependsOn(showAntProps)
+//    dependsOn(showAntProps)
     println 'TRACER my configure task from main build.gradle'
 }
 
 task distribution {
-//    dependsOn(configure)
+    dependsOn(configure)
     dependsOn(build)
     doLast {
         println "We build with version=$version"
         println "get it at ${buildDir}\\${project.ext.buildLocation}"
     }
 }
+
+task manageResources() {
+    description "Copies the resource jar's to the build directory."
+    copy {
+        from "lib"
+        include "*.jar"
+        into "${buildDir}\\${project.ext.buildLocation}"
+    }
+}
+manageResources.mustRunAfter distribution
 
 task release {
     dependsOn(distribution)
