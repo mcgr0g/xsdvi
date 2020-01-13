@@ -2,4 +2,6 @@
 /docs/
 /dist/
 .gradle
-build
+.idea
+*.log
+/*.svg

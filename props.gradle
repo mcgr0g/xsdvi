@@ -1,8 +1,7 @@
 // Set properties
 ext {
     jarLibs = "$buildDir/libs".replaceAll('\\\\','/')
-    fatName = "$project.name-fat"
-    slimName = "$project.name-slim"
+    fatName = "$project.name-uber"
     tstDir = "$buildDir/tests".replaceAll('\\\\','/')
     examplesDir = "examples"
     xsdDir = "".concat(sourceSets.main.output.getResourcesDir().toString())

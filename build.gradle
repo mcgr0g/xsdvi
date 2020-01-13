@@ -14,10 +14,7 @@ configurations {
 }
 
 dependencies {
-    thirdparty fileTree(dir: 'lib', include: ['*.jar'])
-//    implementation 'xerces:xercesImpl:2.9.0'
-//    implementation 'org.apache.xerces:com.springsource.org.apache.xerces:2.9.0'
-//    implementation 'apache-xerces:xercesImpl:2.9.0'
+    thirdparty 'apache-xerces:xercesImpl:2.9.0'
 }
 
 version = '1.0.1'
@@ -25,7 +22,6 @@ version = '1.0.1'
 sourceSets {
     main {
         java { srcDirs = ['src'] }
-        resources { srcDirs = ['lib'] }
     }
     test {
         resources { srcDirs = ['res'] }
@@ -42,46 +38,22 @@ jar {
             //'com.github.mcgr0g.xsdvi.cli'
         )
     }
+    copy {
+        into "${buildDir}/libs"
+        from configurations.thirdparty
+    }
 }
 
 task configure(group: 'utsk') {
-    group = 'utsk'
     description = 'user-task: load properies from external gradle config'
     apply from: "${projectDir}/props.gradle"
     println 'TRACER loading ext props'
 }
 
-
-
-task slimJar(type: Jar, group: 'utsk') {
-    description "Copies the ONLY classpath into the final jar "
+task uber(type: Jar, group: 'utsk') {
+    description "user-task: copies the resource jar's into the final jar "
     dependsOn = [configurations.runtime ]
     manifest.from jar.manifest
-//    archiveClassifier = 'uber'
-    archiveBaseName = "$project.ext.slimName"
-    from {(configurations.runtime - configurations.thirdparty).collect {
-        it.isDirectory() ? it : zipTree(it)
-        }
-    }
-    exclude "xercesImpl*"
-    with jar
-    copy {
-        from "lib"
-        include "*.jar"
-        into "${jarLibs}"
-    }
-}
-task fatJar(type: Jar, group: 'utsk') {
-    description "Copies the resource jar's into the final jar "
-    // TODO унаследовтаь манифест как в слиме
-    manifest {
-        attributes(
-            'Implementation-Title': project.name,
-            'Implementation-Version': project.version,
-            'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' '),
-            'Main-Class': 'xsdvi.XsdVi'
-        )
-    }
     archiveBaseName = "$project.ext.fatName"
     from {
         configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
@@ -89,15 +61,15 @@ task fatJar(type: Jar, group: 'utsk') {
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
     with jar
 }
+assemble.dependsOn(uber)
 
 task distribution(group: 'utsk') {
     description = 'user-task: prepare jars for tests and zipping'
-    dependsOn = [configure, build, slimJar]
+    dependsOn = [configure, build,  uber]
     println "get build at ${jarLibs}"
 }
 
 task release(group: 'utsk') {
-    group = 'utsk'
     description = 'user-task: make relese for maven repo and so on'
     dependsOn(distribution)
     doLast {
@@ -115,10 +87,9 @@ gradle.taskGraph.whenReady { taskGraph ->
 }
 
 task genFaktura(type:Exec, group: 'tsts'){
-    dependsOn = [distribution, processTestResources]
+    dependsOn = [processTestResources]
     workingDir "$project.ext.tstDir"
-    // TODO встроить в цепочку тестов задачи test или после нее
-    commandLine 'cmd', '/c', "java -jar ..\\libs\\$project.ext.slimName-${version}-SNAPSHOT.jar ..\\resources\\test\\examples\\xsd\\faktura.xsd"
+    commandLine 'cmd', '/c', "java -jar ..\\libs\\$project.ext.fatName-${version}-SNAPSHOT.jar ..\\resources\\test\\examples\\xsd\\faktura.xsd"
     standardOutput = new ByteArrayOutputStream()
     ext.output = {
         return standardOutput.toString()
@@ -132,5 +103,4 @@ task testAll(group: 'tsts'){
         println('TRACER tests runned')
     }
 }
-// TODO эта инструкция на работает, нужно курнуть еще раз про граф зависимостей
-testAll.mustRunAfter test
+check.dependsOn(testAll)

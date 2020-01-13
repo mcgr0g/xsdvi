@@ -1,7 +1,3 @@
-```
-
-```
-
 # XsdVi
 
 XsdVi is a "Java application [...] to transform W3C XML Schema instances into interactive diagrams in SVG format" (see the [XsdVi SourceForge project page](https://sourceforge.net/projects/xsdvi/)).
@@ -41,14 +37,14 @@ gradlew show
 Now you can run XsdVi, e. g.:
 
 ```
-java -jar build/libs/xsdvi-1.1.1-SNAPSHOT.jar build/resources/main/examples/xsd/faktura.xsd
+java -jar build/libs/xsdvi-uber-1.0.1-SNAPSHOT.jar build/resources/test/examples/xsd/faktura.xsd
 firefox faktura.svg
 ```
 
 For a short help message, just run XsdVi without any arguments:
 
 ```
-java -jar build/libs/xsdvi-1.1.1-SNAPSHOT.jar
+java -jar build/libs/xsdvi-1.0.1-SNAPSHOT.jar
 ```
 
 
