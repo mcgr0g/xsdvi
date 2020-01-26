@@ -1,649 +1,584 @@
+= Vizualizace XML schémat
+Václav Slavětínský
+květen 2008
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+
 == Úvod
 
-Jazyk XML umožňuje vývojářům, při dodržení syntaktických pravidel,
-vytvářet vlastní formáty pro uchování a sdílení dat. Pokud chceme tyto
-formáty automatizovaně zpracovávat a validovat, potřebujeme jejich
-formální deklaraci a dokumentaci, tedy popis který umožní jejich
-sdílení, definování a použití. Pro tyto účely vzniklo několik jazyků.
-Patří k nim především W3C _XML schéma_, DTD (_Document Type Definition_)
-a Oasis _Relax NG_.
+Jazyk XML umožňuje vývojářům, při dodržení syntaktických pravidel, vytvářet vlastní formáty pro uchování a sdílení dat.
+Pokud chceme tyto formáty automatizovaně zpracovávat a validovat, potřebujeme jejich formální deklaraci a dokumentaci, tedy popis který umožní jejich sdílení, definování a použití.
+Pro tyto účely vzniklo několik jazyků.
+Patří k nim především W3C __XML schéma__, DTD (__Document
+    Type Definition__) a Oasis __Relax NG__.
 
-Díky začlenění do dalších standardů pracujících s XML, díky širokým
-možnostem a podpoře velkých softwarových společností je velmi často
-využíváno XML schéma. Jeho specifikace (viz
-link:#XSD1[bibliomixed_title], link:#XSD2[bibliomixed_title]) je však
-poměrně složitá a schémata se mohou stát pro uživatele nepřehledná.
-Důvodem jsou různé možnosti zápisu, vyplývající z objektových prvků
-tohoto jazyka. V XML schématu je umožněno používání datových typů,
-jejich rozšiřování a omezování; vytváření referencí na elementy,
-atributy a skupiny elementů či atributů; elementy lze vzájemně
-nahrazovat mechanismem substitučních skupin; dále je možné importovat,
-vkládat a předefinovat externí schémata, respektive jejich části.
+Díky začlenění do dalších standardů pracujících s XML, díky širokým možnostem a podpoře velkých softwarových společností je velmi často využíváno XML schéma.
+Jeho specifikace (viz <<_xsd1>>, <<_xsd2>>) je však poměrně složitá a schémata se mohou stát pro uživatele nepřehledná.
+Důvodem jsou různé možnosti zápisu, vyplývající z objektových prvků tohoto jazyka.
+V XML schématu je umožněno používání datových typů, jejich rozšiřování a omezování; vytváření referencí na elementy, atributy a skupiny elementů či atributů; elementy lze vzájemně nahrazovat mechanismem substitučních skupin; dále je možné importovat, vkládat a předefinovat externí schémata, respektive jejich části.
 
-Téma této práce je vizualizace XML Schémat. Cílem je navrhnout a
-implementovat aplikaci, která by na vstupu načetla instanci W3C XML
-schématu a jako výstup by uložila její interaktivní grafickou
-reprezentaci ve formátu SVG (_Scalable Vector Graphics_)
-link:#SVG[bibliomixed_title]. Tuto grafickou reprezentaci či diagram
-bude možné použít jako součást dokumentace XML souborů vyhovujících
-schématu. Diagram bude zobrazovat struktury použitelných elementů a
-atributů, jejich jména, jmenné prostory, datové typy a dodatečné
-informace – kardinalitu elementů, povinné/volitelné použití atributů,
-definované unikátní, primární a cizí klíče atd. Umožněno bude také
-procházení struktur, rozevírání a skrývání podskupin elementů a
-atributů, s využitím _ECMAScriptu_. K důležitým požadavkům patří, aby
-byla grafika interaktivní, intuitivní a přehledná, neboť smysl práce
-spočívá především v usnadnění orientace a pochopení XML schémat ze
-strany jejich uživatelů – tvůrců XML dokumentů.
+Téma této práce je vizualizace XML Schémat.
+Cílem je navrhnout a implementovat aplikaci, která by na vstupu načetla instanci W3C XML schématu a jako výstup by uložila její interaktivní grafickou reprezentaci ve formátu SVG (__Scalable Vector Graphics__) <<_svg>>.
+Tuto grafickou reprezentaci či diagram bude možné použít jako součást dokumentace XML souborů vyhovujících schématu.
+Diagram bude zobrazovat struktury použitelných elementů a atributů, jejich jména, jmenné prostory, datové typy a dodatečné informace – kardinalitu elementů, povinné/volitelné použití atributů, definované unikátní, primární a cizí klíče atd.
+Umožněno bude také procházení struktur, rozevírání a skrývání podskupin elementů a atributů, s využitím __ECMAScriptu__.
+K důležitým požadavkům patří, aby byla grafika interaktivní, intuitivní a přehledná, neboť smysl práce spočívá především v usnadnění orientace a pochopení XML schémat ze strany jejich uživatelů – tvůrců XML dokumentů.
 
-SVG soubory lze otevřít v moderních prohlížečích webových stránek (u
-některých je třeba nainstalovat SVG plug-in) nebo v aplikacích určených
-k prohlížení či editaci vektorové grafiky. Mnohé z nich jsou volně
-dostupné. Vektorová grafika používá k reprezentaci obrázků geometrické
-objekty a díky tomu ji lze snadno programově upravovat. Jisté omezení
-však vyplývá z náročnosti zpracování a pomalé implementci ECMAScriptu v
-prohlížečích. To začne být patrné u velkých schémat, nebo spíše velkých
-struktur popisovaných dokumentů (i poměrně krátkým schématem lze
-definovat rozsáhlé struktury). Omezení se projevuje v pomalejší reakci
-na události a obecně v pomalejším vykreslování diagramu. V této oblasti
-lze jen doufat, že do budoucna vznikne lepší podpora.
+SVG soubory lze otevřít v moderních prohlížečích webových stránek (u některých je třeba nainstalovat SVG plug-in) nebo v aplikacích určených k prohlížení či editaci vektorové grafiky.
+Mnohé z nich jsou volně dostupné.
+Vektorová grafika používá k reprezentaci obrázků geometrické objekty a díky tomu ji lze snadno programově upravovat.
+Jisté omezení však vyplývá z náročnosti zpracování a pomalé implementci ECMAScriptu v prohlížečích.
+To začne být patrné u velkých schémat, nebo spíše velkých struktur popisovaných dokumentů (i poměrně krátkým schématem lze definovat rozsáhlé struktury). Omezení se projevuje v pomalejší reakci na události a obecně v pomalejším vykreslování diagramu.
+V této oblasti lze jen doufat, že do budoucna vznikne lepší podpora.
 
-Samotná aplikace bude napsána v programovacím jazyce Java a bude
-využívat balíčky parseru _Xerces_, který je open source implementací
-rozhraní definovaného v link:#XSD1[bibliomixed_title] a
-link:#XSD2[bibliomixed_title]. Pro spuštění bude třeba mít nainstalované
-běhové prostředí (_Java Runtime Envioronment_) příslušné verze. Dnes je
-však JRE běžnou součástí většiny počítačů. Díky využití Javy bude
-aplikace snadno přenositelná na různé platformy.
+Samotná aplikace bude napsána v programovacím jazyce Java a bude využívat balíčky parseru __Xerces__, který je open source implementací rozhraní definovaného v <<_xsd1>> a <<_xsd2>>.
+Pro spuštění bude třeba mít nainstalované běhové prostředí (__Java Runtime Envioronment__) příslušné verze.
+Dnes je však JRE běžnou součástí většiny počítačů.
+Díky využití Javy bude aplikace snadno přenositelná na různé platformy.
 
-Nyní se stručně zmíním o struktuře práce. Cílem druhé kapitoly je
-seznámit čtenáře s technologiemi použitými v rámci aplikace a se
-způsobem jejich použití. Jde o W3C XML schéma, Scalable Vector Graphics,
-ECMAScript a Document Object Model, Cascading Style Sheets, jazyk Java.
+Nyní se stručně zmíním o struktuře práce.
+Cílem druhé kapitoly je seznámit čtenáře s technologiemi použitými v rámci aplikace a se způsobem jejich použití.
+Jde o W3C XML schéma, Scalable Vector Graphics, ECMAScript a Document Object Model, Cascading Style Sheets, jazyk Java.
 
-Zvláštní kapitola (třetí) je věnována možnostem načtení a interpretace
-modelu XML schématu. Je tu popis několika open source implementací
-abstraktního datového modelu XML schématu a jejich zhodnocení. Z těchto
-implementací jsem nakonec vybral procesor Xerces2-J. Vytvoří základ
-programu tím, že poskytne jednoduchý přístup ke kompontám schématu a
-jejich vlastnostem.
+Zvláštní kapitola (třetí) je věnována možnostem načtení a interpretace modelu XML schématu.
+Je tu popis několika open source implementací abstraktního datového modelu XML schématu a jejich zhodnocení.
+Z těchto implementací jsem nakonec vybral procesor Xerces2-J.
+Vytvoří základ programu tím, že poskytne jednoduchý přístup ke kompontám schématu a jejich vlastnostem.
 
-Čtvrtá kapitola se zabývá návrhem grafického modelu. Nejprve je vybrán
-vhodný typ, logický model; ten přehledně zobrazí strukturu definovaných
-XML dokumentů. Následuje rozbor jednotlivých prvků – grafických symbolů
-kompenent schématu – a jejich struktury. U každého symbolu naleznete
-obrázky, význam a popis parametrů ve vztahu k vlastnostem komponent
-schématu. Dále je popsán mechanismus zajištění interaktivity modelu a
-možnost dodatečných úprav vzhledu pomocí externího stylu.
+Čtvrtá kapitola se zabývá návrhem grafického modelu.
+Nejprve je vybrán vhodný typ, logický model; ten přehledně zobrazí strukturu definovaných XML dokumentů.
+Následuje rozbor jednotlivých prvků – grafických symbolů kompenent schématu – a jejich struktury.
+U každého symbolu naleznete obrázky, význam a popis parametrů ve vztahu k vlastnostem komponent schématu.
+Dále je popsán mechanismus zajištění interaktivity modelu a možnost dodatečných úprav vzhledu pomocí externího stylu.
 
-Cílem páté kapitoly je navrhnout algoritmus zpracování schématu. Je
-třeba projít některými komponentami a vytěžit z jejich vlastností data
-pro vizualizaci. Zpracování komponent, jejichž význam je zde také
-popsán, obstarávají jednotlivé metody. Ty se navzájem volají, předávají
-si parametry a vytváří grafické symboly pro pozdější uložení do SVG
-souboru.
+Cílem páté kapitoly je navrhnout algoritmus zpracování schématu.
+Je třeba projít některými komponentami a vytěžit z jejich vlastností data pro vizualizaci.
+Zpracování komponent, jejichž význam je zde také popsán, obstarávají jednotlivé metody.
+Ty se navzájem volají, předávají si parametry a vytváří grafické symboly pro pozdější uložení do SVG souboru.
 
-V závěru se pokusím o shrnutí výsledků práce a uvedu, kde je možné
-aplikaci stáhnout.
+V závěru se pokusím o shrnutí výsledků práce a uvedu, kde je možné aplikaci stáhnout.
 
 == Použité technologie
 
 === XML schéma
 
-XML, _Extensible Markup Language_, rozšiřitelný značkovací jazyk
-umožňuje vývojářům vytvářet vlastní formáty pro uchování a sdílení dat.
-Vznikají tím jakési nové slovníky položek – elementů a jejich vlastností
-– atributů. Pokud chceme tyto formáty automatizovaně zpracovávat a
-validovat, potřebujeme jejich formální deklaraci a dokumentaci, tedy
-popis který umožní sdílení, definování a použití vzniklých slovníků.
+XML, __Extensible Markup Language__, rozšiřitelný značkovací jazyk umožňuje vývojářům vytvářet vlastní formáty pro uchování a sdílení dat.
+Vznikají tím jakési nové slovníky položek – elementů a jejich vlastností – atributů.
+Pokud chceme tyto formáty automatizovaně zpracovávat a validovat, potřebujeme jejich formální deklaraci a dokumentaci, tedy popis který umožní sdílení, definování a použití vzniklých slovníků.
 
-__XML schéma__[multiblock footnote omitted] je specifikace vydaná
-konsorciem W3C.footnote:[World Wide Web Consortium, oficiální webové
-stránky. http://www.w3.org/] Definuje jazyk, využívající objektově
-orientovaný přístup, který lze použít pro formální popis XML dokumentů;
-poskytuje prostředky pro definování jejich struktury, obsahu a
-sémantiky. Konkrétně můžeme pomocí schématu definovat elementy a
-atributy použitelné v dokumentu, včetně jejich struktury – vzájemného
-zanořování a kombinování; můžeme také určit datový typ pro obsah
-elementu nebo atributu, implicitní hodnoty a další integritní omezení. K
-těm patří především unikátní klíče (_unique_), primární klíče (_key_) a
-na ně odkazující cizí klíče (_keyref_).
+_XML schéma_footnote:[Druhé vydání je z 28. října 2004, první bylo schváleno 2.
+          května 2001.] je specifikace vydaná konsorciem W3C.footnote:[World Wide Web Consortium, oficiální webové stránky. http://www.w3.org/] Definuje jazyk, využívající objektově orientovaný přístup, který lze použít pro formální popis XML dokumentů; poskytuje prostředky pro definování jejich struktury, obsahu a sémantiky.
+Konkrétně můžeme pomocí schématu definovat elementy a atributy použitelné v dokumentu, včetně jejich struktury – vzájemného zanořování a kombinování; můžeme také určit datový typ pro obsah elementu nebo atributu, implicitní hodnoty a další integritní omezení.
+K těm patří především unikátní klíče (__unique__), primární klíče (__key__) a na ně odkazující cizí klíče (__keyref__).
 
-XML schéma bývá často srovnáváno s jiným obvyklým schémovým jazykem –
-DTD, _Document Type Definition_. Ten byl zahrnut již v XML 1.0
-specifikaci W3C link:#XML[bibliomixed_title]. Mezi nejdůležitější
-rozdíly patří to, že DTD využívá vlastní syntaxe, zatímco XML schéma je
-aplikací XML, to znamená, že využíva jeho syntaxi. Dalším důvodem pro
-volbu XML schématu je možnost přiřazení datových typů atributům a obsahu
-elementů. Tuto základní vlastnost DTD nemělo, takže se všemi hodnotami
-zacházelo jako s textovými řetězci. Stejně tak nebylo možné pracovat se
-jmennými prostory. Přesto jsou DTD stále velmi užívané, především kvůli
-jednoduchosti.
+XML schéma bývá často srovnáváno s jiným obvyklým schémovým jazykem – DTD, __Document Type Definition__.
+Ten byl zahrnut již v XML 1.0 specifikaci W3C <<_xml>>.
+Mezi nejdůležitější rozdíly patří to, že DTD využívá vlastní syntaxe, zatímco XML schéma je aplikací XML, to znamená, že využíva jeho syntaxi.
+Dalším důvodem pro volbu XML schématu je možnost přiřazení datových typů atributům a obsahu elementů.
+Tuto základní vlastnost DTD nemělo, takže se všemi hodnotami zacházelo jako s textovými řetězci.
+Stejně tak nebylo možné pracovat se jmennými prostory.
+Přesto jsou DTD stále velmi užívané, především kvůli jednoduchosti.
 
-Specifikace XML schématu a jeho XML zápis jsou naopak komplexní a v
-některých místech poměrně obtížné na pochopení a použití. Vznikly proto
-i další jazyky: _Relax NG_ s běžnou (XML) a kompaktní syntaxí a
-_Schematron_ s odlišným přístupem – pro validaci podle pravidel. XML
-schéma má však nejširší využití, také proto, že ho delší dobu podporují
-velké softwarové firmy (Microsoft, IBM, Oracle, Sun).
+Specifikace XML schématu a jeho XML zápis jsou naopak komplexní a v některých místech poměrně obtížné na pochopení a použití.
+Vznikly proto i další jazyky: _Relax NG_ s běžnou (XML) a kompaktní syntaxí a _Schematron_ s odlišným přístupem – pro validaci podle pravidel.
+XML schéma má však nejširší využití, také proto, že ho delší dobu podporují velké softwarové firmy (Microsoft, IBM, Oracle, Sun).
 
-XML schéma formalizuje omezení, vyjádřená jako pravidla nebo model
-struktury, kterým odpovídá určitá třída XML dokumentů. Schémata slouží
-často jako nástroje designu, zakládající framework, na němž mohou být
-postaveny konkrétní implementace. Existuje několik typických oblastí
-použití schémat. Jedná se především o validaci, dokumentaci, dotazování,
-data binding a editaci link:#XSD-VLIST[bibliomixed_title]:
+XML schéma formalizuje omezení, vyjádřená jako pravidla nebo model struktury, kterým odpovídá určitá třída XML dokumentů.
+Schémata slouží často jako nástroje designu, zakládající framework, na němž mohou být postaveny konkrétní implementace.
+Existuje několik typických oblastí použití schémat.
+Jedná se především o validaci, dokumentaci, dotazování, data binding a editaci <<_xsd_vlist>>:
 
-* _Validací_ se rozumí ověření shody XML dokumentu se schématem. Často
-se využívá pro kontrolu XML vstupu do aplikace. Funguje jako filtr;
-dokumenty vyhovující schématu projdou, ostatní nebudou použity. Tato
-externí kontrola značně zjednodušuje aplikace, které by jinak musely
-ošetřovat spoustu výjimek vzniklých při zpracování nevyhovujících XML
-vstupů.
-* _Dokumentace_ znamená v tomto případě popis vyhovujících XML
-dokumentů. Je formální a strojově čitelná. Jelikož je XML schéma XML
-dokumentem, lze formální dokumentaci snadno převést tak, aby byla snadno
-čitelná i pro člověka, například použitím XSLT transformací, nebo jiných
-transformací. _Také aplikace, jež je výsledkem této bakalářské práce
-provádí takový převod, na podobu obrazovou._
-* Schémata poskytují podporu pro _dotazování_, vyhledávání obsahu v XML
-dokumentech. To je sice možné provádět i bez nich, ale dodatečná
-informace o struktuře a datových typech pomůže zrychlit a zefektivnit
-jak vyhledávání, tak i řazení a porovnávání. Využití nalezneme v
-jazycích _XPath 2.0_, _XSLT 2.0_, _XQuery 1.0_.
-* XML schémata jsou od svého počátku využívána pro _data binding_. Tím
-se zde rozumí převádění dat obsažených v XML dokumentech do struktur
-konkrétních aplikací, jakými jsou objekty v objektově orientovaných
-systémech a relační tabulky relačních databázových systémů. Schémata
-poskytují dodatečné informace o datových typech, které se převedou do
-datových typů té které aplikace.
-* Schémata obecně je možné použít při _editaci_ XML dokumentů. Například
-tato práce vzniká v _DocBooku_, což je také aplikace XML. Editor, který
-používám, mi dáva na výběr pouze elementy, které jsou podle schématu na
-daném místě přípustné. To výrazně usnadňuje práci. Editor využívá DTD
-DocBooku, poskytující informaci o struktuře, XML schémata nadto
-poskytnou informaci o datových typech.
+* _Validací_ se rozumí ověření shody XML dokumentu se schématem. Často se využívá pro kontrolu XML vstupu do aplikace. Funguje jako filtr; dokumenty vyhovující schématu projdou, ostatní nebudou použity. Tato externí kontrola značně zjednodušuje aplikace, které by jinak musely ošetřovat spoustu výjimek vzniklých při zpracování nevyhovujících XML vstupů.
+* _Dokumentace_ znamená v tomto případě popis vyhovujících XML dokumentů. Je formální a strojově čitelná. Jelikož je XML schéma XML dokumentem, lze formální dokumentaci snadno převést tak, aby byla snadno čitelná i pro člověka, například použitím XSLT transformací, nebo jiných transformací. _Také aplikace, jež je výsledkem této bakalářské práce provádí takový převod, na podobu obrazovou._
+* Schémata poskytují podporu pro __dotazování__, vyhledávání obsahu v XML dokumentech. To je sice možné provádět i bez nich, ale dodatečná informace o struktuře a datových typech pomůže zrychlit a zefektivnit jak vyhledávání, tak i řazení a porovnávání. Využití nalezneme v jazycích __XPath 2.0__, __XSLT 2.0__, __XQuery 1.0__.
+* XML schémata jsou od svého počátku využívána pro __data binding__. Tím se zde rozumí převádění dat obsažených v XML dokumentech do struktur konkrétních aplikací, jakými jsou objekty v objektově orientovaných systémech a relační tabulky relačních databázových systémů. Schémata poskytují dodatečné informace o datových typech, které se převedou do datových typů té které aplikace.
+* Schémata obecně je možné použít při _editaci_ XML dokumentů. Například tato práce vzniká v __DocBooku__, což je také aplikace XML. Editor, který používám, mi dáva na výběr pouze elementy, které jsou podle schématu na daném místě přípustné. To výrazně usnadňuje práci. Editor využívá DTD DocBooku, poskytující informaci o struktuře, XML schémata nadto poskytnou informaci o datových typech.
 
-*Komponenty schématu*
 
-Procesory XML schémat, vyhovující specifikaci W3C
-link:#XSD1[bibliomixed_title], musí pracovat s informacemi obsaženými ve
-schématu tak, jak je to ve specifikaci popsáno. Na XML schéma se zde
-nahlíží jako na abstraktní datový model konceptuální úrovně, nezávislý
-na implementaci. Datový model se skládá z jednotlivých, přesně
-definovaných součástí – _komponent_. Každá z nich zahrnuje popis XML
-reprezentace, vlastností a omezení, popis validačních pravidel,
-příspěvků k PSVI (_Post Schema Validation Infoset_),footnote:[Jedná se o
-XML infoset (množinu informací), rozšířený o dodatečné informace o typu
-jednotlivých položek – elementů, atributů, obecně uzlů.] a případných
-vestavěných instancí těchto komponent.
+[float]
+==== Komponenty schématu
 
-Definice zní takto: ``__Komponenta schématu__ je obecný termín, který
-zastupuje stavební prvky tvořící abstraktní datový model schématu… _XML
-schéma_ je množinou komponent
-schématu.''footnote:[link:#XSD1[bibliomixed_title] XML Schema Abstract
-Data Model. http://www.w3.org/TR/xmlschema-1/#concepts-data-model]
+Procesory XML schémat, vyhovující specifikaci W3C <<_xsd1>>, musí pracovat s informacemi obsaženými ve schématu tak, jak je to ve specifikaci popsáno.
+Na XML schéma se zde nahlíží jako na abstraktní datový model konceptuální úrovně, nezávislý na implementaci.
+Datový model se skládá z jednotlivých, přesně definovaných součástí – __komponent__.
+Každá z nich zahrnuje popis XML reprezentace, vlastností a omezení, popis validačních pravidel, příspěvků k PSVI (__Post Schema Validation
+      Infoset__),footnote:[Jedná se o XML infoset (množinu informací), rozšířený o
+          dodatečné informace o typu jednotlivých položek – elementů,
+          atributů, obecně uzlů.] a případných vestavěných instancí těchto komponent.
 
-Existuje 13 druhů komponent, spadajících do 3 skupin. __Aplikace s nimi
-bude pracovat způsobem popsaným v kapitole
-link:#XSD-PROCESSING[Zpracování XML schématu].__Pro rychlé pochopení
-vazeb mezi komponentami slouží obrázek
-link:#DIAGRAM_KOMPONENT[figure_title].footnote:[Tamtéž.]
+Definice zní takto: "`_Komponenta
+      schématu_ je obecný termín, který zastupuje stavební prvky
+      tvořící abstraktní datový model schématu... _XML
+      schéma_ je množinou komponent schématu.`"footnote:[XML Schema Abstract Data Model. http://www.w3.org/TR/xmlschema-1/#concepts-data-model]
 
-image:images/components.gif[Diagram komponent XML schématu]
+Existuje 13 druhů komponent, spadajících do 3 skupin. __Aplikace s nimi bude pracovat způsobem popsaným v kapitole <<_xsd_processing>>. __Pro rychlé pochopení vazeb mezi komponentami slouží obrázek <<_diagram_komponent>>.footnote:[Tamtéž.]
+
+.Diagram komponent XML schématu
+image::images/components.gif[]
 
 Primární komponenty mohou nebo musí být pojmenované:
 
-* definice jednoduchých typů (_Simple type definitions_),
-* definice komplexních typů (_Complex type definitions_),
-* deklarace atributů (_Attribute declarations_),
-* deklarace elementů (_Element declarations_).
+* definice jednoduchých typů (__Simple type definitions__),
+* definice komplexních typů (__Complex type definitions__),
+* deklarace atributů (__Attribute declarations__),
+* deklarace elementů (__Element declarations__).
 
 Sekundární komponenty musí mít jména:
 
-* definice skupin atributů (_Attribute group definitions_),
-* definice identitních omezení (_Identity-constraint definitions_),
-* definice modelových skupin (_Model group definitions_),
-* deklarace notací (_Notation declarations_).
+* definice skupin atributů (__Attribute group definitions__),
+* definice identitních omezení (__Identity-constraint definitions__),
+* definice modelových skupin (__Model group definitions__),
+* deklarace notací (__Notation declarations__).
 
-Pomocné komponenty poskytují přístup k jiným komponentám. Jsou závislé
-na kontextu:
+Pomocné komponenty poskytují přístup k jiným komponentám.
+Jsou závislé na kontextu:
 
-* anotace (_Annotations_),
-* modelové skupiny (_Model groups_),
-* částice (_Particles_),
-* divoké karty (_Wildcards_),
-* užití atributů (_Attribute Uses_).
+* anotace (__Annotations__),
+* modelové skupiny (__Model groups__),
+* částice (__Particles__),
+* divoké karty (__Wildcards__),
+* užití atributů (__Attribute Uses__).
+
 
 === SVG
 
-_Scalable Vector Graphics_, škálovatelná vektorová grafika vznikla také
-na půdě konsorcia W3C. Základ vývoje tvoří specifikace SVG 1.1
-link:#SVG[bibliomixed_title]. Kolem ní však existuje a vzniká řada
-dalších: _SVG Tiny 1.2_, _SVG Mobile 1.1_, _SVG Print_, _SVG Filters_,
-_SVG Requirements_. Jejich předmětem je jazyk pro popis dvourozměrné
-grafiky a grafických aplikací pomocí XML. Jedná se přitom o vektorovou
-grafiku, která používá k reprezentaci obrázků geometrické objekty. To
-přináší možnost škálování – zmenšování a zvětšování – bez ztráty
-kvality; objekty, z nichž se obraz skládá, jsou odlišeny a vzniklé
-soubory zabírají obvykle méně místa než soubory bitmapové. Je
-samozřejmé, že se vektorová grafika hodí pouze na některé druhy obrázků,
-jako jsou třeba symboly, diagramy nebo grafy. _Výstup aplikace, jež je
-předmětem této práce, bude diagram XML schématu v SVG._
+__Scalable Vector Graphics__, škálovatelná vektorová grafika vznikla také na půdě konsorcia W3C.
+Základ vývoje tvoří specifikace SVG 1.1 <<_svg>>.
+Kolem ní však existuje a vzniká řada dalších: __SVG Tiny 1.2__, __SVG
+      Mobile 1.1__, __SVG Print__, __SVG
+      Filters__, __SVG Requirements__.
+Jejich předmětem je jazyk pro popis dvourozměrné grafiky a grafických aplikací pomocí XML.
+Jedná se přitom o vektorovou grafiku, která používá k reprezentaci obrázků geometrické objekty.
+To přináší možnost škálování – zmenšování a zvětšování – bez ztráty kvality; objekty, z nichž se obraz skládá, jsou odlišeny a vzniklé soubory zabírají obvykle méně místa než soubory bitmapové.
+Je samozřejmé, že se vektorová grafika hodí pouze na některé druhy obrázků, jako jsou třeba symboly, diagramy nebo grafy. _Výstup aplikace, jež je předmětem této práce, bude diagram XML
+      schématu v SVG._
 
-Formát SVG byl navržen hlavně pro použití na webu, díky tomu je ho dnes
-možné přímo otevřít v prohlížečích Mozilla Firefox, Opera; v MS Internet
-Explorer bohužel až po nainstalování příslušného zásuvného modulu (Adobe
-SVG Viewer). Stejně tak je formát podporován i v komerčních (Adobe
-Illustrator, CorelDraw) či open source (Inkscape, Sodipodi) editorech.
+Formát SVG byl navržen hlavně pro použití na webu, díky tomu je ho dnes možné přímo otevřít v prohlížečích Mozilla Firefox, Opera; v MS Internet Explorer bohužel až po nainstalování příslušného zásuvného modulu (Adobe SVG Viewer). Stejně tak je formát podporován i v komerčních (Adobe Illustrator, CorelDraw) či open source (Inkscape, Sodipodi) editorech.
 
-SVG poskytuje tři typy grafických objektů. Jsou to tvary vektorové
-grafiky, například cesty složené z úseček a křivek, obrázky a text. Tyto
-objekty mohou být seskupovány, lze je transformovat, předrenderovat a
-přiřadit jim styly. K dalším funkcím patří vnořené transformace,
-ořezávání objektů podle cest, alpha masking, filtrování obrazu a objekty
-sloužící jako šablony.
+SVG poskytuje tři typy grafických objektů.
+Jsou to tvary vektorové grafiky, například cesty složené z úseček a křivek, obrázky a text.
+Tyto objekty mohou být seskupovány, lze je transformovat, předrenderovat a přiřadit jim styly.
+K dalším funkcím patří vnořené transformace, ořezávání objektů podle cest, alpha masking, filtrování obrazu a objekty sloužící jako šablony.
 
-Výsledné obrázky mohou být interaktivní a dynamické. Animace lze
-definovat a spouštět deklarativně pomocí speciálních SVG elementů nebo
-skriptováním. Skriptovacím jazykům jsou zpřístupněny všechny elementy,
-atributy a vlastnosti přes SVG _Document Object Model_ (DOM). K
-libovolným grafickým objektům lze přiřadit různé ovladače událostí, jako
-onmouseover, onclick.footnote:[Při najetí myši, při kliknutí myši.]
+Výsledné obrázky mohou být interaktivní a dynamické.
+Animace lze definovat a spouštět deklarativně pomocí speciálních SVG elementů nebo skriptováním.
+Skriptovacím jazykům jsou zpřístupněny všechny elementy, atributy a vlastnosti přes SVG _Document Object
+      Model_ (DOM). K libovolným grafickým objektům lze přiřadit různé ovladače událostí, jako onmouseover, onclick.footnote:[Při najetí myši, při kliknutí myši.]
 
-Dále je možné SVG vkládat do jiných XML formátů, k tomu se využívá
-technologie jmenných prostorů (_namespace_). Zajištěna je i
-kompatibilita v tom smyslu, že skriptování lze provádět zároveň
-například na XHTML (_Extensible HyperText Markup Language_) webové
-stránce, do které byly vloženy elementy SVG. Podobně snadné je využití
-kaskádových stylů (_Cascading Style Sheets_, CSS) pro popis vzhledu
-jednotlivých objektů.
+Dále je možné SVG vkládat do jiných XML formátů, k tomu se využívá technologie jmenných prostorů (__namespace__). Zajištěna je i kompatibilita v tom smyslu, že skriptování lze provádět zároveň například na XHTML (__Extensible HyperText Markup
+      Language__) webové stránce, do které byly vloženy elementy SVG.
+Podobně snadné je využití kaskádových stylů (__Cascading Style
+      Sheets__, CSS) pro popis vzhledu jednotlivých objektů.
 
-*Elementy použité ve výstupu aplikace*
+[float]
+==== Elementy použité ve výstupu aplikace
 
-Následuje stručná charakteristika SVG elementů, které využívá aplikace
-pro grafickou prezentaci schématu. U elementů jsou dále uvedeny i
-některé důležité atributy. Vedle nich jsou ještě potřeba běžné atributy:
-id pro jednoznačnou identifikaci elementu v rámci dokumentu a class pro
-zařazení elementu do určité skupiny, které pak lze například přiřadit
-styl. Ukázku konkrétního použití naleznete v příloze
-link:#EXAMPLES-SVG-XML[SVG výstup (XML reprezentace)].
+Následuje stručná charakteristika SVG elementů, které využívá aplikace pro grafickou prezentaci schématu.
+U elementů jsou dále uvedeny i některé důležité atributy.
+Vedle nich jsou ještě potřeba běžné atributy: [property]``id`` pro jednoznačnou identifikaci elementu v rámci dokumentu a [property]``class`` pro zařazení elementu do určité skupiny, které pak lze například přiřadit styl.
+Ukázku konkrétního použití naleznete v příloze <<_examples_svg_xml>>.
 
-==== <svg>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/struct.html#NewDocument]
+==== 
+// <sgmltag>&lt;svg&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/struct.html#NewDocument]
 
-Fragment SVG dokumentu se skládá z libovolného počtu SVG elementů
-obalených tagem <svg>. V našem případě nepůjde o fragment, ale o
-samostatný dokument, jehož kořenovým elementem bude <svg>. Krom
-obvyklých atributů (id, class) zde budou:
+Fragment SVG dokumentu se skládá z libovolného počtu SVG elementů obalených tagem 
+// <sgmltag>&lt;svg&gt;</sgmltag>
+$$.$$
+V našem případě nepůjde o fragment, ale o samostatný dokument, jehož kořenovým elementem bude 
+// <sgmltag>&lt;svg&gt;</sgmltag>
+$$.$$
+Krom obvyklých atributů ([property]``id``, [property]``class``) zde budou:
 
-* xmlns – deklarace jmenných prostorů,
-* onload – spustí skript při nahrání tohoto elementu.
+* [property]``xmlns`` – deklarace jmenných prostorů,
+* [property]``onload`` – spustí skript při nahrání tohoto elementu.
 
-==== <title>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/struct.html#DescriptionAndTitleElements]
 
-Titulek, krátký popisek může být přidán každému kontejneru nebo
-grafickému elementu. Nebude přímo renderován, může být ale zobrazen jako
-_tooltip_. Titulek přidaný <svg> elementu zobrazí prohlížeč v záhlaví
-okna.
+==== 
+// <sgmltag>&lt;title&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/struct.html#DescriptionAndTitleElements]
 
-==== <script>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/script.html#ScriptElement]
+Titulek, krátký popisek může být přidán každému kontejneru nebo grafickému elementu.
+Nebude přímo renderován, může být ale zobrazen jako __tooltip__.
+Titulek přidaný 
+// <sgmltag>&lt;svg&gt;</sgmltag>
+ elementu zobrazí prohlížeč v záhlaví okna.
 
-Slouží pro vložení skriptu, bude zařazen jako dítě <svg> elementu.
-Samotný skript je třeba obalit sekcí <![CDATA[_skript_]]>, aby interpret
-chápal obsah pouze jako text a nehledal v něm značky.
+==== 
+// <sgmltag>&lt;script&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/script.html#ScriptElement]
 
-* Atribut type – určuje skriptovací jazyk, hodnotou je MIME typ, v
-případě ECMAScriptu `text/ecmascript`.
+Slouží pro vložení skriptu, bude zařazen jako dítě 
+// <sgmltag>&lt;svg&gt;</sgmltag>
+ elementu.
+Samotný skript je třeba obalit sekcí 
+// <sgmltag>&lt;![CDATA[</sgmltag>
+_ skript _
+// <sgmltag>]]&gt;</sgmltag>
+, aby interpret chápal obsah pouze jako text a nehledal v něm značky.
 
-==== <defs>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/struct.html#DefsElement]
+* Atribut [property]``type`` – určuje skriptovací jazyk, hodnotou je MIME typ, v případě ECMAScriptu ``text/ecmascript``.
 
-Obsahuje elementy, na které je v dokumentu odkazováno. Obsah může být
-stejný jako u kontejneru <g>, rozdíl spočívá v tom, že grafické objekty
-zde uvedené nebudou přímo renderovány. Do definic ve výstupu aplikace
-zahrneme styl <style> a často využívané symboly <symbol>.
 
-==== <style>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/styling.html#StyleElement]
+==== 
+// <sgmltag>&lt;defs&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/struct.html#DefsElement]
 
-Slouží pro vložení stylu, popisujícího grafickou úpravu objektů a jejich
-skupin. Opět bude vhodné styl obalit sekcí <![CDATA[_styl_]]>.
+Obsahuje elementy, na které je v dokumentu odkazováno.
+Obsah může být stejný jako u kontejneru 
+// <sgmltag>&lt;g&gt;</sgmltag>
+, rozdíl spočívá v tom, že grafické objekty zde uvedené nebudou přímo renderovány.
+Do definic ve výstupu aplikace zahrneme styl 
+// <sgmltag>&lt;style&gt;</sgmltag>
+ a často využívané symboly 
+// <sgmltag>&lt;symbol&gt;</sgmltag>
+$$.$$
 
-* Atribut type – určuje jazyk stylu, hodnotou je MIME typ,footnote:[RFC
-specifikace 2045: _Multipurpose Internet Mail Extensions_.
-http://www.ietf.org/rfc/rfc2045.txt] v případě kaskádového stylu
-`text/css`.
+==== 
+// <sgmltag>&lt;style&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/styling.html#StyleElement]
 
-==== <symbol>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/struct.html#SymbolElement]
+Slouží pro vložení stylu, popisujícího grafickou úpravu objektů a jejich skupin.
+Opět bude vhodné styl obalit sekcí 
+// <sgmltag>&lt;![CDATA[</sgmltag>
+_ styl _
+// <sgmltag>]]&gt;</sgmltag>
+$$.$$
 
-Symbol definuje grafický vzor, který se nerenderuje, dokud není použit v
-SVG dokumentu elementem <use>. Definovat symboly má smysl u často
-používaných objektů. V této aplikaci to budou zatím dva – _plus_ a
-_minus_ pro rozevírání a skrývání podstromu grafických symbolů (boxů).
-Využijeme pouze běžné atributy.
+* Atribut [property]``type`` – určuje jazyk stylu, hodnotou je MIME typ,footnote:[RFC specifikace 2045: Multipurpose Internet Mail Extensions. http://www.ietf.org/rfc/rfc2045.txt] v případě kaskádového stylu ``text/css``.
 
-==== <use>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/struct.html#UseElement]
 
-Odkazuje na jiný element a signalizuje, že jeho grafický obsah má být
-zahrnut a vykreslen v místě, kde je element <use> uveden. Může se jednat
-o grafické elementy, <g>, <svg>, <use> a (v našem případě pouze)
-<symbol>. Kromě obvyklých atributů zde využijeme:
+==== 
+// <sgmltag>&lt;symbol&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/struct.html#SymbolElement]
 
-* x – určuje souřadnici na ose X, kde bude umístěn odkazovaný objekt,
-* y – určuje souřadnici na ose Y, kde bude umístěn odkazovaný objekt,
-* xlink:href – URI odkaz na objekt, realizováno pomocí identifikátoru,
-* onclick – spouští skript při kliknutí na grafický objekt, tím bude
-symbol _plus_ nebo _minus_. Skript provede rozbalení nebo skrytí
-podstromu grafických symbolů (boxů).
+Symbol definuje grafický vzor, který se nerenderuje, dokud není použit v SVG dokumentu elementem 
+// <sgmltag>&lt;use&gt;</sgmltag>
+$$.$$
+Definovat symboly má smysl u často používaných objektů.
+V této aplikaci to budou zatím dva – _plus_ a _minus_ pro rozevírání a skrývání podstromu grafických symbolů (boxů). Využijeme pouze běžné atributy.
 
-==== <g>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/struct.html#Groups]
+==== 
+// <sgmltag>&lt;use&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/struct.html#UseElement]
+
+Odkazuje na jiný element a signalizuje, že jeho grafický obsah má být zahrnut a vykreslen v místě, kde je element 
+// <sgmltag>&lt;use&gt;</sgmltag>
+ uveden.
+Může se jednat o grafické elementy, 
+// <sgmltag>&lt;g&gt;</sgmltag>
+, 
+// <sgmltag>&lt;svg&gt;</sgmltag>
+, 
+// <sgmltag>&lt;use&gt;</sgmltag>
+ a (v našem případě pouze) 
+// <sgmltag>&lt;symbol&gt;</sgmltag>
+$$.$$
+Kromě obvyklých atributů zde využijeme:
+
+* [property]``x`` – určuje souřadnici na ose X, kde bude umístěn odkazovaný objekt,
+* [property]``y`` – určuje souřadnici na ose Y, kde bude umístěn odkazovaný objekt,
+* [property]``xlink:href`` – URI odkaz na objekt, realizováno pomocí identifikátoru,
+* [property]``onclick`` – spouští skript při kliknutí na grafický objekt, tím bude symbol _plus_ nebo __minus__. Skript provede rozbalení nebo skrytí podstromu grafických symbolů (boxů).
+
+
+==== 
+// <sgmltag>&lt;g&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/struct.html#Groups]
 
 Představuje kontejner pro seskupení souvisejících grafických elementů.
-Použijeme ho pro sdružení SVG elementů tvořících konkrétní grafický
-symbol komponenty schématu (box).
+Použijeme ho pro sdružení SVG elementů tvořících konkrétní grafický symbol komponenty schématu (box).
 
-* Atribut transform – pro určení grafické transformace obsahu. Grafiku
-lze posouvat, škálovat, otáčet a zešikmit. My budeme pouze posouvat boxy
-o _x_ jednotek po ose X a o _y_ jednotek po ose Y pomocí transform =
-`translate`(`x`, `y`).
+* Atribut [property]``transform`` – pro určení grafické transformace obsahu. Grafiku lze posouvat, škálovat, otáčet a zešikmit. My budeme pouze posouvat boxy o _x_ jednotek po ose X a o _y_ jednotek po ose Y pomocí [property]``transform`` = ``translate``([parameter]``x``, [parameter]``y``).
 
-==== <text>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/text.html#TextElement]
 
-Definuje textový grafický element. Ten je renderován stejnými metodami
-jako ostatní grafické elementy. Bude sloužit ke zobrazení různých názvů,
-vlastností a popisků v boxech. Budeme potřebovat atributy:
+==== 
+// <sgmltag>&lt;text&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/text.html#TextElement]
 
-* x – reprezentuje absolutní pozici textu, počítanou od prvního znaku,
-na ose X. Také je možné uvést více (_n_) hodnot, které pak reprezentují
-pozice prvních _n_ znaků.
-* y – reprezentuje absolutní pozici textu, počítanou od prvního znaku,
-na ose Y. I zde můžete uvést více hodnot, oddělených mezerou nebo
-čárkou, s významem jako u atributu x.
-* visibility – určuje, jestli bude text viditelný, skrýtý, nebo zdědí
-viditelnost po svém rodiči. Tento atribut bude třeba pro skrývání a
-odkrývání některých popisků symbolů komponent schématu.
+Definuje textový grafický element.
+Ten je renderován stejnými metodami jako ostatní grafické elementy.
+Bude sloužit ke zobrazení různých názvů, vlastností a popisků v boxech.
+Budeme potřebovat atributy:
 
-==== <line>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/shapes.html#LineElement]
+* [property]``x`` – reprezentuje absolutní pozici textu, počítanou od prvního znaku, na ose X. Také je možné uvést více (__n__) hodnot, které pak reprezentují pozice prvních _n_ znaků.
+* [property]``y`` – reprezentuje absolutní pozici textu, počítanou od prvního znaku, na ose Y. I zde můžete uvést více hodnot, oddělených mezerou nebo čárkou, s významem jako u atributu [property]``x``.
+* [property]``visibility`` – určuje, jestli bude text viditelný, skrýtý, nebo zdědí viditelnost po svém rodiči. Tento atribut bude třeba pro skrývání a odkrývání některých popisků symbolů komponent schématu.
 
-Definuje úsečku. Pomocí úseček a křivek budou propojeny jednotlivé
-grafické symboly (boxy), Z úseček budou složeny i další prvky. Použijeme
-atributy:
 
-* x1 – souřadnice začátku úsečky na ose X,
-* y1 – souřadnice začátku úsečky na ose Y,
-* x2 – souřadnice konce úsečky na ose X,
-* y2 – souřadnice konce úsečky na ose Y.
+==== 
+// <sgmltag>&lt;line&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/shapes.html#LineElement]
 
-==== <polyline>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/shapes.html#PolylineElement]
+Definuje úsečku.
+Pomocí úseček a křivek budou propojeny jednotlivé grafické symboly (boxy), Z úseček budou složeny i další prvky.
+Použijeme atributy:
+
+* [property]``x1`` – souřadnice začátku úsečky na ose X,
+* [property]``y1`` – souřadnice začátku úsečky na ose Y,
+* [property]``x2`` – souřadnice konce úsečky na ose X,
+* [property]``y2`` – souřadnice konce úsečky na ose Y.
+
+
+==== 
+// <sgmltag>&lt;polyline&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/shapes.html#PolylineElement]
 
 Definuje množinu propojených úseček, typicky tvoří neuzavřené tvary.
-Element <polyline> použijeme pouze v některých grafických symbolech
-komponent schématu.
+Element 
+// <sgmltag>&lt;polyline&gt;</sgmltag>
+ použijeme pouze v některých grafických symbolech komponent schématu.
 
-* Atribut points – seznam párů souřadnic podle os X a Y, začátky a konce
-úseček, z nichž se skládá tento útvar.
+* Atribut [property]``points`` – seznam párů souřadnic podle os X a Y, začátky a konce úseček, z nichž se skládá tento útvar.
 
-==== <polygon>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/shapes.html#PolygonElement]
+
+==== 
+// <sgmltag>&lt;polygon&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/shapes.html#PolygonElement]
 
 Definuje uzavřený tvar, skládající se z množiny propojených úseček.
-Element <polygon> použijeme pouze v některých grafických symbolech
-komponent schématu.
+Element 
+// <sgmltag>&lt;polygon&gt;</sgmltag>
+ použijeme pouze v některých grafických symbolech komponent schématu.
 
-* Atribut points – seznam párů souřadnic podle os X a Y, tvořících
-polygon.
+* Atribut [property]``points`` – seznam párů souřadnic podle os X a Y, tvořících polygon.
 
-==== <rect>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/shapes.html#RectElement]
 
-Definuje obdélník. Ten poslouží k vykreslení boxů, jejich stínů a
-dalších grafických prvků. Pro klasifikaci použijeme atribut class, dále:
+==== 
+// <sgmltag>&lt;rect&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/shapes.html#RectElement]
 
-* x – souřadnice strany obdélníku podle osy X, té strany, jejíž
-souřadnice má nižší hodnotu v uživatelském souřadnicovém systému
-(většinou jde o levou stranu).
-* y – souřadnice strany obdélníku podle osy Y, strana je určena
-analogicky jako u atributu x, většinou jde o horní stranu.
-* width – šířka obdélníku,
-* height – výška obdélníku,
-* rx – poloměr elipsy, jež tvoří zaoblené rohy obdélníku, podle osy X.
-* onclick – stejný význam jako u elementu <use>, atribut bude nastaven u
-obdélníkových ovládacích tlačítek.
+Definuje obdélník.
+Ten poslouží k vykreslení boxů, jejich stínů a dalších grafických prvků.
+Pro klasifikaci použijeme atribut [property]``class``, dále:
 
-==== <circle>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/shapes.html#CircleElement]
+* [property]``x`` – souřadnice strany obdélníku podle osy X, té strany, jejíž souřadnice má nižší hodnotu v uživatelském souřadnicovém systému (většinou jde o levou stranu).
+* [property]``y`` – souřadnice strany obdélníku podle osy Y, strana je určena analogicky jako u atributu [property]``x``, většinou jde o horní stranu.
+* [property]``width`` – šířka obdélníku,
+* [property]``height`` – výška obdélníku,
+* [property]``rx`` – poloměr elipsy, jež tvoří zaoblené rohy obdélníku, podle osy X.
+* [property]``onclick`` – stejný význam jako u elementu 
++
+// <sgmltag>&lt;use&gt;</sgmltag>
+, atribut bude nastaven u obdélníkových ovládacích tlačítek.
 
-Definuje kružnici, kruh. Ty ve výstupu aplikace poslouží pouze jako
-dodatečné grafické prvky. Použijeme atributy:
 
-* cx – souřadnice středu kruhu na ose X,
-* cy – souřadnice středu kruhu na ose Y,
-* r – poloměr.
+==== 
+// <sgmltag>&lt;circle&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/shapes.html#CircleElement]
 
-==== <path>footnote:[link:#SVG[bibliomixed_title] http://www.w3.org/TR/SVG11/paths.html#PathElement]
+Definuje kružnici, kruh.
+Ty ve výstupu aplikace poslouží pouze jako dodatečné grafické prvky.
+Použijeme atributy:
 
-Reprezentuje obrys tvaru. Může být vyplněn, obtažen nebo sloužit jako
-cesta, podle které budou ořezávány jiné objekty. V této aplikaci bude
-sloužit jako koncová část propojení boxů.
+* [property]``cx`` – souřadnice středu kruhu na ose X,
+* [property]``cy`` – souřadnice středu kruhu na ose Y,
+* [property]``r`` – poloměr.
 
-* Atribut d – definice obrysu tvaru. Obecně je tvořená příkazy _moveto_,
-_lineto_, _curveto_, _arc_ a _closepath_, buď absolutními, nebo
-relativními.footnote:[Přesun kurzoru na zadanou pozici bez kreslení
-čáry; s vykreslením úsečky; s vykreslením podrobněji stanovené křivky; s
-vykreslením oblouku; s vykreslením úsečky vedoucí k počátečnímu bodu
-tak, aby vznikl uzavřený tvar.] K příkazům se dále zadávají páry
-souřadnic podle os X a Y.
+
+==== 
+// <sgmltag>&lt;path&gt;</sgmltag>
+footnote:[http://www.w3.org/TR/SVG11/paths.html#PathElement]
+
+Reprezentuje obrys tvaru.
+Může být vyplněn, obtažen nebo sloužit jako cesta, podle které budou ořezávány jiné objekty.
+V této aplikaci bude sloužit jako koncová část propojení boxů.
+
+* Atribut [property]``d`` – definice obrysu tvaru. Obecně je tvořená příkazy __moveto__, __lineto__, __curveto__, _arc_ a __closepath__, buď absolutními, nebo relativními.footnote:[Přesun kurzoru na zadanou pozici bez kreslení čáry; s vykreslením úsečky; s vykreslením podrobněji stanovené křivky; s vykreslením oblouku; s vykreslením úsečky vedoucí k počátečnímu bodu tak, aby vznikl uzavřený tvar.] K příkazům se dále zadávají páry souřadnic podle os X a Y.
+
 
 === ECMAScript
 
-ECMAScript je skriptovací jazyk, standardizovaný organizací _Ecma
-International_ ve specifikaci _ECMA-262_.footnote:[Ecma International:
-_Standard ECMA-262_. ECMAScript Language Specification 3rd edition
-(December 1999).
-http://www.ecma-international.org/publications/standards/Ecma-262.htm]
-Je široce používán na webu a bývá často označován jako _JavaScript_ nebo
-_JScript_, podle hlavních dialektů tohoto jazyka. Syntaxe se záměrně
-podobá syntaxi _Javy_, ale je uvolněnější, aby se docílilo snazšího
-použití, například není třeba deklarovat typ proměnných. Zároveň však
-tento přístup zvyšuje pravděpodobnost výskytu chyby.
+ECMAScript je skriptovací jazyk, standardizovaný organizací _Ecma International_ ve specifikaci __ECMA-262__.footnote:[Ecma International: Standard ECMA-262.
+          ECMAScript Language Specification 3rd edition (December 1999).
+          http://www.ecma-international.org/publications/standards/Ecma-262.htm] Je široce používán na webu a bývá často označován jako _JavaScript_ nebo __JScript__, podle hlavních dialektů tohoto jazyka.
+Syntaxe se záměrně podobá syntaxi __Javy__, ale je uvolněnější, aby se docílilo snazšího použití, například není třeba deklarovat typ proměnných.
+Zároveň však tento přístup zvyšuje pravděpodobnost výskytu chyby.
 
-ECMAScript je objektově orientovaný programovací jazyk pro provádění
-výpočtů a manipulaci s objekty _v hostitelském prostředí_. Nefunguje
-tedy samostatně, vstup a výstup dat a zpracovávané objekty poskytuje
-jiný, existující systém, jehož možnosti jsou rozšiřovány skriptováním.
-To je podstatou skriptovacích jazyků. _V této aplikaci bude skript
-sloužit k zajištění interaktivity SVG modelu schématu v prostředí
-prohlížeče._ Konkrétnější informace jsou v oddílu
-link:#INTERACTIVITY[Interaktivita modelu].
+ECMAScript je objektově orientovaný programovací jazyk pro provádění výpočtů a manipulaci s objekty __v hostitelském
+      prostředí__.
+Nefunguje tedy samostatně, vstup a výstup dat a zpracovávané objekty poskytuje jiný, existující systém, jehož možnosti jsou rozšiřovány skriptováním.
+To je podstatou skriptovacích jazyků. _V této aplikaci bude skript sloužit k zajištění interaktivity
+      SVG modelu schématu v prostředí prohlížeče._ Konkrétnější informace jsou v oddílu <<_interactivity>>.
 
-ECMAScript byl původně vyvíjen pro web za účelem oživení webových
-stránek a přenesení části výkonu na klienta – prohlížeč – v
-klient-server architektuře. Pokud se jedná o HTML (_HyperText Markup
-Language_) stránku, poskytne prohlížeč objekty reprezentující okna,
-menu, dialogové boxy, textové oblasti, odkazy, rámy a další. Dále
-poskytne způsoby, jak spustit skriptovací kód při událostech, například
-nahrávání stránky, změna velikosti okna, pohyb myši, kliknutí.
+ECMAScript byl původně vyvíjen pro web za účelem oživení webových stránek a přenesení části výkonu na klienta – prohlížeč – v klient-server architektuře.
+Pokud se jedná o HTML (__HyperText
+      Markup Language__) stránku, poskytne prohlížeč objekty reprezentující okna, menu, dialogové boxy, textové oblasti, odkazy, rámy a další.
+Dále poskytne způsoby, jak spustit skriptovací kód při událostech, například nahrávání stránky, změna velikosti okna, pohyb myši, kliknutí.
 
-My však nepotřebujeme speciální prvky jazyka HTML, ale rozhraní k SVG
-nebo obecně XML objektům. Obecné rozhraní je standardizováno v další
-specifikaci konsorcia W3C, nazývá se DOM (_Document Object
-Model_).footnote:[W3C: _Document Object Model (DOM)_.
-http://www.w3.org/DOM/] DOM existuje v několika úrovních – level 1 až 3.
-V této aplikaci by stačila úroveň druhá. Pro programovou manipulaci s
-objekty škálovatelné grafiky vznikl speciální SVG DOM. Ten je součástí
-specifikace SVGfootnote:[link:#SVG[bibliomixed_title] Appendix B: SVG
-Document Object Model (DOM). http://www.w3.org/TR/SVG/svgdom.html] a
-dále rozšiřuje DOM Level 2. SVG DOM bychom mohli dobře využít, ale
-museli bychom se pak potýkat s nekompatibilitou některých prohlížečů.
-Nakonec proto zůstaneme u základního DOM úrovně 2, který je více
-rozšířen. Budeme potřebovat metody a atributy blíže popsané v
-link:#DOM1[bibliomixed_title] a link:#DOM2[bibliomixed_title], jejich
-konkrétní uplatnění je ukázáno na příkladu link:#EXAMPLES-SVG-XML[SVG
-výstup (XML reprezentace)]:
+My však nepotřebujeme speciální prvky jazyka HTML, ale rozhraní k SVG nebo obecně XML objektům.
+Obecné rozhraní je standardizováno v další specifikaci konsorcia W3C, nazývá se DOM (__Document Object
+      Model__).footnote:[W3C: Document Object Model (DOM). http://www.w3.org/DOM/] DOM existuje v několika úrovních – level 1 až 3.
+V této aplikaci by stačila úroveň druhá.
+Pro programovou manipulaci s objekty škálovatelné grafiky vznikl speciální SVG DOM.
+Ten je součástí specifikace SVGfootnote:[Appendix B: SVG Document Object Model
+          (DOM). http://www.w3.org/TR/SVG/svgdom.html] a dále rozšiřuje DOM Level 2.
+SVG DOM bychom mohli dobře využít, ale museli bychom se pak potýkat s nekompatibilitou některých prohlížečů.
+Nakonec proto zůstaneme u základního DOM úrovně 2, který je více rozšířen.
+Budeme potřebovat metody a atributy blíže popsané v <<_dom1>> a <<_dom2>>, jejich konkrétní uplatnění je ukázáno na příkladu <<_examples_svg_xml>>:
 
-* Document: Element getElementById(in DOMString `elementId`); pro
-získání elementu podle jeho identifikátoru, který je uveden v atributu
-id.
-* Document: NodeList getElementsByTagName(in DOMString `tagname`); pro
-získání seznamu uzlů se zadaným jménem tagu.
-* Node: `readonly` `attribute` NodeList childNodes; obsahuje seznam
-všech dětí daného uzlu.
-* Element: DOMString getAttribute(in DOMString `name`); pro získání
-hodnoty atributu se zadaným názvem.
-* Element: `void` setAttribute(in DOMString `name`, in DOMString
-`value`); slouží k nastavení hodnoty atributu s daným názvem nebo k
-vytvoření nového atributu tohoto uzlu se zadaným názvem a hodnotou.
-* Element: DOMString getAttributeNS(in DOMString `namespaceURI`, in
-DOMString `localName`); slouží k získání hodnoty atributu s daným
-lokálním jménem a jmenným prostorem.
-* Element: `void` setAttributeNS(in DOMString `namespaceURI`, in
-DOMString `qualifiedName`, in DOMString `value`); slouží k nastavení
-hodnoty atributu s daným názvem a v daném jmenném prostoru nebo k
-vytvoření nového atributu tohoto uzlu se zadaným názvem a hodnotou, v
-daném jmenném prostoru.
+*
++
+// <interface>Document</interface>
+: 
+// <interface>Element</interface>
+[method]``getElementById``(in 
+// <interface>DOMString</interface>
+[parameter]``elementId``); pro získání elementu podle jeho identifikátoru, který je uveden v atributu [property]``id``.
+*
++
+// <interface>Document</interface>
+: 
+// <interface>NodeList</interface>
+[method]``getElementsByTagName``(in 
+// <interface>DOMString</interface>
+[parameter]``tagname``); pro získání seznamu uzlů se zadaným jménem tagu.
+*
++
+// <interface>Node</interface>
+: `readonly```attribute``
+// <interface>NodeList</interface>
+[property]``childNodes``; obsahuje seznam všech dětí daného uzlu.
+*
++
+// <interface>Element</interface>
+: 
+// <interface>DOMString</interface>
+[method]``getAttribute``(in 
+// <interface>DOMString</interface>
+[parameter]``name``); pro získání hodnoty atributu se zadaným názvem.
+*
++
+// <interface>Element</interface>
+: `void`[method]``setAttribute``(in 
+// <interface>DOMString</interface>
+[parameter]``name``, in 
+// <interface>DOMString</interface>
+[parameter]``value``); slouží k nastavení hodnoty atributu s daným názvem nebo k vytvoření nového atributu tohoto uzlu se zadaným názvem a hodnotou.
+*
++
+// <interface>Element</interface>
+: 
+// <interface>DOMString</interface>
+[method]``getAttributeNS``(in 
+// <interface>DOMString</interface>
+[parameter]``namespaceURI``, in 
+// <interface>DOMString</interface>
+[parameter]``localName``); slouží k získání hodnoty atributu s daným lokálním jménem a jmenným prostorem.
+*
++
+// <interface>Element</interface>
+: `void`[method]``setAttributeNS``(in 
+// <interface>DOMString</interface>
+[parameter]``namespaceURI``, in 
+// <interface>DOMString</interface>
+[parameter]``qualifiedName``, in 
+// <interface>DOMString</interface>
+[parameter]``value``); slouží k nastavení hodnoty atributu s daným názvem a v daném jmenném prostoru nebo k vytvoření nového atributu tohoto uzlu se zadaným názvem a hodnotou, v daném jmenném prostoru.
+
 
 === CSS
 
-CSS, _Cascading Style Sheets_, kaskádové styly jsou opět výsledkem
-aktivity organizace W3C.footnote:[W3C: _Cascading Style Sheets_. Home
-page. http://www.w3.org/Style/CSS/] Specifikace definuje jazyk pro popis
-stylů, který umožňuje tvůrcům i uživatelům připojit styl (například
-fonty a odsazení) strukturovaným dokumentům, jako jsou HTML dokumenty
-a aplikace XML. Lze tak docílit oddělení definice vzhledu dokumentu od
-jeho obsahu a zjednodušit tvorbu webu i jeho správu.
+CSS, __Cascading Style Sheets__, kaskádové styly jsou opět výsledkem aktivity organizace W3C.footnote:[W3C: Cascading Style Sheets. Home page.
+          http://www.w3.org/Style/CSS/] Specifikace definuje jazyk pro popis stylů, který umožňuje tvůrcům i uživatelům připojit styl (například fonty a odsazení) strukturovaným dokumentům, jako jsou HTML dokumenty a aplikace XML.
+Lze tak docílit oddělení definice vzhledu dokumentu od jeho obsahu a zjednodušit tvorbu webu i jeho správu.
 
-Jazyk CSS je navržen tak, aby byl snadno čitelný pro člověka, stylový
-předpis je vyjádřen v terminologii, jež je běžná v DTP. Jednou ze
-základních vlastností je, že styl je _kaskádový_. To znamená, že se na
-sebe může vrstvit více definic stylu, ale platí pouze ta poslední.
-Tvůrce připojí k dokumentu preferovaný styl, ale uživatel ho může
-překrýt svým vlastním, přizpůsobeným lidskému nebo technologickému
-handicapu link:#CSS[bibliomixed_title].
+Jazyk CSS je navržen tak, aby byl snadno čitelný pro člověka, stylový předpis je vyjádřen v terminologii, jež je běžná v DTP.
+Jednou ze základních vlastností je, že styl je __kaskádový__.
+To znamená, že se na sebe může vrstvit více definic stylu, ale platí pouze ta poslední.
+Tvůrce připojí k dokumentu preferovaný styl, ale uživatel ho může překrýt svým vlastním, přizpůsobeným lidskému nebo technologickému handicapu <<_css>>.
 
-Předpis se skládá z jednotlivých _pravidel_. Každé pravidlo pak určuje
-vzhled jednoho nebo více elementů – těch elementů, které jsou vybrány
-_selektorem_, první částí pravidla. Za selektorem následuje seznam
-deklarací uzavřených složenými závorkami, jednotlivé deklarace jsou
-odděleny středníkem. Každá deklarace je tvořena _vlastností_ (následuje
-dvojtečka) a _hodnotou_ vlastnosti. Selektor může vybrat všechny
-elementy s určitým názvem nebo elementy obsahující zadané atributy, může
-je označovat podle toho, kde jsou umístěny vzhledem k jiným elementům a
-vybírat podle _pseudotříd_ (`:hover`) a _pseudoelementů_
-(`:first-line`). Pokud lze aplikovat na určitý element více pravidel,
-použije se to s větší prioritou. Zjednodušeně se jedná o pravidlo s
-konkrétnějším selektorem.
+Předpis se skládá z jednotlivých __pravidel__.
+Každé pravidlo pak určuje vzhled jednoho nebo více elementů – těch elementů, které jsou vybrány __selektorem__, první částí pravidla.
+Za selektorem následuje seznam deklarací uzavřených složenými závorkami, jednotlivé deklarace jsou odděleny středníkem.
+Každá deklarace je tvořena _vlastností_ (následuje dvojtečka) a _hodnotou_ vlastnosti.
+Selektor může vybrat všechny elementy s určitým názvem nebo elementy obsahující zadané atributy, může je označovat podle toho, kde jsou umístěny vzhledem k jiným elementům a vybírat podle _pseudotříd_ (``:hover``) a _pseudoelementů_ (``:first-line``). Pokud lze aplikovat na určitý element více pravidel, použije se to s větší prioritou.
+Zjednodušeně se jedná o pravidlo s konkrétnějším selektorem.
 
-_Kaskádový styl, který použijeme pro SVG výstup této aplikace, umožní
-snadnou dodatečnou manipulaci se vzhledem jednotlivých tříd grafických
-prvků_, blíže v oddílu link:#STYLE[bridgehead_title].
+__Kaskádový styl, který použijeme pro SVG výstup této
+      aplikace, umožní snadnou dodatečnou manipulaci se vzhledem jednotlivých
+      tříd grafických prvků__, blíže v oddílu <<_style>>.
 
 === Java
 
 Java je objektově orientovaný programovací jazyk pro všeobecné použití.
-Byl vyvinut společností _Sun Microsystems_ a po svém představení v roce
-1995 se stal jedním z nejpoužívanějších programovacích jazyků. Od května
-roku 2007 je Java vyvíjena jako open source.
+Byl vyvinut společností _Sun Microsystems_ a po svém představení v roce 1995 se stal jedním z nejpoužívanějších programovacích jazyků.
+Od května roku 2007 je Java vyvíjena jako open source.
 
 Charakteristickou vlastností je přenositelnost na různé platformy.
-Jednou napsaný program lze spustit na libovolném podporovaném operačním
-systému a hardwaru. Napsaný zdrojový kód se předkompiluje do takzvaného
-_bytecode_, který je pro všechny platformy stejný; odlišují se pouze
-virtuální stroje (_Virtual Machine_). Ty bytecode interpretují, případně
-za běhu přeloží do nativního kódu. Program je možné spustit všude, kde
-je odpovídající běhové prostředí (_Java Runtime Environment_).
+Jednou napsaný program lze spustit na libovolném podporovaném operačním systému a hardwaru.
+Napsaný zdrojový kód se předkompiluje do takzvaného __bytecode__, který je pro všechny platformy stejný; odlišují se pouze virtuální stroje (__Virtual
+      Machine__). Ty bytecode interpretují, případně za běhu přeloží do nativního kódu.
+Program je možné spustit všude, kde je odpovídající běhové prostředí (__Java Runtime Environment__).
 
-Záměrem tvůrců Javy podle link:#M254[bibliomixed_title] bylo vytvořit
-jazyk, který by byl:
+Záměrem tvůrců Javy podle <<_m254>> bylo vytvořit jazyk, který by byl:
 
-* _Jednoduchý_: Java staví na několika základních konceptech, které se
-vývojáři snadno naučí.
-* _Podobný zavedeným technologiím_: syntaxe je založena na syntaxi
-populárního jazyka C++, je však snížena jeho složitost.
-* _Objektově orientovaný_: programy pracují s objekty. Definují se třídy
-objektů, které mohou dědit od jiných tříd, mohou implementovat
-připravená rozhraní. Objekty nebo celé třídy poskytují vlastnosti
-(atributy) a metody. Metody je možné překrývat a přetěžovat.
-Implementace je ukrytá; objekty poskytují veřejné rozhraní umožňující
-manipulaci s nimi, jinak jsou zapouzdřené. Jazyk je silně typový.
-* _Robustní_: javové programy jsou před spuštěním striktně kontrolovány,
-jazyk vynechává různé možnosti C a C++, jež bývají náchylné k chybám.
-* _Bezpečný_: Java obsahuje speciální nástroje zajištění bezpečnosti,
-programy běžící přes síť nemohou poškodit soubory v počítači nebo
-obsahovat viry.
-* _Přenositelný_: programy mohou být snadno přesunuty z jedné platformy
-na jinou, a to s minimálními změnami nebo beze změn.
-* _Vysoce výkonný_: javové programy běží dostatečně rychle vzhledem k
-požadovaným účelům.
-* _Interpretovaný_: souvicí s přenositelností, viz výše.
-* _Užívající programová vlákna_: to umožňuje programu vykonávat několik
-úkolů naráz a zvětšit tak výkon.
-* _Dynamický_: programy se mohou přizpůsobovat změnám prostředí i za
-jejich běhu.
+* __Jednoduchý__: Java staví na několika základních konceptech, které se vývojáři snadno naučí.
+* __Podobný zavedeným technologiím__: syntaxe je založena na syntaxi populárního jazyka C++, je však snížena jeho složitost.
+* __Objektově orientovaný__: programy pracují s objekty. Definují se třídy objektů, které mohou dědit od jiných tříd, mohou implementovat připravená rozhraní. Objekty nebo celé třídy poskytují vlastnosti (atributy) a metody. Metody je možné překrývat a přetěžovat. Implementace je ukrytá; objekty poskytují veřejné rozhraní umožňující manipulaci s nimi, jinak jsou zapouzdřené. Jazyk je silně typový.
+* __Robustní__: javové programy jsou před spuštěním striktně kontrolovány, jazyk vynechává různé možnosti C a C++, jež bývají náchylné k chybám.
+* __Bezpečný__: Java obsahuje speciální nástroje zajištění bezpečnosti, programy běžící přes síť nemohou poškodit soubory v počítači nebo obsahovat viry.
+* __Přenositelný__: programy mohou být snadno přesunuty z jedné platformy na jinou, a to s minimálními změnami nebo beze změn.
+* __Vysoce výkonný__: javové programy běží dostatečně rychle vzhledem k požadovaným účelům.
+* __Interpretovaný__: souvicí s přenositelností, viz výše.
+* __Užívající programová vlákna__: to umožňuje programu vykonávat několik úkolů naráz a zvětšit tak výkon.
+* __Dynamický__: programy se mohou přizpůsobovat změnám prostředí i za jejich běhu.
 
-_Javu jsem pro tuto aplikaci zvolil hlavně kvůli přenositelnosti a
-velkému rozšíření, tento jazyk je mi blízký také díky kurzům
-absolvovaným na VŠE._
+_Javu jsem pro tuto aplikaci zvolil hlavně kvůli
+      přenositelnosti a velkému rozšíření, tento jazyk je mi blízký také díky
+      kurzům absolvovaným na VŠE._
 
 == Možnosti načtení a interpretace modelu XML schématu
 
-V předchozí kapitole jsem stručně popsal technologie užité v aplikaci
-pro interaktivní vizualizaci schémat. Teď bude třeba rozhodnout se, jak
-schéma otevřít, načíst ho do paměti, interpretovat a zpracovat. Na XML
-schéma lze nahlížet z několika úrovní:
+V předchozí kapitole jsem stručně popsal technologie užité v aplikaci pro interaktivní vizualizaci schémat.
+Teď bude třeba rozhodnout se, jak schéma otevřít, načíst ho do paměti, interpretovat a zpracovat.
+Na XML schéma lze nahlížet z několika úrovní:
 
-*Obyčejný textový soubor*
+[float]
+=== Obyčejný textový soubor
 
-Pokud bychom schéma chápali pouze jako textový soubor, museli bychom
-naprogramovat kompletní způsob interpretace značkování, aby pak šlo s
-výsledkem pracovat jako s XML dokumentem. Toto naštěstí už dávno řeší
-standardizovaná rozhraní jako SAX (_Simple API for XML_) a DOM
-(_Document Object Model_).
+Pokud bychom schéma chápali pouze jako textový soubor, museli bychom naprogramovat kompletní způsob interpretace značkování, aby pak šlo s výsledkem pracovat jako s XML dokumentem.
+Toto naštěstí už dávno řeší standardizovaná rozhraní jako SAX (__Simple API for
+    XML__) a DOM (__Document Object Model__).
 
-*XML dokument*
+[float]
+=== XML dokument
 
-Dokument by stačilo načítat pomocí SAXu a přitom vyhledávat typické
-struktury tvořené převážně názvy elementů a hodnotami atributů, důležité
-pro interpretaci schématu. Tyto struktury by byly reprezentovány jako
-objekty a jejich vlastnosti, a to buď tak aby tyto objekty vyhovovaly
-svému účelu – chceme pouze vizualizovat schéma –, nebo aby odpovídaly
-specifikaci. Shoda se specifikací zajišťuje kompatibilitu, funkčnost a
-ulehčuje práci v případě změn. Po přečtení souboru je však ještě třeba
-řešit další úlohy, mezi které patří:
+Dokument by stačilo načítat pomocí SAXu a přitom vyhledávat typické struktury tvořené převážně názvy elementů a hodnotami atributů, důležité pro interpretaci schématu.
+Tyto struktury by byly reprezentovány jako objekty a jejich vlastnosti, a to buď tak aby tyto objekty vyhovovaly svému účelu – chceme pouze vizualizovat schéma –, nebo aby odpovídaly specifikaci.
+Shoda se specifikací zajišťuje kompatibilitu, funkčnost a ulehčuje práci v případě změn.
+Po přečtení souboru je však ještě třeba řešit další úlohy, mezi které patří:
 
-* Načtení importovaných, vložených a předefinovávaných schémat a
-zajištění, aby přitom nedošlo k zacyklení.
-* Vložení typů, které jsou podle specifikace zabudované jako součást
-schématu.
-* Musí se řešit redefinice datových typů, skupin elementů a skupin
-atributů.
-* Je třeba poskládat reference na globálně definované typy, primární a
-unikátní klíče, globálně deklarované elementy a atributy, globálně
-definované skupiny elementů a atributů.
+* Načtení importovaných, vložených a předefinovávaných schémat a zajištění, aby přitom nedošlo k zacyklení.
+* Vložení typů, které jsou podle specifikace zabudované jako součást schématu.
+* Musí se řešit redefinice datových typů, skupin elementů a skupin atributů.
+* Je třeba poskládat reference na globálně definované typy, primární a unikátní klíče, globálně deklarované elementy a atributy, globálně definované skupiny elementů a atributů.
 
-I v této oblasti však existují hotové implementace, kterým stačí zadat
-vstupní soubor, nastavit je několika parametry a nechat načíst schéma.
-Některou z nich určitě využijeme (viz link:#XSD-API[Výběr vhodné
-implementace XML schématu]), ušetří to hodně práce. Nakonec tedy budeme
-pracovat s nejvyšší úrovní, s abstraktním datovým modelem.
+I v této oblasti však existují hotové implementace, kterým stačí zadat vstupní soubor, nastavit je několika parametry a nechat načíst schéma.
+Některou z nich určitě využijeme (viz <<_xsd_api>>), ušetří to hodně práce.
+Nakonec tedy budeme pracovat s nejvyšší úrovní, s abstraktním datovým modelem.
 
-*Abstraktní datový model*
+[float]
+=== Abstraktní datový model
 
-S interpretací schématu podle link:#XSD1[bibliomixed_title] získáme
-jednoduchý přístup ke všem komponentám a vlastnostem. Bližší popis
-zpracování je v kapitole link:#XSD-PROCESSING[Zpracování XML schématu].
+S interpretací schématu podle <<_xsd1>> získáme jednoduchý přístup ke všem komponentám a vlastnostem.
+Bližší popis zpracování je v kapitole <<_xsd_processing>>.
 
-[[XSD-API]]
+[[_xsd_api]]
 === Výběr vhodné implementace XML schématu
 
-Nejlepší variantou bude vyhledat přijatelnou open source implementaci
-vyhovující specifikaci a naučit se s ní zacházet. Následuje popis čtyř
-známých otevřených aplikací, které se schématem pracují, a výběr jedné z
-nich.
+Nejlepší variantou bude vyhledat přijatelnou open source implementaci vyhovující specifikaci a naučit se s ní zacházet.
+Následuje popis čtyř známých otevřených aplikací, které se schématem pracují, a výběr jedné z nich.
 
-==== Eclipse: Model Development Tools – XSDfootnote:[Eclipse Modeling: _Model Development Tools (MDT)_. http://www.eclipse.org/modeling/mdt/?project=xsd#xsd]
+==== Eclipse: Model Development Tools – XSDfootnote:[Eclipse Modeling: Model Development Tools(MDT). http://www.eclipse.org/modeling/mdt/?project=xsd#xsd]
 
-_Model Development Tools_ (MDT) tvoří součást projektu organizace
-_Eclipse_, který je zaměřen na rozvoj a propagaci technologií pro vývoj
-založený na modelech – Eclipse Modeling Project. Eclipse poskytuje řadu
-frameworků, nástrojů a implementací technologických standardů. MDT
-konkrétně má nabídnout implementaci standardních metamodelů a ukázkové
-nástroje pro vývoj modelů, postavených na těchto metamodelech. Součástmi
-MDT jsou:
+_Model Development Tools_ (MDT) tvoří součást projektu organizace __Eclipse__, který je zaměřen na rozvoj a propagaci technologií pro vývoj založený na modelech – Eclipse Modeling Project.
+Eclipse poskytuje řadu frameworků, nástrojů a implementací technologických standardů.
+MDT konkrétně má nabídnout implementaci standardních metamodelů a ukázkové nástroje pro vývoj modelů, postavených na těchto metamodelech.
+Součástmi MDT jsou:
 
 * Business Process Model and Notation (BPMN2),
 * Ontology Definition Metamodel (EODM),
@@ -654,98 +589,74 @@ MDT jsou:
 * UML2 Tools,
 * XML Schema Infoset Model (XSD).
 
-_XML Schema Infoset Model_ je knihovna, která poskytuje rozhraní pro
-aplikace, jež prohledávají, tvoří nebo modifikují W3C XML schémata. Pro
-manipulaci s komponentami je možné využít rozhraní popsáné ve
-specifikaci, ale stejně tak lze pracovat s DOM reprezentací schématu.
+_XML Schema Infoset Model_ je knihovna, která poskytuje rozhraní pro aplikace, jež prohledávají, tvoří nebo modifikují W3C XML schémata.
+Pro manipulaci s komponentami je možné využít rozhraní popsáné ve specifikaci, ale stejně tak lze pracovat s DOM reprezentací schématu.
 Při modifikacích se mění obě reprezentace odpovídajícím způsobem.
-Knihovna zahrnuje i služby pro serializaci a deserializaci schémat.
-_Cílem projektu je zcela obsáhnout funkcionalitu reprezentace XML
-schématu_, není ale nutné poskytnout validační služby, obvyklé u
-validujících parserů (Xerces-J).
+Knihovna zahrnuje i služby pro serializaci a deserializaci schémat. __Cílem projektu je zcela obsáhnout
+        funkcionalitu reprezentace XML schématu__, není ale nutné poskytnout validační služby, obvyklé u validujících parserů (Xerces-J).
 
-==== Apache: Xerces2 Java Parser – XML Schemafootnote:[The Apache XML Project: _Xerces2 Java Parser Readme_. http://xerces.apache.org/xerces2-j/xml-schema.html[http://xerces.apache.org/xerces2-j/]]
+==== Apache: Xerces2 Java Parser – XML Schemafootnote:[The Apache XML Project: Xerces2 Java ParserReadme. http://xerces.apache.org/xerces2-j/]
 
-_Xerces2_ je open source XML parser vyvinutý organizací _Apache_, jeho
-výhodou je vysoký výkon a shoda se standardy. Krom jiného zahrnuje
-Xerces Native Interface, framework pro stavbu komponent a konfigurací
-parserů.
+_Xerces2_ je open source XML parser vyvinutý organizací __Apache__, jeho výhodou je vysoký výkon a shoda se standardy.
+Krom jiného zahrnuje Xerces Native Interface, framework pro stavbu komponent a konfigurací parserů.
 
-Xerces dokáže parsovat dokumenty napsané podle doporučení XML 1.1 a
-správně pracuje také se jmennými prostory podle specifikace XML
-Namespaces 1.1. Dále poskytuje kompletní implementaci DOM Level 3 Core,
-Load and Save, implementuje XML Inclusions (jsou to doporučení W3C) a
-poskytuje podporu pro OASIS XML Catalogs v1.1.
+Xerces dokáže parsovat dokumenty napsané podle doporučení XML 1.1 a správně pracuje také se jmennými prostory podle specifikace XML Namespaces 1.1.
+Dále poskytuje kompletní implementaci DOM Level 3 Core, Load and Save, implementuje XML Inclusions (jsou to doporučení W3C) a poskytuje podporu pro OASIS XML Catalogs v1.1.
 
-_Xerces2 je také XML schéma procesor, který až na pár drobných výjimek
-plně vyhovuje specifikaci link:#XSD1[bibliomixed_title] a
-link:#XSD2[bibliomixed_title]_.
+__Xerces2 je také XML schéma procesor, který až na pár
+        drobných výjimek plně vyhovuje specifikaci <<_xsd1>> a <<_xsd2>>__.
 
-==== Saxonica: Saxonfootnote:[_Saxon, The XSLT andXQuery Processor_. http://saxon.sourceforge.net]
+==== Saxonica: Saxonfootnote:[Saxon, The XSLT andXQuery Processor.http://saxon.sourceforge.net]
 
-_Saxon_ je kompletní implementace XSLT 2.0, XQuery 1.0 a XPath 2.0
-doporučení konsorcia W3C. Je zveřejňován společností _Saxonica_, a to
-zároveň pro platformu Java a .NET. Vydává se ve dvou verzích: Saxon-B je
-open source produkt, implementuje XSLT 2.0 a XQuery tak, že vyhovuje
-specifikacím pouze v základní úrovni požadavků. Saxon-SA je produkt
-komerční, umožňuje však aplikovat XSLT a XQuery s využitím schémat. Lze
-tedy importovat schéma a validovat oproti němu vstup nebo výstup a
-vybírat položky podle jejich typu. Saxon-SA obsahuje také samostatný XML
-schéma validátor a další rozšíření oproti produktu Saxon-B.
+_Saxon_ je kompletní implementace XSLT 2.0, XQuery 1.0 a XPath 2.0 doporučení konsorcia W3C.
+Je zveřejňován společností __Saxonica__, a to zároveň pro platformu Java a .NET.
+Vydává se ve dvou verzích: Saxon-B je open source produkt, implementuje XSLT 2.0 a XQuery tak, že vyhovuje specifikacím pouze v základní úrovni požadavků.
+Saxon-SA je produkt komerční, umožňuje však aplikovat XSLT a XQuery s využitím schémat.
+Lze tedy importovat schéma a validovat oproti němu vstup nebo výstup a vybírat položky podle jejich typu.
+Saxon-SA obsahuje také samostatný XML schéma validátor a další rozšíření oproti produktu Saxon-B.
 
-_Bohužel v open source verzi není rozhraní pro přístup ke komponentám
-XML schématu a proto Saxon nemůžeme použít._
+_Bohužel v open source verzi není rozhraní pro přístup
+        ke komponentám XML schématu a proto Saxon nemůžeme
+        použít._
 
-==== ExoLab: Castor – Source Generator XML Schema Supportfootnote:[_The Castor Project_. http://www.castor.org/xmlschema.html]
+==== ExoLab: Castor – Source Generator XML Schema Supportfootnote:[The Castor Project.http://www.castor.org/xmlschema.html]
 
-_Castor_ je open source framework pro Javu, slouží pro data binding,
-převod dat mezi objekty Javy, XML dokumenty a relačními tabulkami.
+_Castor_ je open source framework pro Javu, slouží pro data binding, převod dat mezi objekty Javy, XML dokumenty a relačními tabulkami.
 
-Součástí je mimo jiné i XML Source Code Generator. Ten vytváří javové
-třídy, reprezentující objektový model podle vstupního XML schématu.
-Castor proto podporuje specifikaci W3C XML Schema
-link:#XSD1[bibliomixed_title], link:#XSD2[bibliomixed_title]. Objektový
-model reprezentuje XML schéma v paměti počítače, zatímco generátor
-zdrojového kódu převádí datové typy a struktury schématu do
-odpovídajících typů a struktur Javy. _Objektový model schématu dokáže
-číst i zapisovat dokumenty a manipulovat s nimi. Vyhovuje specifikaci
-bez omezení._ Generátor kódu zatím nenabízí mapování pro všechny
-komponenty.
+Součástí je mimo jiné i XML Source Code Generator.
+Ten vytváří javové třídy, reprezentující objektový model podle vstupního XML schématu.
+Castor proto podporuje specifikaci W3C XML Schema <<_xsd1>>, <<_xsd2>>.
+Objektový model reprezentuje XML schéma v paměti počítače, zatímco generátor zdrojového kódu převádí datové typy a struktury schématu do odpovídajících typů a struktur Javy. _Objektový model
+        schématu dokáže číst i zapisovat dokumenty a manipulovat s nimi.
+        Vyhovuje specifikaci bez omezení._ Generátor kódu zatím nenabízí mapování pro všechny komponenty.
 
 ==== Volba Xerces2
 
-Z popsaných implementací nemůžeme použít Saxon, ostatní se zdají
-rovnocenné a plně vyhovují specifikaci. Nakonec jsem vybral XML schéma
-procesor, který je součástí parseru _Xerces2-J_. Je jednoduchý a
-poskytuje přesně ty možnosti, které budeme potřebovat. Třídy
-reprezentující jednotlivé komponenty obsahují metody pro přístup k
-vlastnostem, jak jsou definovány ve specifikaci. Modifikace vlastností
-není podporována a my bychom ji stejně nevyužili. Snadné je také
-ovládání procesoru, načtení schématu a jeho zpracování, použití je dobře
-dokumentováno. Krom toho je Xerces využíván pro účely vizualizace
-schématu ve známém XML editoru oXygen. Eclipse MDT a Castor by
-posloužili stejně dobře, jejich funkcionalita je však zbytečně široká
-(práce s DOM stromem, tvorba a modifikace schémat).
+Z popsaných implementací nemůžeme použít Saxon, ostatní se zdají rovnocenné a plně vyhovují specifikaci.
+Nakonec jsem vybral XML schéma procesor, který je součástí parseru __Xerces2-J__.
+Je jednoduchý a poskytuje přesně ty možnosti, které budeme potřebovat.
+Třídy reprezentující jednotlivé komponenty obsahují metody pro přístup k vlastnostem, jak jsou definovány ve specifikaci.
+Modifikace vlastností není podporována a my bychom ji stejně nevyužili.
+Snadné je také ovládání procesoru, načtení schématu a jeho zpracování, použití je dobře dokumentováno.
+Krom toho je Xerces využíván pro účely vizualizace schématu ve známém XML editoru oXygen.
+Eclipse MDT a Castor by posloužili stejně dobře, jejich funkcionalita je však zbytečně široká (práce s DOM stromem, tvorba a modifikace schémat).
 
 == Návrh grafického modelu
 
-Předtím, než začnu programovat aplikaci, která bude generovat grafickou
-reprezentaci XML schémat, musím navrhnout, jak by tato reprezentace měla
-vypadat. Budu se muset rozhodnout pro správný typ modelu, navrhnout
-symboly – prvky modelu – a jejich propojení, budu se zabývat
-interaktivitou výsledného modelu. To vše je předmětem této kapitoly.
+Předtím, než začnu programovat aplikaci, která bude generovat grafickou reprezentaci XML schémat, musím navrhnout, jak by tato reprezentace měla vypadat.
+Budu se muset rozhodnout pro správný typ modelu, navrhnout symboly – prvky modelu – a jejich propojení, budu se zabývat interaktivitou výsledného modelu.
+To vše je předmětem této kapitoly.
 
 === Dva typy modelů
 
-Existují dva základní způsoby, jak zobrazit XML schéma. Oba samozřejmě
-vycházejí ze stromové struktury XML dokumentů, liší se ale svou
-podrobností a zamýšleným účelem použití. Rozdíl ukážu na výstupech
-aplikace _oXygen_,footnote:[Oxygen XML editor, oficiální stránky.
-http://www.oxygenxml.com] která nabízí vykreslení obou typů.
+Existují dva základní způsoby, jak zobrazit XML schéma.
+Oba samozřejmě vycházejí ze stromové struktury XML dokumentů, liší se ale svou podrobností a zamýšleným účelem použití.
+Rozdíl ukážu na výstupech aplikace __oXygen__,footnote:[Oxygen XML editor, oficiální stránky. http://www.oxygenxml.com] která nabízí vykreslení obou typů.
 
 Jako příklad poslouží toto jednoduché XML schéma:
 
-....
+[source]
+----
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
@@ -767,437 +678,299 @@ Jako příklad poslouží toto jednoduché XML schéma:
     </xs:complexType>
 
 </xs:schema>
-....
+----
 
 ==== Úplný model
 
-Úplný grafický model kopíruje XML reprezentaci schématu. Pro každý
-element je vykreslen vlastní symbol. Krom toho je možné rozevírat strom
-symbolů dál a podívat se, co se skrývá za odkazy na globálně definované
-komponenty schématu, jako jsou definice typů, globální deklarace
-elementů, jejich skupin, atd.
+Úplný grafický model kopíruje XML reprezentaci schématu.
+Pro každý element je vykreslen vlastní symbol.
+Krom toho je možné rozevírat strom symbolů dál a podívat se, co se skrývá za odkazy na globálně definované komponenty schématu, jako jsou definice typů, globální deklarace elementů, jejich skupin, atd.
 
-Například viz obrázek link:#FULL-MODEL[figure_title]. Za symbolem
-elementu `contact` jsem rozbalil větev s definicí jeho typu
-`ContactType`. Jedná se o sekvenci elementů `phone` a `address`. Dalším
-rozevíráním stromu bych se dostal na definice typů těchto elementů.
+Například viz obrázek <<_full_model>>.
+Za symbolem elementu `contact` jsem rozbalil větev s definicí jeho typu ``ContactType``.
+Jedná se o sekvenci elementů `phone` a ``address``.
+Dalším rozevíráním stromu bych se dostal na definice typů těchto elementů.
 Stejně tak je ale mohu vidět níže jako potomky definice ContactType.
 
-Úplný model je velmi podrobný. Nabízí komponenty, jež je možno použít
-při rozšiřování schématu, ale zatím nejsou aplikovatelné v popisovaném
-dokumentu; ukazuje detailně všechna nastavení a hodnoty, globální
-definice typů, deklarace skupin; uvádí importované a vložené soubory. Je
-tedy určen spíše tvůrcům XML schémat a ne uživatelům.
+Úplný model je velmi podrobný.
+Nabízí komponenty, jež je možno použít při rozšiřování schématu, ale zatím nejsou aplikovatelné v popisovaném dokumentu; ukazuje detailně všechna nastavení a hodnoty, globální definice typů, deklarace skupin; uvádí importované a vložené soubory.
+Je tedy určen spíše tvůrcům XML schémat a ne uživatelům.
 
-image:images/model_full.png[Znázornění schématu úplným modelem]
+.Znázornění schématu úplným modelem
+image::images/model_full.png[]
+
 
 ==== Logický model
 
-Logický grafický model oproti tomu zobrazuje pouze základní informace,
-důležité pro tvůrce XML dokumentů, vyhovujících schématu. Symbolů je
-podstatně méně než v případě úplného modelu. Jde o to, ukázat uživateli
-možnou strukturu elementů a atributů. Reference na globální komponenty
-musí být poskládány stejně jako u úplného modelu, při procházení stromu
-ale není na první pohled patrné, ve které části schématu je prvek
-definován.
+Logický grafický model oproti tomu zobrazuje pouze základní informace, důležité pro tvůrce XML dokumentů, vyhovujících schématu.
+Symbolů je podstatně méně než v případě úplného modelu.
+Jde o to, ukázat uživateli možnou strukturu elementů a atributů.
+Reference na globální komponenty musí být poskládány stejně jako u úplného modelu, při procházení stromu ale není na první pohled patrné, ve které části schématu je prvek definován.
 
-Například viz obrázek link:#LOGICAL-MODEL[figure_title]. Kořenovým
-elementem validních XML dokumentů je `contact`. Uvnitř něj se musí
-objevit sekvence elementů `phone` a `address`. Zatímco `phone` obsahuje
-textový řetězec (_string_), je uvnitř elementu `address` další
-posloupnost, a to elementy `name`, `street` a `city`. Každý z nich je
-typu textový řetězec.
+Například viz obrázek <<_logical_model>>.
+Kořenovým elementem validních XML dokumentů je ``contact``.
+Uvnitř něj se musí objevit sekvence elementů `phone` a ``address``.
+Zatímco `phone` obsahuje textový řetězec (__string__), je uvnitř elementu `address` další posloupnost, a to elementy ``name``, `street` a ``city``.
+Každý z nich je typu textový řetězec.
 
-Logický model je tedy vhodný pro uživatele XML schémat, usnadňuje jim
-pochopení definovaných struktur; ale i tvůrcům umožní rychlejší kontrolu
-jejich práce. Právě logický model bude výstupem mé aplikace, neboť cílem
-je vytvořit dokumentaci schématu, která bude intuitivní a každý se v ní
-rychle vyzná. Dokumentace nebude popisovat XML schéma, ale XML dokumenty
-schématu vyhovující; konkrétně strukturu (kombinování, zanořování)
-elementů, jejich atributy a datové typy. Elementy schématu, které nejsou
-nezbytné pro pochopení účelu, budou z modelu vypuštěny, stejně tak
-komponenty, jež nejsou přímo využity.
+Logický model je tedy vhodný pro uživatele XML schémat, usnadňuje jim pochopení definovaných struktur; ale i tvůrcům umožní rychlejší kontrolu jejich práce.
+Právě logický model bude výstupem mé aplikace, neboť cílem je vytvořit dokumentaci schématu, která bude intuitivní a každý se v ní rychle vyzná.
+Dokumentace nebude popisovat XML schéma, ale XML dokumenty schématu vyhovující; konkrétně strukturu (kombinování, zanořování) elementů, jejich atributy a datové typy.
+Elementy schématu, které nejsou nezbytné pro pochopení účelu, budou z modelu vypuštěny, stejně tak komponenty, jež nejsou přímo využity.
 
-image:images/model_logical.png[Znázornění schématu logickým modelem]
+.Znázornění schématu logickým modelem
+image::images/model_logical.png[]
+
 
 === Model jako stromová struktura abstraktních symbolů
 
-Z uvedených ukázek a z podstaty XML dokumentů plyne, že lze symboly,
-tvořící grafický model, chápat jako uzly stromové struktury. Na základní
-úrovni proto bude existovat abstraktní symbol (`AbstractSymbol`) s
-odkazem na svého rodiče a řazeným seznamem odkazů na své děti.
-`AbstractSymbol` bude poskytovat metody pro získávání a nastavování
-těchto odkazů a dotazování na další informace.
+Z uvedených ukázek a z podstaty XML dokumentů plyne, že lze symboly, tvořící grafický model, chápat jako uzly stromové struktury.
+Na základní úrovni proto bude existovat abstraktní symbol ([class]``AbstractSymbol``) s odkazem na svého rodiče a řazeným seznamem odkazů na své děti. [class]``AbstractSymbol`` bude poskytovat metody pro získávání a nastavování těchto odkazů a dotazování na další informace.
 
-Dále je pro vykreslení každého symbolu třeba znát horizontální
-(`xPosition`) a vertikální pozici (`yPosition`), každý symbol má šířku a
-výšku. `AbstractSymbol` definuje také metody pro nastavení správné šířky
-a výšky a pro vykreslení symbolu. Ty musí být přepsány konkrétním
-symbolem.
+Dále je pro vykreslení každého symbolu třeba znát horizontální ([parameter]``xPosition``) a vertikální pozici ([parameter]``yPosition``), každý symbol má šířku a výšku. [class]``AbstractSymbol`` definuje také metody pro nastavení správné šířky a výšky a pro vykreslení symbolu.
+Ty musí být přepsány konkrétním symbolem.
 
-image:images/abstract_symbols.png[Model abstraktních symbolů]
+.Model abstraktních symbolů
+image::images/abstract_symbols.png[]
+
 
 === Symboly jednotlivých komponent schématu
 
-Konkrétní symbol rozšiřuje vlastnosti abstraktního symbolu
-(`AbstractSymbol`). Povinně přepisuje metody pro nastavení správné šířky
-a výšky a pro vykreslení symbolu. Šířka musí být nastavena s ohledem na
-délku textových řetězců, které se mají vejít do symbolu. Při použití
-proporcionálních písem se toto dá řešit pouze přibližně.
+Konkrétní symbol rozšiřuje vlastnosti abstraktního symbolu ([class]``AbstractSymbol``). Povinně přepisuje metody pro nastavení správné šířky a výšky a pro vykreslení symbolu.
+Šířka musí být nastavena s ohledem na délku textových řetězců, které se mají vejít do symbolu.
+Při použití proporcionálních písem se toto dá řešit pouze přibližně.
 
-Symbol také poskytuje metody pro získávání a nastavování dále popsaných
-parametrů. Pokud nebude některý z parametrů uveden (například proto, že
-zastupuje volitelnou vlastnost), nebude jeho hodnota vypsána nebo jinak
-zpracována.
+Symbol také poskytuje metody pro získávání a nastavování dále popsaných parametrů.
+Pokud nebude některý z parametrů uveden (například proto, že zastupuje volitelnou vlastnost), nebude jeho hodnota vypsána nebo jinak zpracována.
 
-Následuje přehled konkrétních symbolů a jejich vztahů k XML schématu. V
-popisech parametrů vycházím z vlastností a hodnot definovaných ve
-specifikaci link:#XSD1[bibliomixed_title].
+Následuje přehled konkrétních symbolů a jejich vztahů k XML schématu.
+V popisech parametrů vycházím z vlastností a hodnot definovaných ve specifikaci <<_xsd1>>.
 
-[[SYMBOL-SCHEMA]]
+[[_symbol_schema]]
 ==== `schema`
 
-`SymbolSchema` znázorňuje kořenový element schématu.
+[class]``SymbolSchema`` znázorňuje kořenový element schématu.
 
 Pro vykreslení není třeba uvádět žádné parametry.
 
-image:symbols/schema.svg[Symbol `schema`]
+.Symbol `schema`
+image::symbols/schema.svg[]
 
-[[SYMBOL-ELEMENT]]
+
+[[_symbol_element]]
 ==== `element`
 
-`SymbolElement` zobrazuje jméno informačních položek element, jejich typ
-a zařazení ke jmennému prostoru a další vlastnosti dostupné z komponenty
-deklarace elementu (_Element declaration_).
+[class]``SymbolElement`` zobrazuje jméno informačních položek element, jejich typ a zařazení ke jmennému prostoru a další vlastnosti dostupné z komponenty deklarace elementu (__Element declaration__).
 
-* Parametr `name` je textový řetězec, obsahující lokální část jmen
-informačních položek element, jež jsou validovány. Hodnotu poskytne
-deklarace elementu ve vlastnosti name.
-* Parametr `namespace` je řetězec se jmenným prostorem. Ten kvalifikuje
-informační položky element. Cílový jmenný prostor udává deklarace
-elementu ve vlastnosti namespace.
-* Parametr `type` je řetězec, který obsahuje jméno typu informačních
-položek element, pokud je tento typ pojmenovaný; nebo, pokud je typ
-anonymní a zároveň jednoduchý, obsahuje jméno základního typu, ze
-kterého je typ informačních položek element odvozen. Základem je
-vlastnost name definice typu (_Type definition_).
-* Parametr `cardinality` je řetězec, který udává minimální a maximální
-počet výskytů informační položky element. Pokud není uveden, znamená to,
-že hodnoty jsou implicitní (min = max = 1), a řetězec nebude vykreslen.
-Minimální a maximální počet výskytů je dán vlastnostmi částice
-(_Particle_) obsahující tuto deklaraci elementu. Jejich názvy jsou min
-occurs a max occurs.
-* Parametr `nillable` booleovského typu říká, zda mohou mít informační
-položky element prázdný obsah (hodnota `true`), nebo ne (`false`).
-Hodnotu udává deklarace elementu ve vlastnosti nillable.
-* Parametr `abstr` je booleovského typu. Pokud je hodnota nastavena na
-`true`, není tato deklarace sama o sobě použita k validování obsahu
-elementů. Hodnotu udává deklarace elementu ve vlastnosti abstract.
-* Parametr `substitution` je řetězec s názvem substituční skupiny, do
-které tato deklarace patří. Skutečnou hodnotu poskytuje deklarace
-elementu ve vlastnosti substitution group affiliation.
+* Parametr [parameter]``name`` je textový řetězec, obsahující lokální část jmen informačních položek element, jež jsou validovány. Hodnotu poskytne deklarace elementu ve vlastnosti [property]``name``.
+* Parametr [parameter]``namespace`` je řetězec se jmenným prostorem. Ten kvalifikuje informační položky element. Cílový jmenný prostor udává deklarace elementu ve vlastnosti [property]``namespace``.
+* Parametr [parameter]``type`` je řetězec, který obsahuje jméno typu informačních položek element, pokud je tento typ pojmenovaný; nebo, pokud je typ anonymní a zároveň jednoduchý, obsahuje jméno základního typu, ze kterého je typ informačních položek element odvozen. Základem je vlastnost [property]``name`` definice typu (__Type definition__).
+* Parametr [parameter]``cardinality`` je řetězec, který udává minimální a maximální počet výskytů informační položky element. Pokud není uveden, znamená to, že hodnoty jsou implicitní (min = max = 1), a řetězec nebude vykreslen. Minimální a maximální počet výskytů je dán vlastnostmi částice (__Particle__) obsahující tuto deklaraci elementu. Jejich názvy jsou [property]``min occurs`` a [property]``max occurs``.
+* Parametr [parameter]``nillable`` booleovského typu říká, zda mohou mít informační položky element prázdný obsah (hodnota ``true``), nebo ne (``false``). Hodnotu udává deklarace elementu ve vlastnosti [property]``nillable``.
+* Parametr [parameter]``abstr`` je booleovského typu. Pokud je hodnota nastavena na ``true``, není tato deklarace sama o sobě použita k validování obsahu elementů. Hodnotu udává deklarace elementu ve vlastnosti [property]``abstract``.
+* Parametr [parameter]``substitution`` je řetězec s názvem substituční skupiny, do které tato deklarace patří. Skutečnou hodnotu poskytuje deklarace elementu ve vlastnosti [property]``substitution group affiliation``.
 
-Do symbolu bude nutné vtěsnat hodně informací a přitom nezaplnit velkou
-plochu. Proto budou poslední tři vlastnosti zobrazeny teprve při najetí
-myši místo vlastností namespace a type.
+Do symbolu bude nutné vtěsnat hodně informací a přitom nezaplnit velkou plochu.
+Proto budou poslední tři vlastnosti zobrazeny teprve při najetí myši místo vlastností [property]``namespace`` a [property]``type``.
 
-image:symbols/element.svg[Symbol `element` (normální režim; při najetí
-myši)]
+.Symbol `element` (normální režim; při najetímyši)
+image::symbols/element.svg[]
 
-image:symbols/element2.svg[Symbol `element` (normální režim; při najetí
-myši)]
 
-[[SYMBOL-ATTRIBUTE]]
+[[_symbol_attribute]]
 ==== `attribute`
 
-`SymbolAttribute` zobrazuje jméno informační položky atribut, její typ a
-zařazení ke jmennému prostoru a další vlastnosti dostupné z komponent
-užití atributu (_Attribute use_) a deklarace atributu (_Attribute
-declaration_).
+[class]``SymbolAttribute`` zobrazuje jméno informační položky atribut, její typ a zařazení ke jmennému prostoru a další vlastnosti dostupné z komponent užití atributu (__Attribute use__) a deklarace atributu (__Attribute declaration__).
 
-* Parametr `name` je textový řetězec, obsahující lokální část jména
-informační položky atribut, jež je validována. Hodnotu poskytne
-deklarace atributu ve vlastnosti name.
-* Parametr `namespace` je řetězec se jmenným prostorem. Ten kvalifikuje
-informační položky atribut. Cílový jmenný prostor udává deklarace
-atributu svou vlastností namespace.
-* Parametr `type` je řetězec, který obsahuje jméno typu informační
-položky atribut, pokud je tento typ pojmenovaný; nebo, pokud je typ
-anonymní, obsahuje jméno základního typu, ze kterého je typ informační
-položky atribut odvozen. Základem je vlastnost name definice
-jednoduchého typu (_Simple type definition_).
-* Parametr `required` booleovského typu říká, zda musí být přítomna
-odpovídající informační položka atribut (hodnota `true`), nebo zda je
-volitelná (`false`). Kromě vypsání odpovídajícího řetězce bude volitelný
-atribut ohraničen přerušovanou čárou, zatímco povinný atribut plnou.
-Parametr má stejnou hodnotu jako vlastnost užití atributu s názvem
-required.
-* Parametr `constraint` je textový řetězec, který specifikuje omezení
-pro hodnotu informační položky atribut (fixní nebo defaultní hodnota).
-Řetězec je vytvořen z vlastnosti value constraint. Tu poskytuje
-komponenta užití atributu nebo deklarace atributu.
+* Parametr [parameter]``name`` je textový řetězec, obsahující lokální část jména informační položky atribut, jež je validována. Hodnotu poskytne deklarace atributu ve vlastnosti [property]``name``.
+* Parametr [parameter]``namespace`` je řetězec se jmenným prostorem. Ten kvalifikuje informační položky atribut. Cílový jmenný prostor udává deklarace atributu svou vlastností [property]``namespace``.
+* Parametr [parameter]``type`` je řetězec, který obsahuje jméno typu informační položky atribut, pokud je tento typ pojmenovaný; nebo, pokud je typ anonymní, obsahuje jméno základního typu, ze kterého je typ informační položky atribut odvozen. Základem je vlastnost [property]``name`` definice jednoduchého typu (__Simple type definition__).
+* Parametr [parameter]``required`` booleovského typu říká, zda musí být přítomna odpovídající informační položka atribut (hodnota ``true``), nebo zda je volitelná (``false``). Kromě vypsání odpovídajícího řetězce bude volitelný atribut ohraničen přerušovanou čárou, zatímco povinný atribut plnou. Parametr má stejnou hodnotu jako vlastnost užití atributu s názvem [property]``required``.
+* Parametr [parameter]``constraint`` je textový řetězec, který specifikuje omezení pro hodnotu informační položky atribut (fixní nebo defaultní hodnota). Řetězec je vytvořen z vlastnosti [property]``value constraint``. Tu poskytuje komponenta užití atributu nebo deklarace atributu.
 
-Hodnoty posledních dvou parametrů se zobrazí teprve po najetí myši na
-symbol `attribute`.
+Hodnoty posledních dvou parametrů se zobrazí teprve po najetí myši na symbol ``attribute``.
 
-image:symbols/attribute_optional.svg[Symbol `attribute` (volitelný
-atribut v normálním režimu; a po najetí myši; povinný atribut v
-normálním režimu)]
+.Symbol `attribute` (volitelný atribut vnormálním režimu; a po najetí myši; povinný atribut v normálnímrežimu)
+image::symbols/attribute_optional.svg[]
 
-image:symbols/attribute_optional2.svg[Symbol `attribute` (volitelný
-atribut v normálním režimu; a po najetí myši; povinný atribut v
-normálním režimu)]
 
-image:symbols/attribute_required.svg[Symbol `attribute` (volitelný
-atribut v normálním režimu; a po najetí myši; povinný atribut v
-normálním režimu)]
-
-[[SYMBOL-ANY]]
+[[_symbol_any]]
 ==== `any`
 
-`SymbolAny` představuje divokou kartu (_Wildcard_) pro elementy. Na
-jejím místě mohou být informační položky element s libovolným lokálním
-jménem, které ale musí vyhovět omezením kladeným na jejich jmenný
-prostor.
+[class]``SymbolAny`` představuje divokou kartu (__Wildcard__) pro elementy.
+Na jejím místě mohou být informační položky element s libovolným lokálním jménem, které ale musí vyhovět omezením kladeným na jejich jmenný prostor.
 
-* Parametr `namespace` je textový řetězec, představující omezení kladené
-na jmenný prostor informačních položek element. Řetězec je utvořen z
-vlastnosti namespace constraint komponenty divoká karta.
-* Parametr `processContents` je celé číslo, které slouží k rozlišení
-způsobů zpracování informačních položek element. Hodnota vychází z
-vlastnosti process contents divoké karty a závisí na ní vyobrazení
-symbolu. Parametr nabývá hodnot:
-** `3` – způsob zpracování `lax`. Pokud existuje unikátní deklarace
-položky, musí položka této deklaraci vyhovovat.
-** `2` – odpovídá způsobu zpracování `skip`. Nevzniká žádné omezení,
-položka musí být pouze dobře strukturované XML.
-** `1` (a ostatní přípustné hodnoty) – způsob zpracování `strict`.
-Informační položka musí mít přiřazen xsi:type, nebo musí být k dispozici
-její deklarace, oproti které je prováděna validace.
-* Parametr `cardinality` je řetězec, který udává minimální a maximální
-počet výskytů informační položky element. Pokud není uveden, znamená to,
-že hodnoty jsou implicitní (min = max = 1), a řetězec nebude vykreslen.
-Minimální a maximální počet výskytů je dán vlastnostmi částice
-(_Particle_) obsahující tuto divokou kartu. Jejich názvy jsou min occurs
-a max occurs.
+* Parametr [parameter]``namespace`` je textový řetězec, představující omezení kladené na jmenný prostor informačních položek element. Řetězec je utvořen z vlastnosti [property]``namespace constraint`` komponenty divoká karta.
+* Parametr [parameter]``processContents`` je celé číslo, které slouží k rozlišení způsobů zpracování informačních položek element. Hodnota vychází z vlastnosti [property]``process contents`` divoké karty a závisí na ní vyobrazení symbolu. Parametr nabývá hodnot:
++
+** [constant]``3`` – způsob zpracování ``lax``. Pokud existuje unikátní deklarace položky, musí položka této deklaraci vyhovovat.
+** [constant]``2`` – odpovídá způsobu zpracování ``skip``. Nevzniká žádné omezení, položka musí být pouze dobře strukturované XML.
+** [constant]``1`` (a ostatní přípustné hodnoty) – způsob zpracování ``strict``. Informační položka musí mít přiřazen xsi:type, nebo musí být k dispozici její deklarace, oproti které je prováděna validace.
+* Parametr [parameter]``cardinality`` je řetězec, který udává minimální a maximální počet výskytů informační položky element. Pokud není uveden, znamená to, že hodnoty jsou implicitní (min = max = 1), a řetězec nebude vykreslen. Minimální a maximální počet výskytů je dán vlastnostmi částice (__Particle__) obsahující tuto divokou kartu. Jejich názvy jsou [property]``min occurs`` a [property]``max occurs``.
 
-image:symbols/any_strict.svg[Symbol `any` (způsob zpracování `strict`;
-způsob zpracování `skip`; způsob zpracování `lax`)]
 
-image:symbols/any_skip.svg[Symbol `any` (způsob zpracování `strict`;
-způsob zpracování `skip`; způsob zpracování `lax`)]
+.Symbol `any` (způsob zpracování ``strict``; způsob zpracování ``skip``; způsob zpracování ``lax``)
+image::symbols/any_strict.svg[]
 
-image:symbols/any_lax.svg[Symbol `any` (způsob zpracování `strict`;
-způsob zpracování `skip`; způsob zpracování `lax`)]
 
-[[SYMBOL-ANY-ATTRIBUTE]]
+[[_symbol_any_attribute]]
 ==== `anyAttribute`
 
-`SymbolAnyAttribute` představuje divokou kartu (_Wildcard_) pro
-atributy. Na jejím místě mohou být informační položky atribut s
-libovolným lokálním jménem, které ale musí vyhovět omezením kladeným na
-jejich jmenný prostor.
+[class]``SymbolAnyAttribute`` představuje divokou kartu (__Wildcard__) pro atributy.
+Na jejím místě mohou být informační položky atribut s libovolným lokálním jménem, které ale musí vyhovět omezením kladeným na jejich jmenný prostor.
 
-* Parametr `namespace` je textový řetězec, představující omezení kladené
-na jmenný prostor informačních položek atribut. Řetězec je utvořen z
-vlastnosti namespace constraint komponenty divoká karta.
-* Parametr `processContents` je celé číslo, které slouží k rozlišení
-způsobů zpracování informačních položek atribut. Hodnota vychází z
-vlastnosti process contents divoké karty a závisí na ní vyobrazení
-symbolu. Parametr nabývá hodnot:
-** `3` – způsob zpracování `lax`. Pokud existuje unikátní deklarace
-položky, musí položka této deklaraci odpovídat.
-** `2` – odpovídá způsobu zpracování `skip`. Nevzniká žádné omezení,
-položka musí být pouze dobře strukturované XML.
-** `1` (a ostatní přípustné hodnoty) – způsob zpracování `strict`.
-Informační položka musí mít přiřazen xsi:type, nebo musí být k dispozici
-její deklarace, oproti které je prováděna validace.
+* Parametr [parameter]``namespace`` je textový řetězec, představující omezení kladené na jmenný prostor informačních položek atribut. Řetězec je utvořen z vlastnosti [property]``namespace constraint`` komponenty divoká karta.
+* Parametr [parameter]``processContents`` je celé číslo, které slouží k rozlišení způsobů zpracování informačních položek atribut. Hodnota vychází z vlastnosti [property]``process contents`` divoké karty a závisí na ní vyobrazení symbolu. Parametr nabývá hodnot:
++
+** [constant]``3`` – způsob zpracování ``lax``. Pokud existuje unikátní deklarace položky, musí položka této deklaraci odpovídat.
+** [constant]``2`` – odpovídá způsobu zpracování ``skip``. Nevzniká žádné omezení, položka musí být pouze dobře strukturované XML.
+** [constant]``1`` (a ostatní přípustné hodnoty) – způsob zpracování ``strict``. Informační položka musí mít přiřazen xsi:type, nebo musí být k dispozici její deklarace, oproti které je prováděna validace.
 
-image:symbols/any_attribute_strict.svg[Symbol `anyAttribute` (způsob
-zpracování `strict`; způsob zpracování `skip`; způsob zpracování `lax`)]
 
-image:symbols/any_attribute_skip.svg[Symbol `anyAttribute` (způsob
-zpracování `strict`; způsob zpracování `skip`; způsob zpracování `lax`)]
+.Symbol `anyAttribute` (způsob zpracování ``strict``; způsob zpracování ``skip``; způsob zpracování ``lax``)
+image::symbols/any_attribute_strict.svg[]
 
-image:symbols/any_attribute_lax.svg[Symbol `anyAttribute` (způsob
-zpracování `strict`; způsob zpracování `skip`; způsob zpracování `lax`)]
 
-[[SYMBOL-ALL]]
+[[_symbol_all]]
 ==== `all`
 
-`SymbolAll` znázorňuje kompozitor `all` modelové skupiny (_Model
-group_). Ten říká, že se děti informační položky element, definované v
-modelové skupině jako particles, mohou vyskytovat v libovolném pořadí.
+[class]``SymbolAll`` znázorňuje kompozitor `all` modelové skupiny (__Model
+        group__). Ten říká, že se děti informační položky element, definované v modelové skupině jako [property]``particles``, mohou vyskytovat v libovolném pořadí.
 
-* Parametr `cardinality` je řetězec, který udává minimální a maximální
-počet výskytů dětí informační položky element. Pokud není uveden,
-znamená to, že hodnoty jsou implicitní (min = max = 1), a řetězec nebude
-vykreslen. Minimální a maximální počet výskytů je dán vlastnostmi
-částice (_Particle_) obsahující tuto modelovou skupinu. Jejich názvy
-jsou min occurs a max occurs.
+* Parametr [parameter]``cardinality`` je řetězec, který udává minimální a maximální počet výskytů dětí informační položky element. Pokud není uveden, znamená to, že hodnoty jsou implicitní (min = max = 1), a řetězec nebude vykreslen. Minimální a maximální počet výskytů je dán vlastnostmi částice (__Particle__) obsahující tuto modelovou skupinu. Jejich názvy jsou [property]``min occurs`` a [property]``max occurs``.
 
-image:symbols/all.svg[Symbol `all`]
 
-[[SYMBOL-CHOICE]]
+.Symbol `all`
+image::symbols/all.svg[]
+
+
+[[_symbol_choice]]
 ==== `choice`
 
-`SymbolChoice` znázorňuje kompozitor `choice` modelové skupiny (_Model
-group_). Pouze jedna z částic (_Particle_), definovaných v modelové
-skupině jako particles, se může v XML dokumentu objevit jako dítě
-informační položky element.
+[class]``SymbolChoice`` znázorňuje kompozitor `choice` modelové skupiny (__Model
+        group__). Pouze jedna z částic (__Particle__), definovaných v modelové skupině jako [property]``particles``, se může v XML dokumentu objevit jako dítě informační položky element.
 
-* Parametr `cardinality` je řetězec, který udává minimální a maximální
-počet výskytů dětí informační položky element. Pokud není uveden,
-znamená to, že hodnoty jsou implicitní (min = max = 1), a řetězec nebude
-vykreslen. Minimální a maximální počet výskytů je dán vlastnostmi
-částice (_Particle_) obsahující tuto modelovou skupinu. Jejich názvy
-jsou min occurs a max occurs.
+* Parametr [parameter]``cardinality`` je řetězec, který udává minimální a maximální počet výskytů dětí informační položky element. Pokud není uveden, znamená to, že hodnoty jsou implicitní (min = max = 1), a řetězec nebude vykreslen. Minimální a maximální počet výskytů je dán vlastnostmi částice (__Particle__) obsahující tuto modelovou skupinu. Jejich názvy jsou [property]``min occurs`` a [property]``max occurs``.
 
-image:symbols/choice.svg[Symbol `choice`]
 
-[[SYMBOL-SEQUENCE]]
+.Symbol `choice`
+image::symbols/choice.svg[]
+
+
+[[_symbol_sequence]]
 ==== `sequence`
 
-`SymbolSequence` znázorňuje kompozitor `sequence` modelové skupiny
-(_Model group_). Každá z částic (_Particle_), definovaných v modelové
-skupině jako particles, se může objevit v XML dokumentu jako dítě
-informační položky element, a to ve specifikovaném pořadí.
+[class]``SymbolSequence`` znázorňuje kompozitor `sequence` modelové skupiny (__Model
+        group__). Každá z částic (__Particle__), definovaných v modelové skupině jako [property]``particles``, se může objevit v XML dokumentu jako dítě informační položky element, a to ve specifikovaném pořadí.
 
-* Parametr `cardinality` je řetězec, který udává minimální a maximální
-počet výskytů dětí informační položky element. Pokud není uveden,
-znamená to, že hodnoty jsou implicitní (min = max = 1), a řetězec nebude
-vykreslen. Minimální a maximální počet výskytů je dán vlastnostmi
-částice (_Particle_) obsahující tuto modelovou skupinu. Jejich názvy
-jsou min occurs a max occurs.
+* Parametr [parameter]``cardinality`` je řetězec, který udává minimální a maximální počet výskytů dětí informační položky element. Pokud není uveden, znamená to, že hodnoty jsou implicitní (min = max = 1), a řetězec nebude vykreslen. Minimální a maximální počet výskytů je dán vlastnostmi částice (__Particle__) obsahující tuto modelovou skupinu. Jejich názvy jsou [property]``min occurs`` a [property]``max occurs``.
 
-image:symbols/sequence.svg[Symbol `sequence`]
 
-[[SYMBOL-UNIQUE]]
+.Symbol `sequence`
+image::symbols/sequence.svg[]
+
+
+[[_symbol_unique]]
 ==== `unique`
 
-`SymbolUnique` znázorňuje část definice identitního omezení
-(_Identity-constraint definition_), konkrétně jméno a jmenný prostor
-kategorie `unique`. Ta zajišťuje jedinečnost hodnot v rámci obsahu
-vymezeného selektorem link:#SYMBOL-SELECTOR[], které jsou výsledkem
-vyhodnocení XPath výrazů uvedených v polích link:#SYMBOL-FIELD[].
+[class]``SymbolUnique`` znázorňuje část definice identitního omezení (__Identity-constraint
+        definition__), konkrétně jméno a jmenný prostor kategorie ``unique``.
+Ta zajišťuje jedinečnost hodnot v rámci obsahu vymezeného selektorem <<_symbol_selector>>, které jsou výsledkem vyhodnocení XPath výrazů uvedených v polích <<_symbol_field>>.
 
-* Parametr `name` je textový řetězec, obsahující jméno definice
-identitního omezení. Hodnotu poskytne tato definice ve vlastnosti name.
-* Parametr `namespace` je řetězec se jmenným prostorem. Ten kvalifikuje
-definici identitního omezení. Jmenný prostor udává definice svou
-vlastností namespace. Dvojice jméno a jmenný prostor identifikuje
-definici identitního omezení, a proto musí být v rámci XML schématu
-unikátní.
+* Parametr [parameter]``name`` je textový řetězec, obsahující jméno definice identitního omezení. Hodnotu poskytne tato definice ve vlastnosti [property]``name``.
+* Parametr [parameter]``namespace`` je řetězec se jmenným prostorem. Ten kvalifikuje definici identitního omezení. Jmenný prostor udává definice svou vlastností [property]``namespace``. Dvojice jméno a jmenný prostor identifikuje definici identitního omezení, a proto musí být v rámci XML schématu unikátní.
 
-image:symbols/unique.svg[Symbol `unique`]
 
-[[SYMBOL-KEY]]
+.Symbol `unique`
+image::symbols/unique.svg[]
+
+
+[[_symbol_key]]
 ==== `key`
 
-`SymbolKey` znázorňuje část definice identitního omezení
-(_Identity-constraint definition_), konkrétně jméno a jmenný prostor
-kategorie `key`. Ta zajišťuje jedinečnost a přítomnost hodnot v rámci
-obsahu vymezeného selektorem link:#SYMBOL-SELECTOR[], které jsou
-výsledkem vyhodnocení XPath výrazů uvedených v polích
-link:#SYMBOL-FIELD[].
+[class]``SymbolKey`` znázorňuje část definice identitního omezení (__Identity-constraint
+        definition__), konkrétně jméno a jmenný prostor kategorie ``key``.
+Ta zajišťuje jedinečnost a přítomnost hodnot v rámci obsahu vymezeného selektorem <<_symbol_selector>>, které jsou výsledkem vyhodnocení XPath výrazů uvedených v polích <<_symbol_field>>.
 
-* Parametr `name` je textový řetězec, obsahující jméno definice
-identitního omezení. Hodnotu poskytne tato definice ve vlastnosti name.
-* Parametr `namespace` je řetězec se jmenným prostorem. Ten kvalifikuje
-definici identitního omezení. Jmenný prostor udává definice svou
-vlastností namespace. Dvojice jméno a jmenný prostor identifikuje
-definici identitního omezení, a proto musí být v rámci XML schématu
-unikátní.
+* Parametr [parameter]``name`` je textový řetězec, obsahující jméno definice identitního omezení. Hodnotu poskytne tato definice ve vlastnosti [property]``name``.
+* Parametr [parameter]``namespace`` je řetězec se jmenným prostorem. Ten kvalifikuje definici identitního omezení. Jmenný prostor udává definice svou vlastností [property]``namespace``. Dvojice jméno a jmenný prostor identifikuje definici identitního omezení, a proto musí být v rámci XML schématu unikátní.
 
-image:symbols/key.svg[Symbol `key`]
 
-[[SYMBOL-KEYREF]]
+.Symbol `key`
+image::symbols/key.svg[]
+
+
+[[_symbol_keyref]]
 ==== `keyref`
 
-`SymbolKeyref` znázorňuje část definice identitního omezení
-(_Identity-constraint definition_), konkrétně jméno a jmenný prostor
-kategorie `keyref`. Ta zajišťuje, že hodnoty, které jsou výsledkem
-vyhodnocení XPath výrazů uvedených v polích link:#SYMBOL-FIELD[], budou
-odpovídat hodnotám, jež specifikuje vlastnost referenced key definice
-identitního omezení. Tato podmínka se vyhodnocuje v rámci obsahu
-určeného selektorem link:#SYMBOL-SELECTOR[].
+[class]``SymbolKeyref`` znázorňuje část definice identitního omezení (__Identity-constraint
+        definition__), konkrétně jméno a jmenný prostor kategorie ``keyref``.
+Ta zajišťuje, že hodnoty, které jsou výsledkem vyhodnocení XPath výrazů uvedených v polích <<_symbol_field>>, budou odpovídat hodnotám, jež specifikuje vlastnost [property]``referenced key`` definice identitního omezení.
+Tato podmínka se vyhodnocuje v rámci obsahu určeného selektorem <<_symbol_selector>>.
 
-* Parametr `name` je textový řetězec, obsahující jméno definice
-identitního omezení. Hodnotu poskytne tato definice ve vlastnosti name.
-* Parametr `namespace` je řetězec se jmenným prostorem. Ten kvalifikuje
-definici identitního omezení. Jmenný prostor udává definice svou
-vlastností namespace. Dvojice jméno a jmenný prostor identifikuje
-definici identitního omezení, a proto musí být v rámci XML schématu
-unikátní.
-* Parametr `refer` je řetězec, který slouží jako odkaz na jinou definici
-identitního omezení kategorie `key` nebo `unique`. Hodnotu poskytne tato
-definice ve vlastnosti referenced key.
+* Parametr [parameter]``name`` je textový řetězec, obsahující jméno definice identitního omezení. Hodnotu poskytne tato definice ve vlastnosti [property]``name``.
+* Parametr [parameter]``namespace`` je řetězec se jmenným prostorem. Ten kvalifikuje definici identitního omezení. Jmenný prostor udává definice svou vlastností [property]``namespace``. Dvojice jméno a jmenný prostor identifikuje definici identitního omezení, a proto musí být v rámci XML schématu unikátní.
+* Parametr [parameter]``refer`` je řetězec, který slouží jako odkaz na jinou definici identitního omezení kategorie `key` nebo ``unique``. Hodnotu poskytne tato definice ve vlastnosti [property]``referenced key``.
 
-image:symbols/keyref.svg[Symbol `keyref`]
 
-[[SYMBOL-SELECTOR]]
+.Symbol `keyref`
+image::symbols/keyref.svg[]
+
+
+[[_symbol_selector]]
 ==== `selector`
 
-`SymbolSelector` slouží ke zobrazení vlastnosti selector definice
-identitního omezení (_Identity-constraint definition_).
+[class]``SymbolSelector`` slouží ke zobrazení vlastnosti [property]``selector`` definice identitního omezení (__Identity-constraint definition__).
 
-* Parametr `xpath` je textový řetězec. Specifikuje omezený XPath výraz,
-relativní k instanci deklarovaného elementu. Výraz musí identifikovat
-množinu uzlů – podřízených elementů, na které se vztahuje omezení.
-Hodnota parametru se získá z vlastnosti selector definice identitního
-omezení.
+* Parametr [parameter]``xpath`` je textový řetězec. Specifikuje omezený XPath výraz, relativní k instanci deklarovaného elementu. Výraz musí identifikovat množinu uzlů – podřízených elementů, na které se vztahuje omezení. Hodnota parametru se získá z vlastnosti [property]``selector`` definice identitního omezení.
 
-image:symbols/selector.svg[Symbol `selector`]
 
-[[SYMBOL-FIELD]]
+.Symbol `selector`
+image::symbols/selector.svg[]
+
+
+[[_symbol_field]]
 ==== `field`
 
-`SymbolField` slouží ke zobrazení jednoho prvku ze seznamu – vlastnosti
-fields definice identitního omezení (_Identity-constraint definition_).
+[class]``SymbolField`` slouží ke zobrazení jednoho prvku ze seznamu – vlastnosti [property]``fields`` definice identitního omezení (__Identity-constraint
+        definition__).
 
-* Parametr `xpath` je textový řetězec. Specifikuje omezený XPath výraz,
-relativní ke každému elementu, který je vybrán selektorem
-link:#SYMBOL-SELECTOR[]. Výraz musí identifikovat konkrétní uzel
-(element nebo atribut), jehož obsah nebo hodnota musí být jednoduchého
-typu a je použita v omezení. Hodnota parametru se získá z vlastnosti
-fields definice identitního omezení.
+* Parametr [parameter]``xpath`` je textový řetězec. Specifikuje omezený XPath výraz, relativní ke každému elementu, který je vybrán selektorem <<_symbol_selector>>. Výraz musí identifikovat konkrétní uzel (element nebo atribut), jehož obsah nebo hodnota musí být jednoduchého typu a je použita v omezení. Hodnota parametru se získá z vlastnosti [property]``fields`` definice identitního omezení.
 
-image:symbols/field.svg[Symbol `field`]
 
-[[SYMBOL-LOOP]]
+.Symbol `field`
+image::symbols/field.svg[]
+
+
+[[_symbol_loop]]
 ==== smyčka
 
-`SymbolLoop` je pomocný symbol, který nepatří do XML schématu. Vykreslí
-se, pokud by mělo dojít k zacyklení. Deklarace elementu totiž může
-nepřímo obsahovat samu sebe, a to za splnění těchto podmínek:
+[class]``SymbolLoop`` je pomocný symbol, který nepatří do XML schématu.
+Vykreslí se, pokud by mělo dojít k zacyklení.
+Deklarace elementu totiž může nepřímo obsahovat samu sebe, a to za splnění těchto podmínek:
 
-[arabic]
 . Deklarace elementu je komplexního typu.
-. Komplexní typ (1) obsahuje částici (_Particle_).
-. Termínem (term) částice (2) je modelová skupina (_ModelGroup_) – vždy
-složená z dalších částic.
-. Termínem alespoň jedné z částic (3) je deklarace elementu totožná s
-deklarací uvedenou v bodě (1); nebo je termínem alespoň jedné z částic
-(3) modelová skupina a v tom případě se postupuje rekurzivně od bodu
-(3), dokud nebude nalezena deklarace elementu totožná s deklarací
-uvedenou v bodě (1).
+. Komplexní typ (1) obsahuje částici (__Particle__).
+. Termínem ([property]``term``) částice (2) je modelová skupina (__ModelGroup__) – vždy složená z dalších částic.
+. Termínem alespoň jedné z částic (3) je deklarace elementu totožná s deklarací uvedenou v bodě (1); nebo je termínem alespoň jedné z částic (3) modelová skupina a v tom případě se postupuje rekurzivně od bodu (3), dokud nebude nalezena deklarace elementu totožná s deklarací uvedenou v bodě (1).
 
 Nemá parametry.
 
-image:symbols/_loop.svg[Symbol smyčky]
+.Symbol smyčky
+image::symbols/_loop.svg[]
 
-[[INTERACTIVITY]]
+
+[[_interactivity]]
 === Interaktivita modelu
 
 Jedním z požadavků kladených na grafický model je jeho interaktivita.
-SVG se dá rozpohybovat pomocí ECMAScriptu (JavaScriptu). Jednoduše půjde
-zajistit změnu zobrazovaných informací při najetí kurzoru myši na
-symboly link:#SYMBOL-ELEMENT[] a link:#SYMBOL-ATTRIBUTE[]. Složitější je
-implementovat rozbalování a skrývání podstromů jednotlivých symbolů. Aby
-to bylo možné, musí SVG dokument znát umístění symbolů v rámci jejich
-stromu. K vysvětlení použiji následující příklad:
+SVG se dá rozpohybovat pomocí ECMAScriptu (JavaScriptu). Jednoduše půjde zajistit změnu zobrazovaných informací při najetí kurzoru myši na symboly <<_symbol_element>> a <<_symbol_attribute>>.
+Složitější je implementovat rozbalování a skrývání podstromů jednotlivých symbolů.
+Aby to bylo možné, musí SVG dokument znát umístění symbolů v rámci jejich stromu.
+K vysvětlení použiji následující příklad:
 
-....
+[source]
+----
 <g id='_1_1_1_2' class='box' transform='translate(395,121)'>
     <rect class='shadow' x='3' y='3' width='117' height='46'/>
     <rect class='boxelement' x='0' y='0' width='117' height='46'
@@ -1210,145 +983,119 @@ stromu. K vysvětlení použiji následující příklad:
     <path class='connection' d='M-35,-40 Q-35,15 0,23'/>
     <use x='116' y='17' xlink:href='#plus' id='s_1_1_1_2' onclick='show("_1_1_1_2")'/>
 </g>
-....
+----
 
-Jedná se o XML reprezentaci symbolu `address`. Ten se skládá z několika
-SVG elementů a je zobrazen jako link:#ADDRESS-SYMBOL[figure_title].
+Jedná se o XML reprezentaci symbolu ``address``.
+Ten se skládá z několika SVG elementů a je zobrazen jako <<_address_symbol>>.
 
-* Symbol je tvořen dvěma obdélníky. První je mírně posunutý a tvoří
-lehký stín. Druhý z nich tvoří hlavní box a je citlivý na najetí myši.
-* Dále symbol obsahuje čtyři textové položky. První dvě s obsahem
-„nillable: 0“ a „abstract: 0“ jsou teď skryty. Řetězce „address“ a
-„type: AddressType“ jsou naopak viditelné.
-* Následuje úsečka a na ní navazující křivka, která zleva připojuje
-symbol ke svému rodiči.
-* Nakonec je použit předem definovaný symbol „plus“, což je malý čtverec
-se znakem plus. Je citlivý na kliknutí myši.
+* Symbol je tvořen dvěma obdélníky. První je mírně posunutý a tvoří lehký stín. Druhý z nich tvoří hlavní box a je citlivý na najetí myši.
+* Dále symbol obsahuje čtyři textové položky. První dvě s obsahem „nillable: 0"` a „abstract: 0"` jsou teď skryty. Řetězce „address"` a „type: AddressType"` jsou naopak viditelné.
+* Následuje úsečka a na ní navazující křivka, která zleva připojuje symbol ke svému rodiči.
+* Nakonec je použit předem definovaný symbol „plus"`, což je malý čtverec se znakem plus. Je citlivý na kliknutí myši.
 
-Navíc, aby se se symbolem dalo pracovat jako s jedním celkem, jsou
-všechny popsané položky obaleny jako skupina elementem <g>. Ten dále
-umožňuje transformaci pozice symbolu a jeho jednoznačnou identifikaci v
-rámci stromu.
+Navíc, aby se se symbolem dalo pracovat jako s jedním celkem, jsou všechny popsané položky obaleny jako skupina elementem 
+// <sgmltag>&lt;g&gt;</sgmltag>
+$$.$$
+Ten dále umožňuje transformaci pozice symbolu a jeho jednoznačnou identifikaci v rámci stromu.
 
-image:images/address.svg[Symbol elementu address (v normálním režimu;
-při najetí myši)]
+.Symbol elementu address (v normálním režimu; při najetímyši)
+image::images/address.svg[]
 
-Pro změnu zobrazovaných položek při najetí myši stačí, aby měl každý
-symbol jednoznačný identifikátor. Ten je předáván ECMAScriptovým metodám
-makeVisible(`id`) a makeHidden(`id`) při najetí kurzoru myši na hlavní
-box symbolu, respektive při jeho sjetí z boxu. Změna spočívá v tom, že
-položky, které měly nastavenou třídu (class) na hidden, budou nyní
-viditelné. Jedná se o textové řetězce „nillable: 0“ a „abstract: 0“.
-Naopak položky ve třídě visible budou dočasně skryty. Sem patří pouze
-řetězec „type: AddressType“. Viz obrázek
-link:#ADDRESS-SYMBOL[figure_title].
+Pro změnu zobrazovaných položek při najetí myši stačí, aby měl každý symbol jednoznačný identifikátor.
+Ten je předáván ECMAScriptovým metodám [method]``makeVisible``([parameter]``id``) a [method]``makeHidden``([parameter]``id``) při najetí kurzoru myši na hlavní box symbolu, respektive při jeho sjetí z boxu.
+Změna spočívá v tom, že položky, které měly nastavenou třídu ([property]``class``) na hidden, budou nyní viditelné.
+Jedná se o textové řetězce „nillable: 0"` a „abstract: 0"`. Naopak položky ve třídě visible budou dočasně skryty.
+Sem patří pouze řetězec „type: AddressType"`. Viz obrázek <<_address_symbol>>.
 
-Zde použitý identifikátor symbolu je poměrně složitý, jedná se o řetězec
-`_1_1_1_2`. Jeho použití je však opodstatněné. Už jsem napsal, že pro
-práci s podstromy symbolů, musí být v SVG dokumentu patrné, do které
-části stromu symbol spadá. To lze jednoznačně určit pomocí takovýchto
-identifikátorů, uvedením cesty od kořene stromu až ke konkrétnímu
-symbolu. Podívejte se na obrázek
-link:#INTERACTIVITY-MODEL[figure_title].
+Zde použitý identifikátor symbolu je poměrně složitý, jedná se o řetězec ``\_1_1_1_2``.
+Jeho použití je však opodstatněné.
+Už jsem napsal, že pro práci s podstromy symbolů, musí být v SVG dokumentu patrné, do které části stromu symbol spadá.
+To lze jednoznačně určit pomocí takovýchto identifikátorů, uvedením cesty od kořene stromu až ke konkrétnímu symbolu.
+Podívejte se na obrázek <<_interactivity_model>>.
 
-image:images/model_interactivity.png[Model s kódy symbolů]
+.Model s kódy symbolů
+image::images/model_interactivity.png[]
 
-Kořenový symbol má identifikátor `_1`. Potržítko je nutné kvůli
-přípustným hodnotám attributu `id`, je tedy zvoleno i jako oddělovač.
-Kořenový symbol má dále dvě děti. Jejich identifikátory jsou tvořeny
-identifikátorem rodiče a přidanou vlastní částí, která udává jejich
-pozici. Dostáváme řetězce `_1_1` a `_1_2`. Analogicky symbol `_1_1` má
-dítě `_1_1_1`. Symbol s identifikátorem `_1_1_1` má dvě děti a druhé z
-nich (`_1_1_1_2`) je popisovaný prvek, symbol elementu `address`.
+Kořenový symbol má identifikátor ``\_1``.
+Potržítko je nutné kvůli přípustným hodnotám attributu ``id``, je tedy zvoleno i jako oddělovač.
+Kořenový symbol má dále dvě děti.
+Jejich identifikátory jsou tvořeny identifikátorem rodiče a přidanou vlastní částí, která udává jejich pozici.
+Dostáváme řetězce `\_1_1` a ``\_1_2``.
+Analogicky symbol `\_1_1` má dítě ``\_1_1_1``.
+Symbol s identifikátorem `\_1_1_1` má dvě děti a druhé z nich (``\_1_1_1_2``) je popisovaný prvek, symbol elementu ``address``.
 
-Při kliknutí na symbol minus za boxem `address` se zavolá ECMAScriptová
-metoda show(`"_1_1_1_2"`). Ta provede následující:
+Při kliknutí na symbol minus za boxem `address` se zavolá ECMAScriptová metoda [method]``show``([parameter]``"_1_1_1_2"``). Ta provede následující:
 
-* Změní tu symbol minus na plus, přepsáním atributu `xlink:href`
-elementu <use> tak, aby odkazoval na předem definovaný grafický objekt
-`plus`.
-* Schová celý podstrom symbolů připojený zprava k boxu. Patří do něj
-všechny symboly, jejichž identifikátor začíná také na `_1_1_1_2`. U
-elementů <g> obalujících objekty, z nichž se symbol skládá, se nastaví
-atribut `visibility` na hodnotu hidden.
-* Vzniklý prostor se zaplní vedlejšími větvemi. Ty se posunou směrem
-nahoru, přenastavením hodnoty atributu `transform` u seskupujícícho
-elementu <g>. Výpočet vzdálenosti, o kterou se mohou symboly posunout,
-je nutné provést pouze pro jeden symbol, pro ostatní je vzdálenost
-stejná. Zde poslouží také systém identifikace. Navíc je třeba zkrátit
-úsečku propojující rodičovské symboly s posouvanou větví.
+* Změní tu symbol minus na plus, přepsáním atributu `xlink:href` elementu 
++
+// <sgmltag>&lt;use&gt;</sgmltag>
+ tak, aby odkazoval na předem definovaný grafický objekt ``plus``.
+* Schová celý podstrom symbolů připojený zprava k boxu. Patří do něj všechny symboly, jejichž identifikátor začíná také na ``\_1_1_1_2``. U elementů 
++
+// <sgmltag>&lt;g&gt;</sgmltag>
+obalujících objekty, z nichž se symbol skládá, se nastaví atribut `visibility` na hodnotu [property]``hidden``.
+* Vzniklý prostor se zaplní vedlejšími větvemi. Ty se posunou směrem nahoru, přenastavením hodnoty atributu `transform` u seskupujícícho elementu 
++
+// <sgmltag>&lt;g&gt;</sgmltag>
+$$.$$
+Výpočet vzdálenosti, o kterou se mohou symboly posunout, je nutné provést pouze pro jeden symbol, pro ostatní je vzdálenost stejná.
+Zde poslouží také systém identifikace.
+Navíc je třeba zkrátit úsečku propojující rodičovské symboly s posouvanou větví.
 
-Výsledek je možné vidět na obrázku
-link:#INTERACTIVITY-MODEL-2[figure_title]. Pokud teď klikneme na symbol
-plus, zavolá se opět metoda show(`"_1_1_1_2"`). Ta teď ale bude pracovat
-přesně naopak, než bylo popsáno.
+Výsledek je možné vidět na obrázku <<_interactivity_model_2>>.
+Pokud teď klikneme na symbol plus, zavolá se opět metoda [method]``show``([parameter]``"_1_1_1_2"``). Ta teď ale bude pracovat přesně naopak, než bylo popsáno.
 
-Kromě výše uvedené funkčnosti budou poskytnuta tlačítka pro zobrazení a
-skrytí všech symbolů, až na kořenový. Časem přibudou i škálovací
-tlačítka _zoom in_ a _zoom out_, zatím se lze obejít bez nich a využít
-funkce prohlížeče.
+Kromě výše uvedené funkčnosti budou poskytnuta tlačítka pro zobrazení a skrytí všech symbolů, až na kořenový.
+Časem přibudou i škálovací tlačítka _zoom in_ a __zoom
+      out__, zatím se lze obejít bez nich a využít funkce prohlížeče.
 
-image:images/model_interactivity2.png[Model po skrytí podstromu elementu
-address]
+.Model po skrytí podstromu elementu address
+image::images/model_interactivity2.png[]
+
 
 === Výsledná SVG reprezentace schématu
 
-Když splním všechny podmínky, získám z aplikace výstup ve formátu SVG,
-jehož grafickou reprezentaci si můžete prohlédnout na obrázku
-link:#MY-MODEL[figure_title]. V příloze link:#EXAMPLES[appendix_title]
-je pro přehlednost znovu uvedeno jak vstupní XML schéma, tak i SVG
-výstup v XML i grafické reprezentaci.
+Když splním všechny podmínky, získám z aplikace výstup ve formátu SVG, jehož grafickou reprezentaci si můžete prohlédnout na obrázku <<_my_model>>.
+V příloze <<_examples>> je pro přehlednost znovu uvedeno jak vstupní XML schéma, tak i SVG výstup v XML i grafické reprezentaci.
 
-*Styl*
+[float]
+[[_style]]
+==== Styl
 
-Výsledný diagram se ale dá ještě dodatečně upravovat, jeho vzhled je
-totiž nastaven v CSS stylu. Aplikace dokáže styl generovat jako součást
-SVG dokumentu nebo zvlášť, nebo pouze připojit existující externí styl.
-Kaskádové styly využívají selektory pro výběr určitých elementů, kterým
-pak nastaví vzhled. Výběr může být určen názvem tagu, pokud však chceme
-jednotně upravit určité logické celky, lze využít jejich zařazení do
-tříd (class). V SVG výstupu vznikly tyto třídy:
+Výsledný diagram se ale dá ještě dodatečně upravovat, jeho vzhled je totiž nastaven v CSS stylu.
+Aplikace dokáže styl generovat jako součást SVG dokumentu nebo zvlášť, nebo pouze připojit existující externí styl.
+Kaskádové styly využívají selektory pro výběr určitých elementů, kterým pak nastaví vzhled.
+Výběr může být určen názvem tagu, pokud však chceme jednotně upravit určité logické celky, lze využít jejich zařazení do tříd ([property]``class``). V SVG výstupu vznikly tyto třídy:
 
-* strong pro důležité nápisy jako jsou názvy elementů a atributů. Písmo
-je větší a tučné.
-* small pro text, jenž je součástí grafiky, psaný menším písmem.
-* big pro text, jenž je součástí grafiky, psaný větším písmem.
-* button pro tlačítka; podstatou je, že má v parametru pointer-events
-zapnutou citlivost na určité události, především nám jde o kliknutí
-myši.
-* shadow je třída pro stín zobrazovaný za některými boxy.
-* connection zahrnuje úsečky a křivky propojující jednotlivé grafické
-symboly (boxy).
-* empty pro tvary obtažené, bez výplně.
-* filled pro tvary vyplněné, bez obtažení.
-* boxelement pro box symbolu link:#SYMBOL-ELEMENT[].
-* boxattribute1 pro box symbolu link:#SYMBOL-ATTRIBUTE[], pokud je
-použití atributu povinné.
-* boxattribute2 pro box symbolu link:#SYMBOL-ATTRIBUTE[], pokud je
-použití atributu volitelné.
-* boxany pro box symbolu link:#SYMBOL-ANY[].
-* boxanyattribute pro box symbolu link:#SYMBOL-ANY-ATTRIBUTE[].
-* boxschema pro box symbolu link:#SYMBOL-SCHEMA[].
-* boxcompositor pro boxy symbolů link:#SYMBOL-ALL[],
-link:#SYMBOL-CHOICE[], link:#SYMBOL-SEQUENCE[].
-* boxloop pro box symbolu link:#SYMBOL-LOOP[smyčka].
-* boxidc pro boxy symbolů link:#SYMBOL-UNIQUE[], link:#SYMBOL-KEY[],
-link:#SYMBOL-KEYREF[].
-* boxselector pro box symbolu link:#SYMBOL-SELECTOR[].
-* boxfield pro box symbolu link:#SYMBOL-FIELD[].
-* lax slouží k dalšímu nastavení vzhledu u boxů link:#SYMBOL-ANY[] a
-link:#SYMBOL-ANY-ATTRIBUTE[], pokud je u nich způsob zpracování nastaven
-na _lax_.
-* skip slouží k dalšímu nastavení vzhledu u boxů link:#SYMBOL-ANY[] a
-link:#SYMBOL-ANY-ATTRIBUTE[], pokud je u nich způsob zpracování nastaven
-na _skip_.
-* strict slouží k dalšímu nastavení vzhledu u boxů link:#SYMBOL-ANY[] a
-link:#SYMBOL-ANY-ATTRIBUTE[], pokud je u nich způsob zpracování nastaven
-na _strict_.
+* [property]``strong`` pro důležité nápisy jako jsou názvy elementů a atributů. Písmo je větší a tučné.
+* [property]``small`` pro text, jenž je součástí grafiky, psaný menším písmem.
+* [property]``big`` pro text, jenž je součástí grafiky, psaný větším písmem.
+* [property]``button`` pro tlačítka; podstatou je, že má v parametru [property]``pointer-events`` zapnutou citlivost na určité události, především nám jde o kliknutí myši.
+* [property]``shadow`` je třída pro stín zobrazovaný za některými boxy.
+* [property]``connection`` zahrnuje úsečky a křivky propojující jednotlivé grafické symboly (boxy).
+* [property]``empty`` pro tvary obtažené, bez výplně.
+* [property]``filled`` pro tvary vyplněné, bez obtažení.
+* [property]``boxelement`` pro box symbolu <<_symbol_element>>.
+* [property]``boxattribute1`` pro box symbolu <<_symbol_attribute>>, pokud je použití atributu povinné.
+* [property]``boxattribute2`` pro box symbolu <<_symbol_attribute>>, pokud je použití atributu volitelné.
+* [property]``boxany`` pro box symbolu <<_symbol_any>>.
+* [property]``boxanyattribute`` pro box symbolu <<_symbol_any_attribute>>.
+* [property]``boxschema`` pro box symbolu <<_symbol_schema>>.
+* [property]``boxcompositor`` pro boxy symbolů <<_symbol_all>>, <<_symbol_choice>>, <<_symbol_sequence>>.
+* [property]``boxloop`` pro box symbolu <<_symbol_loop>>.
+* [property]``boxidc`` pro boxy symbolů <<_symbol_unique>>, <<_symbol_key>>, <<_symbol_keyref>>.
+* [property]``boxselector`` pro box symbolu <<_symbol_selector>>.
+* [property]``boxfield`` pro box symbolu <<_symbol_field>>.
+* [property]``lax`` slouží k dalšímu nastavení vzhledu u boxů <<_symbol_any>> a <<_symbol_any_attribute>>, pokud je u nich způsob zpracování nastaven na __lax__.
+* [property]``skip`` slouží k dalšímu nastavení vzhledu u boxů <<_symbol_any>> a <<_symbol_any_attribute>>, pokud je u nich způsob zpracování nastaven na __skip__.
+* [property]``strict`` slouží k dalšímu nastavení vzhledu u boxů <<_symbol_any>> a <<_symbol_any_attribute>>, pokud je u nich způsob zpracování nastaven na __strict__.
 
-*Původní styl generovaný aplikací*
 
-....
+[float]
+==== Původní styl generovaný aplikací
+
+[source]
+----
 svg {pointer-events: none;}
 text {font-family: arial; font-size: 11px;}
 line, polyline, polygon {fill: none; stroke: black;}
@@ -1373,684 +1120,655 @@ line, polyline, polygon {fill: none; stroke: black;}
 .lax {fill: white; stroke: black;}
 .skip {fill: #cc6666; stroke: black;}
 .strict {fill: black; stroke: none;}
-....
+----
 
-image:images/model_my.svg[Výstup aplikace pro výše uvedený příklad XML
-schématu]
+.Výstup aplikace pro výše uvedený příklad XML schématu
+image::images/model_my.svg[]
 
-[[XSD-PROCESSING]]
+
+[[_xsd_processing]]
 == Zpracování XML schématu
 
-V této kapitole ukážu způsob procházení mezi komponentami schématu a
-vytvořím tak koncept jádra aplikace. Jednotlivé oddíly se věnují
-zpracování konkrétních komponent a vedle algoritmu zpracování obsahují
-také popis převzatý ze specifikace link:#XSD1[bibliomixed_title]. Odkaz
-na konkrétní část specifikace uvádím u každého oddílu v poznámce pod
-čarou.
+V této kapitole ukážu způsob procházení mezi komponentami schématu a vytvořím tak koncept jádra aplikace.
+Jednotlivé oddíly se věnují zpracování konkrétních komponent a vedle algoritmu zpracování obsahují také popis převzatý ze specifikace <<_xsd1>>.
+Odkaz na konkrétní část specifikace uvádím u každého oddílu v poznámce pod čarou.
 
-Jako základní knihovnu, na které postavím aplikaci, jsem po předchozím
-uvážení zvolil open-source parser Xerces. Ten poskytuje plnou podporu
-XML schémat podle link:#XSD0[bibliomixed_title],
-link:#XSD1[bibliomixed_title] a link:#XSD2[bibliomixed_title], až na
-několik omezení, které v naprosté většině případů nebudou tvořit
-překážku.footnote:[The Apache XML Project: _Xerces2 Java Parser Readme_.
-XML Schema. http://xerces.apache.org/xerces2-j/xml-schema.html]
-Implementace Xerces tak bude pracovat v souladu se specifikací W3C a
-bude užívat její termíny.
+Jako základní knihovnu, na které postavím aplikaci, jsem po předchozím uvážení zvolil open-source parser Xerces.
+Ten poskytuje plnou podporu XML schémat podle <<_xsd0>>, <<_xsd1>> a <<_xsd2>>, až na několik omezení, které v naprosté většině případů nebudou tvořit překážku.footnote:[The Apache XML Project: Xerces2 Java Parser
+        Readme. XML Schema. http://xerces.apache.org/xerces2-j/xml-schema.html] Implementace Xerces tak bude pracovat v souladu se specifikací W3C a bude užívat její termíny.
 
-Obrázek link:#DIAGRAM_KOMPONENT[figure_title] nám umožní udělat si
-snadno představu o vazbách a základních vlastnostech jednotlivých
-komponent XML schématu, jež jsou definovány v třetí části
-specifikace.footnote:[link:#XSD1[bibliomixed_title] Schema Component
-Details. http://www.w3.org/TR/xmlschema-1/#components]
+Obrázek <<_diagram_komponent>> nám umožní udělat si snadno představu o vazbách a základních vlastnostech jednotlivých komponent XML schématu, jež jsou definovány v třetí části specifikace.footnote:[Schema Component Details. http://www.w3.org/TR/xmlschema-1/#components]
 
-[[PROCESS-MODEL]]
-=== Zpracování samotného schématufootnote:[link:#XSD1[bibliomixed_title] http://www.w3.org/TR/xmlschema-1/#Schemas]
+[[_process_model]]
+=== Zpracování samotného schématufootnote:[http://www.w3.org/TR/xmlschema-1/#Schemas]
 
-Schéma (_Schema_, v Xercesu třída `XSModel`) slouží na abstraktní úrovni
-jako kontejner pro jednotlivé komponenty. Jedná se o komponenty
-globální, tedy pojmenované a anotace.
+Schéma (__Schema__, v Xercesu třída [class]``XSModel``) slouží na abstraktní úrovni jako kontejner pro jednotlivé komponenty.
+Jedná se o komponenty globální, tedy pojmenované a anotace.
 
-Metoda processModel(`XSModel` `model`) bude mít na starost zpracování
-schématu.
+Metoda [method]``processModel``([class]``XSModel``[parameter]``model``) bude mít na starost zpracování schématu.
 
-[arabic]
-. Vytvoří se symbol link:#SYMBOL-SCHEMA[] a bude vložen jako kořen do
-stromové struktury symbolů.
-. Bude volána pomocná metoda
-processElementDeclarations(`elementDeclarations`)
-[link:#PROCESS-ELEMENT-DECLARATIONS[Zpracování kolekce deklarací
-elementů]], parametrem jsou všechny globálně deklarované elementy.
+. Vytvoří se symbol <<_symbol_schema>> a bude vložen jako kořen do stromové struktury symbolů.
+. Bude volána pomocná metoda [method]``processElementDeclarations``([parameter]``elementDeclarations``) [<<_process_element_declarations>>], parametrem jsou všechny globálně deklarované elementy.
 
-Ostatní vlastnosti schématu (attribute declarations, model group
-definitions, attribute group definitions, type definitions, notation
-declarations, annotations) pro tvorbu logického modelu grafické
-reprezentace takto přímo nevyužijeme; Xerces nám některé z nich poskytne
-později skrze reference jako globálně definované typy, atributy,
-elementy a jejich skupiny. Při vykreslování tedy vůbec nebudeme muset
-pracovat s komponentami definice skupiny atributů (_Attribute group
-definition_), definice modelové skupiny (_Model group definition_) a
-deklarace notace (_Notation declaration_), které jsou dostupné pouze ze
-schématu, a nebudeme potřebovat ani anotace (_Annotation_).
+Ostatní vlastnosti schématu ([property]``attribute
+      declarations``, [property]``model group definitions``, [property]``attribute group definitions``, [property]``type
+      definitions``, [property]``notation declarations``, [property]``annotations``) pro tvorbu logického modelu grafické reprezentace takto přímo nevyužijeme; Xerces nám některé z nich poskytne později skrze reference jako globálně definované typy, atributy, elementy a jejich skupiny.
+Při vykreslování tedy vůbec nebudeme muset pracovat s komponentami definice skupiny atributů (__Attribute
+      group definition__), definice modelové skupiny (__Model
+      group definition__) a deklarace notace (__Notation
+      declaration__), které jsou dostupné pouze ze schématu, a nebudeme potřebovat ani anotace (__Annotation__).
 
-[[PROCESS-ELEMENT-DECLARATIONS]]
+[[_process_element_declarations]]
 === Zpracování kolekce deklarací elementů
 
-Kolekce deklarací elementů (v Xercesu obalené obecnou třídou
-`XSNamedMap`).
+Kolekce deklarací elementů (v Xercesu obalené obecnou třídou [class]``XSNamedMap``).
 
-Metoda processElementDeclarations(`XSNamedMap` `map`) provádí zpracování
-globálních deklarací elementů. Metoda obsahuje cyklus.
+Metoda [method]``processElementDeclarations``([class]``XSNamedMap``[parameter]``map``) provádí zpracování globálních deklarací elementů.
+Metoda obsahuje cyklus.
 
-[arabic]
 . Prochází se kolekcí deklarací elementů:
-[loweralpha]
-.. Pro každý prvek kolekce se volá
-processElementDeclaration(`elementDeclaration`, `null`)
-[link:#PROCESS-ELEMENT-DECLARATION[Zpracování deklarace elementu]].
-První parametr je konkrétní deklarace elementu (_Element declaration_),
-druhý je řetězec vyjadřující kardinalitu elementu. V případě globální
-deklarace má vždy hodnotu `null`.
 
-[[PROCESS-ELEMENT-DECLARATION]]
-=== Zpracování deklarace elementufootnote:[link:#XSD1[bibliomixed_title] http://www.w3.org/TR/xmlschema-1/#cElement_Declarations]
+[loweralpha].. Pro každý prvek kolekce se volá [method]``processElementDeclaration``([parameter]``elementDeclaration``, ``null``) [<<_process_element_declaration>>]. První parametr je konkrétní deklarace elementu (__Element declaration__), druhý je řetězec vyjadřující kardinalitu elementu. V případě globální deklarace má vždy hodnotu ``null``.
 
-Deklarace elementu (_Element declaration_, v Xercesu třída
-`XSElementDeclaration`) umožňuje:
 
-* lokální validaci hodnot informační položky element za použití definice
-typu;
-* specifikování defaultních nebo fixních hodnot pro informační položku
-element;
-* zajištění jedinečnosti hodnot a nastavení referenčních omezení v rámci
-hodnot příbuzných elementů a atributů;
-* kontrolování vzájemné nahraditelnosti elementů pomocí mechanismu
-substitučních skupin (_element substitution groups_).
+[[_process_element_declaration]]
+=== Zpracování deklarace elementufootnote:[http://www.w3.org/TR/xmlschema-1/#cElement_Declarations]
 
-Metoda processElementDeclaration(`XSElementDeclaration`
-`elementDeclaration`, `String` `cardinality`) zpracuje deklaraci
-elementu:
+Deklarace elementu (__Element declaration__, v Xercesu třída [class]``XSElementDeclaration``) umožňuje:
 
-[arabic]
-. Dojde k vytvoření symbolu link:#SYMBOL-ELEMENT[] a jeho připojení na
-odpovídající místo stromové struktury. U symbolu je třeba nastavit
-základní informace, poskytované přímo objektem `elementDeclaration`, ale
-také některé dodatečné informace, například řetězec s typem elementu,
-získaný voláním pomocné metody getTypeString(`typeDefinition`)
-[link:#PROCESS-SIMPLE-TYPE[Zpracování definice jednoduchého typu]], a
-řetězec uvádějící minimální a maximální počet výskytů, získaný z
-parametru `cardinality`. Popis jednotlivých položek naleznete u
-grafického návrhu symbolu `element`.
-. Zjišťuje se, zda se stejná deklarace nevyskytuje mezi předky této
-deklarace. Došlo by k zacyklení a vykreslování modelu by se nikdy řádně
-neukončilo. Kontrolu provádí metoda processLoop(`XSElementDeclaration`
-`elementDeclaration`), která má za úkol v případě objevení cyklu
-připojit symbol link:#SYMBOL-LOOP[smyčka] a zastavit zpracování
-následníků.
-. Pokud má element komplexní datový typ, proběhne na tomto místě
-zpracování jeho definice. To obstarává metoda
-processComplexTypeDefinition(`complexTypeDefinition`)
-[link:#PROCESS-COMPLEX-TYPE[Zpracování definice komplexního typu]]
-. Bude volána pomocná metoda
-processIdentityConstraints(`IdentityConstraints`)
-[link:#PROCESS-IDENTITY-CONSTRAINTS[Zpracování kolekce identitních
-omezení]], parametrem jsou všechna identitní omezení definovaná v rámci
-této deklarace.
+* lokální validaci hodnot informační položky element za použití definice typu;
+* specifikování defaultních nebo fixních hodnot pro informační položku element;
+* zajištění jedinečnosti hodnot a nastavení referenčních omezení v rámci hodnot příbuzných elementů a atributů;
+* kontrolování vzájemné nahraditelnosti elementů pomocí mechanismu substitučních skupin (__element substitution groups__).
 
-[[PROCESS-ATTRIBUTE-USES]]
+Metoda [method]``processElementDeclaration``([class]``XSElementDeclaration``[parameter]``elementDeclaration``, [class]``String``[parameter]``cardinality``) zpracuje deklaraci elementu:
+
+. Dojde k vytvoření symbolu <<_symbol_element>> a jeho připojení na odpovídající místo stromové struktury. U symbolu je třeba nastavit základní informace, poskytované přímo objektem [parameter]``elementDeclaration``, ale také některé dodatečné informace, například řetězec s typem elementu, získaný voláním pomocné metody [method]``getTypeString``([parameter]``typeDefinition``) [<<_process_simple_type>>], a řetězec uvádějící minimální a maximální počet výskytů, získaný z parametru [parameter]``cardinality``. Popis jednotlivých položek naleznete u grafického návrhu symbolu ``element``.
+. Zjišťuje se, zda se stejná deklarace nevyskytuje mezi předky této deklarace. Došlo by k zacyklení a vykreslování modelu by se nikdy řádně neukončilo. Kontrolu provádí metoda [method]``processLoop``([class]``XSElementDeclaration``[parameter]``elementDeclaration``), která má za úkol v případě objevení cyklu připojit symbol <<_symbol_loop>> a zastavit zpracování následníků.
+. Pokud má element komplexní datový typ, proběhne na tomto místě zpracování jeho definice. To obstarává metoda [method]``processComplexTypeDefinition``([parameter]``complexTypeDefinition``) [<<_process_complex_type>>]
+. Bude volána pomocná metoda [method]``processIdentityConstraints``([parameter]``IdentityConstraints``) [<<_process_identity_constraints>>], parametrem jsou všechna identitní omezení definovaná v rámci této deklarace.
+
+
+[[_process_attribute_uses]]
 === Zpracování kolekce užití atributů
 
-Kolekce užití atributů (v Xercesu obalené obecnou třídou
-`XSObjectList`).
+Kolekce užití atributů (v Xercesu obalené obecnou třídou [class]``XSObjectList``).
 
-Metoda processAttributeUses(`XSObjectList` `attributeUses`) provádí
-zpracování kolekce užití atributů. Metoda obsahuje cyklus.
+Metoda [method]``processAttributeUses``([class]``XSObjectList``[parameter]``attributeUses``) provádí zpracování kolekce užití atributů.
+Metoda obsahuje cyklus.
 
-[arabic]
 . Prochází se kolekcí:
-[loweralpha]
-.. Pro každý prvek kolekce se volá metoda
-processAttributeUse(`attributeUse`)
-[link:#PROCESS-ATTRIBUTE-USE[Zpracování užití atributu]]. Parametr je
-konkrétní užití atributu (_Attribute use_).
 
-[[PROCESS-ATTRIBUTE-USE]]
-=== Zpracování užití atributufootnote:[link:#XSD1[bibliomixed_title] http://www.w3.org/TR/xmlschema-1/#cAttributeUse]
+[loweralpha].. Pro každý prvek kolekce se volá metoda [method]``processAttributeUse``([parameter]``attributeUse``) [<<_process_attribute_use>>]. Parametr je konkrétní užití atributu (__Attribute use__).
 
-Užití atributu (_Attribute use_, v Xercesu třída `XSAttributeUse`) je
-pomocná komponenta, která kontroluje výskyt a defaultní chování
-deklarace atributu. Pro deklaraci atributu plní v rámci komplexního typu
-podobnou úlohu jako částice (_Particle_) pro deklaraci elementu.
 
-Metoda processAttributeUse(`XSAttributeUse` `attributeUse`) slouží ke
-zpracování užití atributu a zároveň i samotné deklarace atributu:
+[[_process_attribute_use]]
+=== Zpracování užití atributufootnote:[http://www.w3.org/TR/xmlschema-1/#cAttributeUse]
 
-[arabic]
-. Na tomto místě proběhne zpracování deklarace atributu
-[link:#PROCESS-ATTRIBUTE-DECLARATION[Zpracování deklarace atributu]].
+Užití atributu (__Attribute use__, v Xercesu třída [class]``XSAttributeUse``) je pomocná komponenta, která kontroluje výskyt a defaultní chování deklarace atributu.
+Pro deklaraci atributu plní v rámci komplexního typu podobnou úlohu jako částice (__Particle__) pro deklaraci elementu.
 
-[[PROCESS-ATTRIBUTE-DECLARATION]]
-=== Zpracování deklarace atributufootnote:[link:#XSD1[bibliomixed_title] http://www.w3.org/TR/xmlschema-1/#cAttribute_Declarations]
+Metoda [method]``processAttributeUse``([class]``XSAttributeUse``[parameter]``attributeUse``) slouží ke zpracování užití atributu a zároveň i samotné deklarace atributu:
 
-Deklarace atributu (_Attribute declaration_, v Xercesu třída
-`XSAttributeDeclaration`) umožňuje:
+. Na tomto místě proběhne zpracování deklarace atributu [<<_process_attribute_declaration>>].
 
-* lokální validaci hodnot informační položky atribut za použití definice
-jednoduchého typu;
-* specifikování defaultních nebo fixních hodnot pro informační položku
-atribut.
 
-Pro jednoduchost je deklarace atributu zpracována uvnitř metody
-processAttributeUse(`XSAttributeUse` `attributeUse`)
-[link:#PROCESS-ATTRIBUTE-USE[Zpracování užití atributu]].
+[[_process_attribute_declaration]]
+=== Zpracování deklarace atributufootnote:[http://www.w3.org/TR/xmlschema-1/#cAttribute_Declarations]
 
-[arabic]
-. Dojde k vytvoření symbolu link:#SYMBOL-ATTRIBUTE[] a jeho připojení do
-stromové struktury. Předtím se musí zjistit základní informace,
-poskytované přímo deklarací atributu, a také dodatečná informace o typu
-atributu, získaná voláním pomocné metody getTypeString(`typeDefinition`)
-[link:#PROCESS-SIMPLE-TYPE[Zpracování definice jednoduchého typu]].
-Popis jednotlivých položek naleznete u grafického návrhu symbolu
-`attribute`.
+Deklarace atributu (__Attribute declaration__, v Xercesu třída [class]``XSAttributeDeclaration``) umožňuje:
 
-[[PROCESS-WILDCARD]]
-=== Zpracování divoké kartyfootnote:[link:#XSD1[bibliomixed_title] http://www.w3.org/TR/xmlschema-1/#Wildcards]
+* lokální validaci hodnot informační položky atribut za použití definice jednoduchého typu;
+* specifikování defaultních nebo fixních hodnot pro informační položku atribut.
 
-Divoká karta (_Wildcard_, v Xercesu třída `XSWildcard`) umožňuje
-validaci informačních položek element a atribut, závisející na jmenném
-prostoru, ale nezávislou na lokálním jméně.
+Pro jednoduchost je deklarace atributu zpracována uvnitř metody [method]``processAttributeUse``([class]``XSAttributeUse``[parameter]``attributeUse``) [<<_process_attribute_use>>].
 
-Metoda processElementWildcard(`XSWildcard` `wildcard`, `String`
-`cardinality`) slouží ke zpracování divoké karty pro element:
+. Dojde k vytvoření symbolu <<_symbol_attribute>> a jeho připojení do stromové struktury. Předtím se musí zjistit základní informace, poskytované přímo deklarací atributu, a také dodatečná informace o typu atributu, získaná voláním pomocné metody [method]``getTypeString``([parameter]``typeDefinition``) [<<_process_simple_type>>]. Popis jednotlivých položek naleznete u grafického návrhu symbolu ``attribute``.
 
-[arabic]
-. Vytvoří symbol link:#SYMBOL-ANY[] a připojí ho na odpovídající pozici
-ve stromové struktuře. Pomocná metoda getNamespaceString(`XSWildcard`
-`wildcard`) umožní sestavit řetězec, uvádějící omezení jmenných
-prostorů, parametr `cardinality` dodá informaci o minimálním a
-maximálním počtu výskytů.
 
-Metoda processAttributeWildcard(`XSWildcard` `wildcard`) slouží ke
-zpracování divoké karty pro atribut:
+[[_process_wildcard]]
+=== Zpracování divoké kartyfootnote:[http://www.w3.org/TR/xmlschema-1/#Wildcards]
 
-[arabic]
-. Vytvoří symbol link:#SYMBOL-ANY-ATTRIBUTE[] a připojí ho na
-odpovídající pozici ve stromové struktuře. Pomocná metoda
-getNamespaceString(`XSWildcard` `wildcard`) umožní sestavit řetězec,
-uvádějící omezení jmenných prostorů.
+Divoká karta (__Wildcard__, v Xercesu třída [class]``XSWildcard``) umožňuje validaci informačních položek element a atribut, závisející na jmenném prostoru, ale nezávislou na lokálním jméně.
 
-[[PROCESS-SIMPLE-TYPE]]
-=== Zpracování definice jednoduchého typufootnote:[link:#XSD1[bibliomixed_title] http://www.w3.org/TR/xmlschema-1/#Simple_Type_Definitions]
+Metoda [method]``processElementWildcard``([class]``XSWildcard``[parameter]``wildcard``, [class]``String``[parameter]``cardinality``) slouží ke zpracování divoké karty pro element:
 
-Definice jednoduchého typu (_Simple type definition_, v Xercesu třída
-`XSSimpleTypeDefinition`) umožňuje omezení znakových informačních
-položek – dětí informačních položek element a atribut.
+. Vytvoří symbol <<_symbol_any>> a připojí ho na odpovídající pozici ve stromové struktuře. Pomocná metoda [method]``getNamespaceString``([class]``XSWildcard``[parameter]``wildcard``) umožní sestavit řetězec, uvádějící omezení jmenných prostorů, parametr `cardinality` dodá informaci o minimálním a maximálním počtu výskytů.
 
-Pomocná metoda getTypeString(`XSTypeDefinition` `typeDefinition`) je
-volána při zpracování deklarací elementů a atributů. U jednoduchého typu
-je pouze třeba zjistit název, nebo název základního typu a ten zobrazit
-jako typ elementu / atributu.
+Metoda [method]``processAttributeWildcard``([class]``XSWildcard``[parameter]``wildcard``) slouží ke zpracování divoké karty pro atribut:
 
-[arabic]
+. Vytvoří symbol <<_symbol_any_attribute>> a připojí ho na odpovídající pozici ve stromové struktuře. Pomocná metoda [method]``getNamespaceString``([class]``XSWildcard``[parameter]``wildcard``) umožní sestavit řetězec, uvádějící omezení jmenných prostorů.
+
+
+[[_process_simple_type]]
+=== Zpracování definice jednoduchého typufootnote:[http://www.w3.org/TR/xmlschema-1/#Simple_Type_Definitions]
+
+Definice jednoduchého typu (__Simple type
+      definition__, v Xercesu třída [class]``XSSimpleTypeDefinition``) umožňuje omezení znakových informačních položek – dětí informačních položek element a atribut.
+
+Pomocná metoda [method]``getTypeString``([class]``XSTypeDefinition``[parameter]``typeDefinition``) je volána při zpracování deklarací elementů a atributů.
+U jednoduchého typu je pouze třeba zjistit název, nebo název základního typu a ten zobrazit jako typ elementu / atributu.
+
 . Pokud je typ pojmenovaný (může být i komplexní), vrátí jméno typu.
-. Pokud je typ anonymní a zároveň je jednoduchý, vrátí jméno základního
-typu, ze kterého je tento typ odvozen.
-. Jinak vrátí `null`.
+. Pokud je typ anonymní a zároveň je jednoduchý, vrátí jméno základního typu, ze kterého je tento typ odvozen.
+. Jinak vrátí ``null``.
 
-[[PROCESS-COMPLEX-TYPE]]
-=== Zpracování definice komplexního typufootnote:[link:#XSD1[bibliomixed_title] http://www.w3.org/TR/xmlschema-1/#Complex_Type_Definitions]
 
-Definice komplexního typu (_Complex type definition_, v Xercesu třída
-`XSComplexTypeDefinition`) umožňuje:
+[[_process_complex_type]]
+=== Zpracování definice komplexního typufootnote:[http://www.w3.org/TR/xmlschema-1/#Complex_Type_Definitions]
 
-* omezení informačních položek element, přidáním deklarací atributů,
-určujících výskyt a obsah atributů;
-* omezení informačních položek element tak, že musí mít buď prázdný
-obsah, nebo musí vyhovět specifikovanému obsahu smíšenému, nebo
-tvořenému pouze elementy; nebo omezuje znakové informační položky tak,
-aby vyhověly specifikované definici jednoduchého typu;
-* využití mechanismu hierarchie definic typů (_Type definition
-hierarchy_) k odvození komplexního typu z jiného jednoduchého či
-komplexního typu;
+Definice komplexního typu (__Complex type
+      definition__, v Xercesu třída [class]``XSComplexTypeDefinition``) umožňuje:
+
+* omezení informačních položek element, přidáním deklarací atributů, určujících výskyt a obsah atributů;
+* omezení informačních položek element tak, že musí mít buď prázdný obsah, nebo musí vyhovět specifikovanému obsahu smíšenému, nebo tvořenému pouze elementy; nebo omezuje znakové informační položky tak, aby vyhověly specifikované definici jednoduchého typu;
+* využití mechanismu hierarchie definic typů (__Type definition hierarchy__) k odvození komplexního typu z jiného jednoduchého či komplexního typu;
 * specifikování příspěvků k post-schema-validation infosetu elementů;
 * omezení možnosti odvozovat další typy z tohoto komplexního typu;
-* kontrolovat nahrazování elementů odvozeného typu za elementy
-deklarované v modelu obsahu, který je tohoto komplexního typu.
+* kontrolovat nahrazování elementů odvozeného typu za elementy deklarované v modelu obsahu, který je tohoto komplexního typu.
 
-Definice komplexního typu je zpracována metodou
-processComplexTypeDefinition(`XSComplexTypeDefinition`
-`complexTypeDefinition`).
+Definice komplexního typu je zpracována metodou [method]``processComplexTypeDefinition``([class]``XSComplexTypeDefinition``[parameter]``complexTypeDefinition``).
 
-[arabic]
-. Zjistí se, zda definice obsahuje částici (_Particle_), pokud ano, volá
-se metoda processParticle(`particle`) [link:#PROCESS-PARTICLE[Zpracování
-částice]]. Parametrem je částice získaná z definice komplexního typu.
-. Volá se pomocná metoda processAttributeUses(`attributeUses`)
-[link:#PROCESS-ATTRIBUTE-USES[Zpracování kolekce užití atributů]],
-parametrem je kolekce užití atributů.
-. Pokud je definována divoká karta (_Wildcard_) pro atributy, zavolá se
-metoda processAttributeWildcard(`wildcard`)
-[link:#PROCESS-WILDCARD[Zpracování divoké karty]]. Parametrem je divoká
-karta získaná z definice komplexního typu.
+. Zjistí se, zda definice obsahuje částici (__Particle__), pokud ano, volá se metoda [method]``processParticle``([parameter]``particle``) [<<_process_particle>>]. Parametrem je částice získaná z definice komplexního typu.
+. Volá se pomocná metoda [method]``processAttributeUses``([parameter]``attributeUses``) [<<_process_attribute_uses>>], parametrem je kolekce užití atributů.
+. Pokud je definována divoká karta (__Wildcard__) pro atributy, zavolá se metoda [method]``processAttributeWildcard``([parameter]``wildcard``) [<<_process_wildcard>>]. Parametrem je divoká karta získaná z definice komplexního typu.
 
-[[PROCESS-IDENTITY-CONSTRAINTS]]
+
+[[_process_identity_constraints]]
 === Zpracování kolekce identitních omezení
 
-Kolekce deklarací identitních omezení (v Xercesu obalené obecnou třídou
-`XSNamedMap`).
+Kolekce deklarací identitních omezení (v Xercesu obalené obecnou třídou [class]``XSNamedMap``).
 
-Metoda processIdentityConstraints(`XSNamedMap` `identityConstraints`)
-provádí zpracování deklarací identitních omezení. Metoda obsahuje
-cyklus.
+Metoda [method]``processIdentityConstraints``([class]``XSNamedMap``[parameter]``identityConstraints``) provádí zpracování deklarací identitních omezení.
+Metoda obsahuje cyklus.
 
-[arabic]
 . Prochází se kolekcí:
-[loweralpha]
-.. Pro každý prvek kolekce se volá metoda
-processIdentityConstraintDefinition(`identityConstraintDefinition`)
-[link:#PROCESS-IDENTITY-CONSTRAINT[Zpracování definice identitního
-omezení]]. Parametrem je konkrétní definice identitního omezení
-(_Identity-constraint definition_).
 
-[[PROCESS-IDENTITY-CONSTRAINT]]
-=== Zpracování definice identitního omezenífootnote:[link:#XSD1[bibliomixed_title] http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions]
+[loweralpha].. Pro každý prvek kolekce se volá metoda [method]``processIdentityConstraintDefinition``([parameter]``identityConstraintDefinition``) [<<_process_identity_constraint>>]. Parametrem je konkrétní definice identitního omezení (__Identity-constraint definition__).
 
-Definice identitního omezení (_Identity-constraint definition_, v
-Xercesu třída `XSIDCDefinition`) zajištuje jedinečnost a referenční
-omezení v rámci hodnot množiny elementů a atributů.
 
-Metoda processIdentityConstraintDefinition(`XSIDCDefinition`
-`identityConstraintDefinition`) má na starost zpracování definice
-identitního omezení.
+[[_process_identity_constraint]]
+=== Zpracování definice identitního omezenífootnote:[http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions]
 
-[arabic]
+Definice identitního omezení (__Identity-constraint
+      definition__, v Xercesu třída [class]``XSIDCDefinition``) zajištuje jedinečnost a referenční omezení v rámci hodnot množiny elementů a atributů.
+
+Metoda [method]``processIdentityConstraintDefinition``([class]``XSIDCDefinition``[parameter]``identityConstraintDefinition``) má na starost zpracování definice identitního omezení.
+
 . Zjistí se kategorie této definice:
-[loweralpha]
-.. Pokud jde o unikátní klíč (`unique`), vytvoří se symbol
-link:#SYMBOL-UNIQUE[].
-.. Pokud jde o primární klíč (`key`), vytvoří se symbol
-link:#SYMBOL-KEY[].
-.. Pokud jde o cizí klíč (`keyref`), vytvoří se symbol
-link:#SYMBOL-KEYREF[].
-. Vytvoří se symbol link:#SYMBOL-SELECTOR[].
-. Prochází se kolekcí polí (`field`):
-[loweralpha]
-.. Pro každý prvek kolekce se vytvoří symbol link:#SYMBOL-FIELD[].
 
-Potřebné informace pro vykreslení všech symbolů poskytne přímo objekt
-`identityConstraintDefinition`. Jejich přehled naleznete u návrhu
-jednotlivých symbolů. Každý ze symbolů je připojen na odpovídající místo
-stromové struktury.
+[loweralpha].. Pokud jde o unikátní klíč (``unique``), vytvoří se symbol <<_symbol_unique>>.
+.. Pokud jde o primární klíč (``key``), vytvoří se symbol <<_symbol_key>>.
+.. Pokud jde o cizí klíč (``keyref``), vytvoří se symbol <<_symbol_keyref>>.
+. Vytvoří se symbol <<_symbol_selector>>.
+. Prochází se kolekcí polí (``field``):
 
-[[PROCESS-PARTICLES]]
+[loweralpha].. Pro každý prvek kolekce se vytvoří symbol <<_symbol_field>>.
+
+Potřebné informace pro vykreslení všech symbolů poskytne přímo objekt [parameter]``identityConstraintDefinition``.
+Jejich přehled naleznete u návrhu jednotlivých symbolů.
+Každý ze symbolů je připojen na odpovídající místo stromové struktury.
+
+[[_process_particles]]
 === Zpracování kolekce částic
 
-Kolekce částic (v Xercesu obalené obecnou třídou `XSObjectList`).
+Kolekce částic (v Xercesu obalené obecnou třídou [class]``XSObjectList``).
 
-Metoda processParticles(`XSObjectList` `particles`) provádí zpracování
-kolekce částic. Metoda obsahuje cyklus:
+Metoda [method]``processParticles``([class]``XSObjectList``[parameter]``particles``) provádí zpracování kolekce částic.
+Metoda obsahuje cyklus:
 
-[arabic]
 . Prochází se kolekcí částic:
-[loweralpha]
-.. Pro každý prvek kolekce se volá processParticle(`particle`)
-[link:#PROCESS-PARTICLE[Zpracování částice]]. Parametrem je konkrétní
-částice (_Particle_).
 
-[[PROCESS-PARTICLE]]
-=== Zpracování částicefootnote:[link:#XSD1[bibliomixed_title] http://www.w3.org/TR/xmlschema-1/#cParticles]
+[loweralpha].. Pro každý prvek kolekce se volá [method]``processParticle``([parameter]``particle``) [<<_process_particle>>]. Parametrem je konkrétní částice (__Particle__).
 
-Částice (_Particle_, v Xercesu třída `XSParticle`) přidává dodatečné
-informace o minimálním a maximálním počtu výskytů k definici modelu
-obsahu.
 
-Metoda processParticle(`XSParticle` `particle`) zpracuje částici
-následujícím způsobem:
+[[_process_particle]]
+=== Zpracování částicefootnote:[http://www.w3.org/TR/xmlschema-1/#cParticles]
 
-[arabic]
-. Pomocná metoda getCardinalityString(`XSParticle` `particle`) sestaví
-řetězec `cardinality`, obsahující informaci o minimálním (minOccurs) a
-maximálním (maxOccurs) počtu výskytů částicí obaleného termínu (term).
-. Zavolá pomocnou metodu processTerm(`term`, `cardinality`)
-[link:#PROCESS-TERM[Zpracování termínu]], která termín zpracuje, a pošle
-jí i řetězec `cardinality`.
+Částice (__Particle__, v Xercesu třída [class]``XSParticle``) přidává dodatečné informace o minimálním a maximálním počtu výskytů k definici modelu obsahu.
 
-[[PROCESS-TERM]]
+Metoda [method]``processParticle``([class]``XSParticle``[parameter]``particle``) zpracuje částici následujícím způsobem:
+
+. Pomocná metoda [method]``getCardinalityString``([class]``XSParticle``[parameter]``particle``) sestaví řetězec ``cardinality``, obsahující informaci o minimálním ([property]``minOccurs``) a maximálním ([property]``maxOccurs``) počtu výskytů částicí obaleného termínu ([property]``term``).
+. Zavolá pomocnou metodu [method]``processTerm``([parameter]``term``, [parameter]``cardinality``) [<<_process_term>>], která termín zpracuje, a pošle jí i řetězec ``cardinality``.
+
+
+[[_process_term]]
 === Zpracování termínu
 
-Termín (_Term_, v Xercesu třída `XSTerm`) je obecná vlastnost
-zastupující modelovou skupinu, deklaraci elementu, nebo divokou kartu
-pro elementy.
+Termín (__Term__, v Xercesu třída [class]``XSTerm``) je obecná vlastnost zastupující modelovou skupinu, deklaraci elementu, nebo divokou kartu pro elementy.
 
-Metoda processTerm(`XSTerm` `term`, `String` `cardinality`) provádí
-tento algoritmus:
+Metoda [method]``processTerm``([class]``XSTerm``[parameter]``term``, [class]``String``[parameter]``cardinality``) provádí tento algoritmus:
 
-[arabic]
 . Zjistí se typ termínu:
-[loweralpha]
-.. Pokud se jedná o modelovou skupinu (_Model group_), volá se metoda
-processModelGroup(`modelGroup`, `cardinality`)
-[link:#PROCESS-MODEL-GROUP[Zpracování modelové skupiny]]. Prvním
-parametrem je termín – modelová skupina, druhým parametrem se předává
-dál informace o kardinalitě.
-.. Pokud jde o deklaraci elementu (_Element declaration_), volá se
-processElementDeclaration(`elementDeclaration`, `cardinality`)
-[link:#PROCESS-ELEMENT-DECLARATION[Zpracování deklarace elementu]].
-Prvním parametrem je termín – deklarace elementu, druhým parametrem se
-předává dál informace o kardinalitě.
-.. Pokud jde o divokou kartu (_Wildcard_) pro elementy, volá se metoda
-processElementWildcard(`wildcard`, `cardinality`)
-[link:#PROCESS-WILDCARD[Zpracování divoké karty]]. Prvním parametrem je
-termín – divoká karta, druhým parametrem se předává dál informace o
-kardinalitě.
 
-[[PROCESS-MODEL-GROUP]]
-=== Zpracování modelové skupinyfootnote:[link:#XSD1[bibliomixed_title] http://www.w3.org/TR/xmlschema-1/#Model_Groups]
+[loweralpha].. Pokud se jedná o modelovou skupinu (__Model group__), volá se metoda [method]``processModelGroup``([parameter]``modelGroup``, [parameter]``cardinality``) [<<_process_model_group>>]. Prvním parametrem je termín – modelová skupina, druhým parametrem se předává dál informace o kardinalitě.
+.. Pokud jde o deklaraci elementu (__Element declaration__), volá se [method]``processElementDeclaration``([parameter]``elementDeclaration``, [parameter]``cardinality``) [<<_process_element_declaration>>]. Prvním parametrem je termín – deklarace elementu, druhým parametrem se předává dál informace o kardinalitě.
+.. Pokud jde o divokou kartu (__Wildcard__) pro elementy, volá se metoda [method]``processElementWildcard``([parameter]``wildcard``, [parameter]``cardinality``) [<<_process_wildcard>>]. Prvním parametrem je termín – divoká karta, druhým parametrem se předává dál informace o kardinalitě.
 
-Modelová skupina (_Model group_, v Xercesu třída `XSModelGroup`). Pokud
-není definováno, že mají být děti informační položky element prázdné,
-nebo že mají vyhovovat určité definici jednoduchého typu, může být obsah
-posloupnosti dětí informační položky element specifikován detailněji
-pomocí modelové skupiny. Díky tomu, že součástí částice může být
-modelová skupina a modelová skupina obsahuje částice, může modelová
-skupina nepřímo obsahovat jiné modelové skupiny.
 
-Metoda processModelGroup(`XSModelGroup` `modelGroup`, `String`
-`cardinality`) provádí algoritmus:
+[[_process_model_group]]
+=== Zpracování modelové skupinyfootnote:[http://www.w3.org/TR/xmlschema-1/#Model_Groups]
 
-[arabic]
-. Zjistí se typ kompozitoru (compositor):
-[loweralpha]
-.. Pokud se jedná o kompozitor `all`, vytvoří se symbol
-link:#SYMBOL-ALL[].
-.. Pokud jde o kompozitor `choice`, vytvoří se symbol
-link:#SYMBOL-CHOICE[].
-.. Jinak jde o kompozitor `sequence`, vytvoří se symbol
-link:#SYMBOL-SEQUENCE[].
-. Zavolá se pomocná metoda processParticles(`particles`)
-[link:#PROCESS-PARTICLES[Zpracování kolekce částic]], parametrem je
-kolekce částic, obsažených uvnitř modelové skupiny.
+Modelová skupina (__Model group__, v Xercesu třída [class]``XSModelGroup``). Pokud není definováno, že mají být děti informační položky element prázdné, nebo že mají vyhovovat určité definici jednoduchého typu, může být obsah posloupnosti dětí informační položky element specifikován detailněji pomocí modelové skupiny.
+Díky tomu, že součástí částice může být modelová skupina a modelová skupina obsahuje částice, může modelová skupina nepřímo obsahovat jiné modelové skupiny.
 
-U každého ze symbolů bude vypsán řetězec `cardinality` s informací o
-minimálním a maximálním počtu výskytů. Vytvořený symbol je vždy připojen
-na odpovídající pozici stromové struktury.
+Metoda [method]``processModelGroup``([class]``XSModelGroup``[parameter]``modelGroup``, [class]``String``[parameter]``cardinality``) provádí algoritmus:
 
-*Konečné uložení připravené struktury do SVG*
+. Zjistí se typ kompozitoru ([property]``compositor``):
 
-Poté, co se dokončí procházení abstraktního datového modelu XML schématu
-a připravené symboly utvoří stromovou strukturu, dojde k uložení stromu
-do SVG souboru. Nejprve se vypíše jakási hlavička s XML deklarací,
-doctypem, titulkem, přidá se skript, předem definované symboly a
-popřípadě styl; následují jednotlivé symboly komponent. Přesný průběh
-vypadá tak, že se vezme kořenový symbol, nastaví se u něj správné
-rozměry a umístění na pomyslném plátně a uloží se, totéž se pak opakuje
-se všemi dětmi a jejich potomky, až se dojde k listům stromu. Tím jsou
-symboly vloženy do souboru a následuje už jen koncový tag <svg>.
+[loweralpha].. Pokud se jedná o kompozitor ``all``, vytvoří se symbol <<_symbol_all>>.
+.. Pokud jde o kompozitor ``choice``, vytvoří se symbol <<_symbol_choice>>.
+.. Jinak jde o kompozitor ``sequence``, vytvoří se symbol <<_symbol_sequence>>.
+. Zavolá se pomocná metoda [method]``processParticles``([parameter]``particles``) [<<_process_particles>>], parametrem je kolekce částic, obsažených uvnitř modelové skupiny.
+
+U každého ze symbolů bude vypsán řetězec `cardinality` s informací o minimálním a maximálním počtu výskytů.
+Vytvořený symbol je vždy připojen na odpovídající pozici stromové struktury.
+
+[float]
+==== Konečné uložení připravené struktury do SVG
+
+Poté, co se dokončí procházení abstraktního datového modelu XML schématu a připravené symboly utvoří stromovou strukturu, dojde k uložení stromu do SVG souboru.
+Nejprve se vypíše jakási hlavička s XML deklarací, doctypem, titulkem, přidá se skript, předem definované symboly a popřípadě styl; následují jednotlivé symboly komponent.
+Přesný průběh vypadá tak, že se vezme kořenový symbol, nastaví se u něj správné rozměry a umístění na pomyslném plátně a uloží se, totéž se pak opakuje se všemi dětmi a jejich potomky, až se dojde k listům stromu.
+Tím jsou symboly vloženy do souboru a následuje už jen koncový tag 
+// <sgmltag>&lt;svg&gt;</sgmltag>
+$$.$$
 
 == Závěr
 
-Cílem práce bylo navrhnout a implementovat aplikaci pro převod XML
-schématu do interaktivního diagramu ve formátu SVG. Bylo proto třeba
-nastudovat principy, na kterých staví specifikace W3C XML schématu. Ta
-silně odděluje abstraktní datový model od XML reprezentace. Právě
-abstraktní datový model, jeho komponenty a vlastnosti komponent
-poskytují přímý a jednoduchý přístup k důležitým údajům. Abych nemusel
-vše programovat od začátku, vybíral jsem mezi hotovými open source
-implementacemi modelu a zvolil procesor tvořící součást parseru Xerces.
-Ten vyhovuje specifikaci; zpřístupnil komponenty schématu a jejich
-struktury programovým prostředkům jazyka Java.
+Cílem práce bylo navrhnout a implementovat aplikaci pro převod XML schématu do interaktivního diagramu ve formátu SVG.
+Bylo proto třeba nastudovat principy, na kterých staví specifikace W3C XML schématu.
+Ta silně odděluje abstraktní datový model od XML reprezentace.
+Právě abstraktní datový model, jeho komponenty a vlastnosti komponent poskytují přímý a jednoduchý přístup k důležitým údajům.
+Abych nemusel vše programovat od začátku, vybíral jsem mezi hotovými open source implementacemi modelu a zvolil procesor tvořící součást parseru Xerces.
+Ten vyhovuje specifikaci; zpřístupnil komponenty schématu a jejich struktury programovým prostředkům jazyka Java.
 
-Dále bylo třeba rozhodnout se pro vhodný způsob zobrazení struktur
-definovaných schématem. Zde jsem se inspiroval výstupy úspěšného XML
-editoru oXygen. Z představy grafického modelu vzešel návrh tříd objektů
-– obecného abstraktního symbolu a konkrétních symbolů komponent schématu
-–, návrh jejich vzhledu, parametrů a propojení i ve vazbě k zajištění
-interaktivity modelu. Přitom bylo nutné alespoň v základu poznat
-možnosti formátu SVG.
+Dále bylo třeba rozhodnout se pro vhodný způsob zobrazení struktur definovaných schématem.
+Zde jsem se inspiroval výstupy úspěšného XML editoru oXygen.
+Z představy grafického modelu vzešel návrh tříd objektů – obecného abstraktního symbolu a konkrétních symbolů komponent schématu –, návrh jejich vzhledu, parametrů a propojení i ve vazbě k zajištění interaktivity modelu.
+Přitom bylo nutné alespoň v základu poznat možnosti formátu SVG.
 
-Po načtení instance XML schématu do objektové reprezentace jazyka Java
-se spustí procházení těmito objekty a začne se vytvářet stromová
-struktura definovaných symbolů. Ta je nakonec uložena do SVG souboru. Na
-něj jsou ale ještě vázány další technologie. Především jde o ECMAScript,
-který je součástí souboru a provádí jeho zpracování při otevření v
-prohlížeči. Zajišťuje interaktivitu reakcemi na události spuštěné
-pohybem a klikáním myši. Aby skript mohl pracovat s elementy SVG
-dokumentu, potřebuje k nim získat přístup. Přístup zajišťuje DOM úrovně
-2. Poslední technologií jsou kaskádové styly, které mohou tvořit součást
-SVG souboru nebo mohou být připojeny z externího souboru a umožňují
-drobné úpravy výsledného vzhledu.
+Po načtení instance XML schématu do objektové reprezentace jazyka Java se spustí procházení těmito objekty a začne se vytvářet stromová struktura definovaných symbolů.
+Ta je nakonec uložena do SVG souboru.
+Na něj jsou ale ještě vázány další technologie.
+Především jde o ECMAScript, který je součástí souboru a provádí jeho zpracování při otevření v prohlížeči.
+Zajišťuje interaktivitu reakcemi na události spuštěné pohybem a klikáním myši.
+Aby skript mohl pracovat s elementy SVG dokumentu, potřebuje k nim získat přístup.
+Přístup zajišťuje DOM úrovně 2.
+Poslední technologií jsou kaskádové styly, které mohou tvořit součást SVG souboru nebo mohou být připojeny z externího souboru a umožňují drobné úpravy výsledného vzhledu.
 
-Na závěr mohu konstatovat, že se podařilo splnit cíl práce. Praktickým
-produktem je funkční program, jehož výstupem je přehledný, interaktivní
-diagram zobrazující strukturu XML souborů, vyhovujících schématu.
-Konkrétně je to struktura použitelných elementů a atributů, jejich
-jména, jmenné prostory, datové typy, kardinalita elementů, definované
-klíče atd. Postromy symbolů lze zobrazovat a skrývat. Dle mého názoru
-může diagram skutečně usnadnit orientaci a pochopení struktur, může
-tvořit kvalitní doplněk dokumentace.
+Na závěr mohu konstatovat, že se podařilo splnit cíl práce.
+Praktickým produktem je funkční program, jehož výstupem je přehledný, interaktivní diagram zobrazující strukturu XML souborů, vyhovujících schématu.
+Konkrétně je to struktura použitelných elementů a atributů, jejich jména, jmenné prostory, datové typy, kardinalita elementů, definované klíče atd.
+Postromy symbolů lze zobrazovat a skrývat.
+Dle mého názoru může diagram skutečně usnadnit orientaci a pochopení struktur, může tvořit kvalitní doplněk dokumentace.
 
-I zde však existují určitá omezení. První vyplývá z pomalé implementce
-SVG a ECMAScriptu v prohlížečích. Projevuje se v pomalejší reakci na
-události a obecně v pomalejším vykreslování velkých diagramů. V této
-oblasti lze jen doufat, že do budoucna vznikne lepší podpora. Další
-problém se může vyskytnout při programovém zpracování schémat,
-popisujících velmi rozsáhlé struktury. Může dojít k pádu aplikace v
-důsledku překročení paměťového prostoru. Tento problém lze odstranit
-úpravou aplikace, vzhledem k prvnímu omezení však není nutné s úpravou
-moc spěchat.
+I zde však existují určitá omezení.
+První vyplývá z pomalé implementce SVG a ECMAScriptu v prohlížečích.
+Projevuje se v pomalejší reakci na události a obecně v pomalejším vykreslování velkých diagramů.
+V této oblasti lze jen doufat, že do budoucna vznikne lepší podpora.
+Další problém se může vyskytnout při programovém zpracování schémat, popisujících velmi rozsáhlé struktury.
+Může dojít k pádu aplikace v důsledku překročení paměťového prostoru.
+Tento problém lze odstranit úpravou aplikace, vzhledem k prvnímu omezení však není nutné s úpravou moc spěchat.
 
-Tím se dostávám k faktu, že aplikace včetně zdrojových kódů bude šířena
-jako svobodný software. Momentálně je dostupná na přiloženém CD (viz
-link:#CD[appendix_title]) a na webové stránce
-http://st.vse.cz/~XSLAV14/. To přináší možnost budoucího rozvoje
-aplikace v podobě vylepšování nebo rozšiřování funkčnosti. Například by
-šla přidělat tlačítka pro zoom in a zoom out; rozšířit program o podporu
-dalších schémových jazyků (pokud vím, je jejich vizualizace předmětem
-jiných bakalářských prací); nebo integrovat do systému pro generování
-kompletních dokumentací.
+Tím se dostávám k faktu, že aplikace včetně zdrojových kódů bude šířena jako svobodný software.
+Momentálně je dostupná na přiloženém CD (viz <<_cd>>) a na webové stránce http://st.vse.cz/~XSLAV14/.
+To přináší možnost budoucího rozvoje aplikace v podobě vylepšování nebo rozšiřování funkčnosti.
+Například by šla přidělat tlačítka pro zoom in a zoom out; rozšířit program o podporu dalších schémových jazyků (pokud vím, je jejich vizualizace předmětem jiných bakalářských prací); nebo integrovat do systému pro generování kompletních dokumentací.
 
+:sectnums!:
+
+[bibliography]
 == Literatura
 
-=== 
+[bibliography]
 
-*Hlavní*
+[float]
+=== Hlavní
+- Fallside, D. C., Walmsley, P. a kol.: XML Schema Part 0: Primer Second
+      Edition [online]. W3C, 2004. Dostupný
+      z WWW: http://www.w3.org/TR/xmlschema-0/
+- Thompson, H. S., Beech, D., Maloney, M.,
+      Mendelsohn, N. a kol.: XML Schema Part 1: Structures
+      Second Edition [online]. W3C, 2004. Dostupný z WWW: http://www.w3.org/TR/xmlschema-1/
+- Biron, P. V., Malhotra, A. a kol.: XML Schema Part 2: Datatypes Second
+      Edition [online]. W3C, 2004. Dostupný
+      z WWW: http://www.w3.org/TR/xmlschema-2/
+- van der Vlist, E.: Using W3C XML Schema. XML.com, 2001. Dostupný z WWW: http://www.xml.com/pub/a/2000/11/29/schemas/part1.html?page=1
+- Ferraiolo, J., Fujisawa, J., Jackson, D.: Scalable Vector Graphics (SVG) 1.1
+      Specification [online]. W3C, 2003. Dostupný z WWW: http://www.w3.org/TR/SVG/
 
-Fallside, D. C., Walmsley, P. a kol.: [online]. W3C, 2004. Dostupný
-z WWW: http://www.w3.org/TR/xmlschema-0/[]
+[bibliography]
 
-Thompson, H. S., Beech, D., Maloney, M., Mendelsohn, N. a kol.:
-[online]. W3C, 2004. Dostupný z WWW: http://www.w3.org/TR/xmlschema-1/[]
+[float]
+=== Vedlejší a doplňková
+- Bray, T., Paoli, J., Sperberg-McQueen, C. M.,
+      Maler, E., Yergeau, F. a kol.: Extensible Markup
+      Language (XML) 1.0 (Fourth Edition) [online]. W3C,
+      2006. Dostupný z WWW: http://www.w3.org/TR/REC-xml/
+- Cowan, J., Tobin, R.: XML
+      Information Set (Second Edition) [online]. W3C, 2004. Dostupný z WWW: http://www.w3.org/TR/xml-infoset/
+- Bray, T., Hollander, D., Layman, A., Tobin,
+      R.: Namespaces in XML 1.0 (Second
+      Edition) [online]. W3C, 2006. Dostupný
+      z WWW: http://www.w3.org/TR/REC-xml-names/
+- Wood, L. a kol.: Document Object
+      Model (DOM) Level 1 Specification [online]. W3C,
+      1998. Dostupný z WWW: http://www.w3.org/TR/REC-DOM-Level-1/
+- Wood, L. a kol.: Document Object
+      Model (DOM) Level 2 Core Specification [online]. W3C,
+      2000. Dostupný z WWW: http://www.w3.org/TR/DOM-Level-2-Core/
+- Lie, H. W., Bos, B.: Cascading
+      Style Sheets, level 1 [online]. W3C, 1996. Dostupný z WWW: http://www.w3.org/TR/CSS1/
+- Hall, W., Keynes, M.: M254 Java
+      everywhere [online]. The Open University, 2005. Dostupný z WWW: http://computing.open.ac.uk/m254/
 
-Biron, P. V., Malhotra, A. a kol.: [online]. W3C, 2004. Dostupný z WWW:
-http://www.w3.org/TR/xmlschema-2/[]
+:sectnums:
 
-van der Vlist, E.: . XML.com, 2001. Dostupný z WWW:
-http://www.xml.com/pub/a/2000/11/29/schemas/part1.html?page=1[]
+:sectnums!:
 
-Ferraiolo, J., Fujisawa, J., Jackson, D.: [online]. W3C, 2003. Dostupný
-z WWW: http://www.w3.org/TR/SVG/[]
-
-=== 
-
-*Vedlejší a doplňková*
-
-Bray, T., Paoli, J., Sperberg-McQueen, C. M., Maler, E., Yergeau, F. a
-kol.: [online]. W3C, 2006. Dostupný z WWW:
-http://www.w3.org/TR/REC-xml/[]
-
-Cowan, J., Tobin, R.: [online]. W3C, 2004. Dostupný z WWW:
-http://www.w3.org/TR/xml-infoset/[]
-
-Bray, T., Hollander, D., Layman, A., Tobin, R.: [online]. W3C, 2006.
-Dostupný z WWW: http://www.w3.org/TR/REC-xml-names/[]
-
-Wood, L. a kol.: [online]. W3C, 1998. Dostupný z WWW:
-http://www.w3.org/TR/REC-DOM-Level-1/[]
-
-Wood, L. a kol.: [online]. W3C, 2000. Dostupný z WWW:
-http://www.w3.org/TR/DOM-Level-2-Core/[]
-
-Lie, H. W., Bos, B.: [online]. W3C, 1996. Dostupný z WWW:
-http://www.w3.org/TR/CSS1/[]
-
-Hall, W., Keynes, M.: [online]. The Open University, 2005. Dostupný
-z WWW: http://computing.open.ac.uk/m254/[]
-
+[appendix]
 == Termíny
+// <glosslist>
+//       <glossentry>
+//         <glossterm>API</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Application Programming Interface</emphasis>,
+//           rozhraní aplikačních programů. Sada procedur, funkcí nebo tříd
+//           určité knihovny, programu nebo jádra operačního systému, která může
+//           být využita v aplikacích.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>CSS</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Cascading Style Sheets</emphasis>, kaskádové styly.
+//           Jednoduchý mechanismus pro přidání grafické úpravy webovým
+//           dokumentům. Standard organizace W3C mimo jiné v <xref linkend="CSS"/>.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>Data binding</glossterm>
+// 
+//         <glossdef>
+//           <para>Převod dat mezi různými formáty. Například mezi XML dokumenty,
+//           objekty objektově orientovaných systémů a relačními tabulkami
+//           databázových systémů.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>DOM</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Document Object Model</emphasis>, objektový model
+//           dokumentu. Rozhraní nezávislé na platformě a jazyku, které umožňuje
+//           programům a skriptům dynamický přístup k obsahu, struktuře a stylu
+//           dokumentu a jeho editaci. Poskytuje objektově orientovanou
+//           reprezentaci XML nebo HTML dokumentu. Specifikace W3C v <xref linkend="DOM1"/>, <xref linkend="DOM2"/> a dalších.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>DTD</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Document Type Definition</emphasis>, definice typu
+//           dokumentu. DTD poskytuje nástroje pro definování povolených struktur
+//           elementů a atributů, umožňuje stanovení implicitních hodnot
+//           atributů. V rámci DTD lze také definovat znovupoužitelný obsah
+//           (entity) a dodatečné informace (notace). Specifikace je součástí
+//           doporučení organizace W3C o XML – <xref linkend="XML"/> a
+//           další.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>ECMAScript</glossterm>
+// 
+//         <glossdef>
+//           <para>Skriptovací (programovací) jazyk, standardizován organizací
+//           <emphasis>Ecma International</emphasis> ve specifikaci
+//           <emphasis>ECMA-262</emphasis>. Je široce používán na webu a bývá
+//           často označován jako JavaScript nebo JScript, podle hlavních
+//           dialektů tohoto jazyka.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>Framework</glossterm>
+// 
+//         <glossdef>
+//           <para>Základní konceptuální struktura užívaná k řešení nebo zaměření
+//           se na komplexní problémy. V oblasti softwaru se často jedná
+//           o knihovny, podpůrné programy, návrhové vzory a doporučené postupy.
+//           Framework řeší typické úlohy, které jsou ve většině aplikací shodné,
+//           a usnadňuje tak vývoj.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>HTML</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>HyperText Markup Language</emphasis>, hypertextový
+//           značkovací jazyk. Jazyk pro tvorbu webových stránek, aplikace SGML.
+//           Specifikaci vydala organizace W3C.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>Informační položka</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Information item</emphasis>. Představuje uzel
+//           stromové struktury XML infosetu. Specifikace <xref linkend="INFOSET"/> definuje jedenáct různých typů položek. Každá
+//           má určité vlastnosti jako je rodičovský element, lokální jméno atd.
+//           V této práci se zmiňuji o znakové informační položce, informační
+//           položce element a atribut.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>Infoset</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>XML Information Set</emphasis> je abstraktní datový
+//           model XML dokumentu, skládá se z jednotlivých informačních položek.
+//           Specifikace W3C <xref linkend="INFOSET"/>.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>Java</glossterm>
+// 
+//         <glossdef>
+//           <para>Objektově orientovaný, silně typový, na platformě nezávislý
+//           programovací jazyk od společnosti <emphasis>Sun
+//           Microsystems</emphasis>.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>Namespace</glossterm>
+// 
+//         <glossdef>
+//           <para>Jmenný prostor. XML poskytuje jednoduchou metodu pro
+//           kvalifikování jmen elementů a atributů jejich zařazením do jmenného
+//           prostoru s URI identifikátorem. Specifikace W3C <xref linkend="NAMESPACE"/>.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>Parsování</glossterm>
+// 
+//         <glossdef>
+//           <para>Analýza předložených dat a vyhledávání prvků odpovídajících
+//           definici určitého jazyka. Obvykle jde o syntaktickou analýzu
+//           zdrojových kódů napsaných v daném programovacím jazyce.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>PSVI</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Post Schema Validation Infoset</emphasis>, infoset
+//           po validaci dokumentu oproti schématu. Je to infoset XML dokumentu
+//           rozšířený o informace o datových typech položek. Příspěvky k PSVI
+//           jsou definovány ve specifikaci XML schématu <xref linkend="XSD1"/>
+//           a <xref linkend="XSD2"/>.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>Renderování</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Rendering</emphasis>, proces, při němž se vykresluje
+//           obraz ze zadaných dat.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>SAX</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Simple API for XML</emphasis>, jednoduché aplikační
+//           rozhraní pro XML. Poskytuje mechanismus pro čtení dat z XML
+//           dokumentů. Čtení probíhá sekvenčně a je založeno na událostech
+//           (přečtení počátečního tagu, přečtení ukončujícího tagu atd.) Není
+//           proto možná modifikace struktury dokumentu, na rozdíl od DOM.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>SVG</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Scalable Vector Graphics</emphasis>, škálovatelná
+//           vektorová grafika. SVG je jazyk pro popis dvourozměrné grafiky a
+//           grafických aplikací pomocí XML. Základ vývoje tvoří specifikace SVG
+//           1.1, vydaná jako doporučení konsorcia W3C 14. ledna 2003 <xref linkend="SVG"/>.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>Tag</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Značka</emphasis> vymezující začátek a/nebo konec
+//           elementu.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>Validace</glossterm>
+// 
+//         <glossdef>
+//           <para>Ověření shody XML dokumentu se schématem.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>W3C</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>World Wide Web Consortium</emphasis>. Zabývá se
+//           vývojem interoperabilních technologií – specifikací, směrnic,
+//           softwaru a nástrojů – s cílem sjednotit používané technologie
+//           a dosáhnout plného rozvoje a využití možností webu.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>XHTML</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Extensible HyperText Markup Language</emphasis>,
+//           rozšiřitelný hypertextový značkovací jazyk. Jazyk pro tvorbu
+//           webových stránek, aplikace XML. Specifikaci vydala organizace
+//           W3C.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>XML</glossterm>
+// 
+//         <glossdef>
+//           <para><emphasis>Extensible Markup Language</emphasis>, rozšiřitelný
+//           značkovací jazyk. Umožňuje vývojářům vytvářet vlastní formáty pro
+//           uchování a sdílení dat. Specifikaci vydalo konsorcium W3C, <xref linkend="XML"/> a další.</para>
+//         </glossdef>
+//       </glossentry>
+// 
+//       <glossentry>
+//         <glossterm>XML schéma</glossterm>
+// 
+//         <glossdef>
+//           <para>XML schémata poskytují prostředky pro definování struktury,
+//           obsahu a sémantiky XML dokumentů. XML schéma bylo schváleno jako
+//           doporučení organizace W3C 2. května 2001 a druhá, upravená verze
+//           byla vydána 28. října 2004 <xref linkend="XSD0"/>, <xref linkend="XSD1"/>, <xref linkend="XSD2"/>.</para>
+//         </glossdef>
+//       </glossentry>
+//     </glosslist>
 
-API::
-  _Application Programming Interface_, rozhraní aplikačních programů.
-  Sada procedur, funkcí nebo tříd určité knihovny, programu nebo jádra
-  operačního systému, která může být využita v aplikacích.
-CSS::
-  _Cascading Style Sheets_, kaskádové styly. Jednoduchý mechanismus pro
-  přidání grafické úpravy webovým dokumentům. Standard organizace W3C
-  mimo jiné v link:#CSS[bibliomixed_title].
-Data binding::
-  Převod dat mezi různými formáty. Například mezi XML dokumenty, objekty
-  objektově orientovaných systémů a relačními tabulkami databázových
-  systémů.
-DOM::
-  _Document Object Model_, objektový model dokumentu. Rozhraní nezávislé
-  na platformě a jazyku, které umožňuje programům a skriptům dynamický
-  přístup k obsahu, struktuře a stylu dokumentu a jeho editaci.
-  Poskytuje objektově orientovanou reprezentaci XML nebo HTML dokumentu.
-  Specifikace W3C v link:#DOM1[bibliomixed_title],
-  link:#DOM2[bibliomixed_title] a dalších.
-DTD::
-  _Document Type Definition_, definice typu dokumentu. DTD poskytuje
-  nástroje pro definování povolených struktur elementů a atributů,
-  umožňuje stanovení implicitních hodnot atributů. V rámci DTD lze také
-  definovat znovupoužitelný obsah (entity) a dodatečné informace
-  (notace). Specifikace je součástí doporučení organizace W3C o XML –
-  link:#XML[bibliomixed_title] a další.
-ECMAScript::
-  Skriptovací (programovací) jazyk, standardizován organizací _Ecma
-  International_ ve specifikaci _ECMA-262_. Je široce používán na webu a
-  bývá často označován jako JavaScript nebo JScript, podle hlavních
-  dialektů tohoto jazyka.
-Framework::
-  Základní konceptuální struktura užívaná k řešení nebo zaměření se na
-  komplexní problémy. V oblasti softwaru se často jedná o knihovny,
-  podpůrné programy, návrhové vzory a doporučené postupy. Framework řeší
-  typické úlohy, které jsou ve většině aplikací shodné, a usnadňuje tak
-  vývoj.
-HTML::
-  _HyperText Markup Language_, hypertextový značkovací jazyk. Jazyk pro
-  tvorbu webových stránek, aplikace SGML. Specifikaci vydala organizace
-  W3C.
-Informační položka::
-  _Information item_. Představuje uzel stromové struktury XML infosetu.
-  Specifikace link:#INFOSET[bibliomixed_title] definuje jedenáct různých
-  typů položek. Každá má určité vlastnosti jako je rodičovský element,
-  lokální jméno atd. V této práci se zmiňuji o znakové informační
-  položce, informační položce element a atribut.
-Infoset::
-  _XML Information Set_ je abstraktní datový model XML dokumentu, skládá
-  se z jednotlivých informačních položek. Specifikace W3C
-  link:#INFOSET[bibliomixed_title].
-Java::
-  Objektově orientovaný, silně typový, na platformě nezávislý
-  programovací jazyk od společnosti _Sun Microsystems_.
-Namespace::
-  Jmenný prostor. XML poskytuje jednoduchou metodu pro kvalifikování
-  jmen elementů a atributů jejich zařazením do jmenného prostoru s URI
-  identifikátorem. Specifikace W3C link:#NAMESPACE[bibliomixed_title].
-Parsování::
-  Analýza předložených dat a vyhledávání prvků odpovídajících definici
-  určitého jazyka. Obvykle jde o syntaktickou analýzu zdrojových kódů
-  napsaných v daném programovacím jazyce.
-PSVI::
-  _Post Schema Validation Infoset_, infoset po validaci dokumentu oproti
-  schématu. Je to infoset XML dokumentu rozšířený o informace o datových
-  typech položek. Příspěvky k PSVI jsou definovány ve specifikaci XML
-  schématu link:#XSD1[bibliomixed_title] a
-  link:#XSD2[bibliomixed_title].
-Renderování::
-  _Rendering_, proces, při němž se vykresluje obraz ze zadaných dat.
-SAX::
-  _Simple API for XML_, jednoduché aplikační rozhraní pro XML. Poskytuje
-  mechanismus pro čtení dat z XML dokumentů. Čtení probíhá sekvenčně a
-  je založeno na událostech (přečtení počátečního tagu, přečtení
-  ukončujícího tagu atd.) Není proto možná modifikace struktury
-  dokumentu, na rozdíl od DOM.
-SVG::
-  _Scalable Vector Graphics_, škálovatelná vektorová grafika. SVG je
-  jazyk pro popis dvourozměrné grafiky a grafických aplikací pomocí XML.
-  Základ vývoje tvoří specifikace SVG 1.1, vydaná jako doporučení
-  konsorcia W3C 14. ledna 2003 link:#SVG[bibliomixed_title].
-Tag::
-  _Značka_ vymezující začátek a/nebo konec elementu.
-Validace::
-  Ověření shody XML dokumentu se schématem.
-W3C::
-  _World Wide Web Consortium_. Zabývá se vývojem interoperabilních
-  technologií – specifikací, směrnic, softwaru a nástrojů – s cílem
-  sjednotit používané technologie a dosáhnout plného rozvoje a využití
-  možností webu.
-XHTML::
-  _Extensible HyperText Markup Language_, rozšiřitelný hypertextový
-  značkovací jazyk. Jazyk pro tvorbu webových stránek, aplikace XML.
-  Specifikaci vydala organizace W3C.
-XML::
-  _Extensible Markup Language_, rozšiřitelný značkovací jazyk. Umožňuje
-  vývojářům vytvářet vlastní formáty pro uchování a sdílení dat.
-  Specifikaci vydalo konsorcium W3C, link:#XML[bibliomixed_title] a
-  další.
-XML schéma::
-  XML schémata poskytují prostředky pro definování struktury, obsahu a
-  sémantiky XML dokumentů. XML schéma bylo schváleno jako doporučení
-  organizace W3C 2. května 2001 a druhá, upravená verze byla vydána 28.
-  října 2004 link:#XSD0[bibliomixed_title],
-  link:#XSD1[bibliomixed_title], link:#XSD2[bibliomixed_title].
 
-[[CD]]
+:sectnums:
+
+:sectnums!:
+
+[appendix]
+[[_cd]]
 == Obsah CD-ROM
 
-Součástí této práce je přiložený CD-ROM s textem práce, zdrojovými kódy
-a hotovou aplikací. Poslední verze bude přístupná na webové stránce:
-http://st.vse.cz/~XSLAV14/. Konkrétně na CD naleznete následující
-strukturu adresářů a souborů:
+Součástí této práce je přiložený CD-ROM s textem práce, zdrojovými kódy a hotovou aplikací.
+Poslední verze bude přístupná na webové stránce: http://st.vse.cz/~XSLAV14/.
+Konkrétně na CD naleznete následující strukturu adresářů a souborů:
 
-[arabic]
-. `/thesis` – adresář týkající se psaní bakalářské práce, obsahuje:
-* `/images` – složka použitých obrázků kromě symbolů komponent schématu
-* `/symbols` – složka s obrázky symbolů komponent schématu ve formátu
-SVG
-* `thesis.xml` – vlastní text práce ve formátu DocBook
-* `thesis.xsl`, `tp-fo.xsl` – styly upravující standardní výstup
-DocBooku
-* `kizi.pdf` – logo katedry pro titulní stranufootnote:[Upravené styly a
-logo katedry pochází ze stránek Jiřího Koska, věnovaných výuce na VŠE:
-http://www.kosek.cz/vyuka/.]
-* `thesis.pdf` – vygenerované PDF s touto prací
-. `/src` – adresář zdrojových kódů Javy, struktura vychází ze zařazení
-tříd do balíčků
-. `/res` – adresář dalších zdrojů obsahující:
-* `/examples` – složka s příklady XSD vstupů
-* `/licenses` – složka s licencemi parseru Xerces
-* `readme.txt` – textový dokument, popisuje uživatelské rozhraní
-. `/lib` – adresář obsahuje implementaci parseru Xerces –
-`xercesImpl.jar`
-. `/dist` – složka s aplikací připravenou k použití, obsahuje:
-* `/examples` – překopírováno z adresáře `/res`
-* `/licenses` – překopírováno z adresáře `/res`
-* `/lib` – adresář knihoven:
-[arabic]
-.. kopie souboru `xercesImpl.jar` a případných dalších z adresáře `/lib`
-.. archiv s vlastní aplikací `xsdvi.jar`
-* `examples.bat` – spouští transformaci příkladů, schémat ze složky
-examples
-* `readme.txt` – překopírováno z adresáře `/res`
-. `build.properties` – nastavení vlastností využívaných v `build.xml`
-. `build.xml` – XML skript pro sestavovací program Ant
+. [path]_/thesis_ – adresář týkající se psaní bakalářské práce, obsahuje:
+** [path]_/images_ – složka použitých obrázků kromě symbolů komponent schématu
+** [path]_/symbols_ – složka s obrázky symbolů komponent schématu ve formátu SVG
+** [path]_thesis.xml_ – vlastní text práce ve formátu DocBook
+** [path]_thesis.xsl_, [path]_tp-fo.xsl_ – styly upravující standardní výstup DocBooku
+** [path]_kizi.pdf_ – logo katedry pro titulní stranufootnote:[Upravené styly a logo katedry pochází ze stránek Jiřího Koska, věnovaných výuce na VŠE: http://www.kosek.cz/vyuka/.]
+** [path]_thesis.pdf_ – vygenerované PDF s touto prací
+. [path]_/src_ – adresář zdrojových kódů Javy, struktura vychází ze zařazení tříd do balíčků
+. [path]_/res_ – adresář dalších zdrojů obsahující:
+** [path]_/examples_ – složka s příklady XSD vstupů
+** [path]_/licenses_ – složka s licencemi parseru Xerces
+** [path]_readme.txt_ – textový dokument, popisuje uživatelské rozhraní
+. [path]_/lib_ – adresář obsahuje implementaci parseru Xerces – [path]_xercesImpl.jar_
+. [path]_/dist_ – složka s aplikací připravenou k použití, obsahuje:
+** [path]_/examples_ – překopírováno z adresáře [path]_/res_
+** [path]_/licenses_ – překopírováno z adresáře [path]_/res_
+** [path]_/lib_ – adresář knihoven:
+... kopie souboru [path]_xercesImpl.jar_ a případných dalších z adresáře [path]_/lib_
+... archiv s vlastní aplikací [path]_xsdvi.jar_
+** [path]_examples.bat_ – spouští transformaci příkladů, schémat ze složky examples
+** [path]_readme.txt_ – překopírováno z adresáře [path]_/res_
+. [path]_build.properties_ – nastavení vlastností využívaných v [path]_build.xml_
+. [path]_build.xml_ – XML skript pro sestavovací program Ant
 
-[[EXAMPLES]]
+
+:sectnums:
+
+:sectnums!:
+
+[appendix]
+[[_examples]]
 == Příklad
 
 === XML schéma – ukázkový vstup
 
-....
+[source]
+----
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
@@ -2072,12 +1790,13 @@ examples
     </xs:complexType>
 
 </xs:schema>
-....
+----
 
-[[EXAMPLES-SVG-XML]]
+[[_examples_svg_xml]]
 === SVG výstup (XML reprezentace)
 
-....
+[source]
+----
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN'
   'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>
@@ -2472,8 +2191,12 @@ line, polyline, polygon {fill: none; stroke: black;}
 </g>
 
 </svg>
-....
+----
 
 === SVG výstup (grafická reprezentace)
 
-image:images/model_my.svg[Grafický výstup]
+.Grafický výstup
+image::images/model_my.svg[]
+
+
+:sectnums:
