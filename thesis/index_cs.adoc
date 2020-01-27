@@ -1,5 +1,5 @@
 = Vizualizace XML schémat
-Václav Slavětínský
+Václav Slavětínský <https://sourceforge.net/u/vaclaforge/profile/>; Jirka Kosek <https://github.com/kosek>; mcgr0g <https://github.com/mcgr0g>
 květen 2008
 :doctype: book
 :sectnums:
