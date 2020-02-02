@@ -19,14 +19,11 @@ dependencies {
 
 version = '1.0.1'
 
-sourceSets {
-    main {
-        java { srcDirs = ['src'] }
-    }
-    test {
-        resources { srcDirs = ['res'] }
-    }
-}
+//sourceSets {
+//    test {
+//        resources { srcDirs = ['res'] }
+//    }
+//}
 
 jar {
     manifest {
@@ -34,12 +31,11 @@ jar {
             'Implementation-Title': project.name,
             'Implementation-Version': project.version,
             'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' '),
-            'Main-Class': 'xsdvi.XsdVi'
-            //'com.github.mcgr0g.xsdvi.cli'
+            'Main-Class': 'com.github.mcgr0g.xsdvi.CliWorker'
         )
     }
     copy {
-        into "${buildDir}/libs"
+        into "${project.distsDir}"
         from configurations.thirdparty
     }
 }
@@ -89,7 +85,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 task genFaktura(type:Exec, group: 'tsts'){
     dependsOn = [processTestResources]
     workingDir "$project.ext.tstDir"
-    commandLine 'cmd', '/c', "java -jar ..\\libs\\$project.ext.fatName-${version}-SNAPSHOT.jar ..\\resources\\test\\examples\\xsd\\faktura.xsd"
+    commandLine 'cmd', '/c', "java -jar ..\\libs\\$project.ext.fatName-${version}-SNAPSHOT.jar ..\\resources\\test\\examples\\faktura.xsd"
     standardOutput = new ByteArrayOutputStream()
     ext.output = {
         return standardOutput.toString()
