@@ -12,13 +12,3 @@ ext {
     exampleFile = "faktura"
     targetFileExt = "svg"
 }
-
-task showExtProps{
-    group = 'utsk'
-    description = 'user-task: show all external properties'
-    println "exampleFile = $xsdDir"
-            .concat("\\")
-            .concat(exampleFile)
-            .concat(".xsd")
-    println "jarLibs = $jarLibs"
-}
