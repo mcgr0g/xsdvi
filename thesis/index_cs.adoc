@@ -1,5 +1,5 @@
 = Vizualizace XML schémat
-Václav Slavětínský <https://sourceforge.net/u/vaclaforge/profile/>; Jirka Kosek <https://github.com/kosek>; mcgr0g <https://github.com/mcgr0g>
+Václav Slavětínský <https://sourceforge.net/u/vaclaforge/profile/>;
 květen 2008
 :doctype: book
 :sectnums:
@@ -78,7 +78,7 @@ Vznikají tím jakési nové slovníky položek – elementů a jejich vlastnost
 Pokud chceme tyto formáty automatizovaně zpracovávat a validovat, potřebujeme jejich formální deklaraci a dokumentaci,
 tedy popis který umožní sdílení, definování a použití vzniklých slovníků.
 
-_XML schéma_ 
+_XML schéma_
     footnote:[Druhé vydání je z 28. října 2004, první bylo schváleno 2. května 2001.]
 je specifikace vydaná konsorciem W3C.
     footnote:[World Wide Web Consortium, oficiální webové stránky. http://www.w3.org/]
@@ -149,8 +149,7 @@ a případných vestavěných instancí těchto komponent.
 
 Definice zní takto:
     "`_Komponenta schématu_ je obecný termín, který zastupuje stavební prvky
-      tvořící abstraktní datový model schématu... _XML
-      schéma_ je množinou komponent schématu.`"
+      tvořící abstraktní datový model schématu... _XML schéma_ je množinou komponent schématu.`"
     footnote:[XML Schema Abstract Data Model. http://www.w3.org/TR/xmlschema-1/#concepts-data-model]
 
 Existuje 13 druhů komponent, spadajících do 3 skupin.
@@ -176,8 +175,7 @@ Sekundární komponenty musí mít jména:
 * definice modelových skupin (_Model group definitions_),
 * deklarace notací (_Notation declarations_).
 
-Pomocné komponenty poskytují přístup k jiným komponentám.
-Jsou závislé na kontextu:
+Pomocné komponenty poskytují přístup k jiným komponentám. Jsou závislé na kontextu:
 
 * anotace (_Annotations_),
 * modelové skupiny (_Model groups_),

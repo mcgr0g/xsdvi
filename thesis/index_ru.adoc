@@ -1,5 +1,5 @@
 = Визуализация XML схемы
-Václav Slavětínský <https://sourceforge.net/u/vaclaforge/profile/>; Jirka Kosek <https://github.com/kosek>; mcgr0g <https://github.com/mcgr0g>
+Václav Slavětínský <https://sourceforge.net/u/vaclaforge/profile/>;
 květen 2008
 :doctype: book
 :sectnums:
@@ -43,7 +43,7 @@ XML позволяет разработчикам создавать собст�
 
 Само приложение будет написано на языке программирования Java и будет использовать пакеты синтаксического анализатора _Xerces_,
 которая является реализацией интерфейса с открытым исходным кодом, определенного в <<XSD1>> и <<XSD2>>.
-Для запуска вам необходимо установить среду исполнения _Java Runtime Envioronment_.
+Для запуска вам необходимо установить среду исполнения _Java Runtime Environment_.
 Сегодня, однако, JRE является общей частью большинства компьютеров.
 С помощью Java приложение может быть легко перенесено на разные платформы.
 
@@ -68,8 +68,6 @@ XML позволяет разработчикам создавать собст�
 Они вызывают друг друга, обмениваются параметрами и создают графические символы для последующего сохранения в файл SVG.
 
 В заключение постараюсь подвести итоги работы и указать, где можно скачать приложение.
-
-== Použité technologie
 
 == Используемые технологии
 
@@ -138,55 +136,53 @@ _XML схема_
 
 
 [float]
-==== Komponenty schématu
+==== Компоненты схемы
 
-Procesory XML schémat, vyhovující specifikaci W3C <<XSD1>>,
-musí pracovat s informacemi obsaženými ve schématu tak, jak je to ve specifikaci popsáno.
-Na XML schéma se zde nahlíží jako na abstraktní datový model konceptuální úrovně, nezávislý na implementaci.
-Datový model se skládá z jednotlivých, přesně definovaných součástí – _komponent_.
-Každá z nich zahrnuje popis XML reprezentace, vlastností a omezení, popis validačních pravidel,
-příspěvků k PSVI (_Post Schema Validation Infoset_),
-    footnote:[Jedná se o XML infoset (množinu informací), rozšířený o dodatečné informace o typu jednotlivých položek – elementů,
-        atributů, obecně uzlů.]
-a případných vestavěných instancí těchto komponent.
+Процессор схемы XML, соответствующие спецификации W3C <<XSD1>>,
+должен работать с информацией, содержащейся в диаграмме, как описано в спецификации.
+Схема XML рассматривается здесь как абстрактная модель данных концептуального уровня, независимая от реализации.
+Модель данных состоит из отдельных, точно определенных компонентов – _komponent_.
+Каждый из них включает в себя описание представления  XML, свойства и ограничения, описание правил проверки,
+обращения к PSVI (_Post Schema Validation Infoset_),
+    footnote:[Это XML infoset (набор информации), дополнен дополнительной информацией о типе отдельных пунктов – элементов,
+        атрибутов, обычных узлов.]
+и любые встроенные экземпляры этих компонентов.
 
-Definice zní takto:
-    "`_Komponenta schématu_ je obecný termín, který zastupuje stavební prvky
-      tvořící abstraktní datový model schématu... _XML
-      schéma_ je množinou komponent schématu.`"
+Определение следующее:
+    "`_Компонент схемы_ - это общий термин, который представляет строительные элементы
+      составляющие модель данных абстрактной схемы... _XML Схема_ - это набор компонентов схемы.`"
     footnote:[XML Schema Abstract Data Model. http://www.w3.org/TR/xmlschema-1/#concepts-data-model]
 
-Existuje 13 druhů komponent, spadajících do 3 skupin.
-_Aplikace s nimi bude pracovat způsobem popsaným v kapitole <<XSD-PROCESSING>>._
-Pro rychlé pochopení vazeb mezi komponentami slouží obrázek <<DIAGRAM_KOMPONENT>>.
-    footnote:[Tamtéž.]
+Существует 13 видов компонентов, которые можно разделить на 3 группы.
+_Приложение будет работать с ними, как описано в главе <<XSD-PROCESSING>>._
+Чтобы быстро понять отношения между компонентами, используйте диаграмму <<DIAGRAM_KOMPONENT>>.
+    footnote:[там же.]
 
 [[DIAGRAM_KOMPONENT]]
-.Diagram komponent XML schématu
+.Диаграмма компонент XML схемы
 image::images/components.gif[]
 
-Primární komponenty mohou nebo musí být pojmenované:
+Первичные компоненты могут или должны быть названы:
 
-* definice jednoduchých typů (_Simple type definitions_),
-* definice komplexních typů (_Complex type definitions_),
-* deklarace atributů (_Attribute declarations_),
-* deklarace elementů (_Element declarations_).
+* определение простых типов (_Simple type definitions_),
+* определение сложных типов (_Complex type definitions_),
+* декларирование атрибута (_Attribute declarations_),
+* декларирование элемента (_Element declarations_).
 
-Sekundární komponenty musí mít jména:
+Вторичные компоненты должны именоваться:
 
-* definice skupin atributů (_Attribute group definitions_),
-* definice identitních omezení (_Identity-constraint definitions_),
-* definice modelových skupin (_Model group definitions_),
-* deklarace notací (_Notation declarations_).
+* определение групп атрибутов (_Attribute group definitions_),
+* определение ограничений идентичности (_Identity-constraint definitions_),
+* определение группы моделей (_Model group definitions_),
+* декларирование нотации (_Notation declarations_).
 
-Pomocné komponenty poskytují přístup k jiným komponentám.
-Jsou závislé na kontextu:
+Вспомогательные компоненты обеспечивают доступ к другим компонентам. Они зависят от контекста:
 
-* anotace (_Annotations_),
-* modelové skupiny (_Model groups_),
-* částice (_Particles_),
-* divoké karty (_Wildcards_),
-* užití atributů (_Attribute Uses_).
+* аннотирование (_Annotations_),
+* модельные группы (_Model groups_),
+* гранулы (_Particles_),
+* символы подстановки (_Wildcards_),
+* использование атрибутов (_Attribute Uses_).
 
 
 === SVG
