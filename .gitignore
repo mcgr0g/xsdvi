@@ -6,3 +6,5 @@
 *.log
 /*.svg
 *.bak
+*.xpr
+*.iml

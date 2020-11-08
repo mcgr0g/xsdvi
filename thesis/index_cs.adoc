@@ -311,12 +311,13 @@ Grafiku lze posouvat, škálovat, otáčet a zešikmit.
 My budeme pouze posouvat boxy o _x_ jednotek po ose X a o _y_ jednotek po ose Y pomocí
 [.property]`transform` = `translate`([.parameter]`x`, [.parameter]`y`).
 
+
 ==== <text>
 footnote:[http://www.w3.org/TR/SVG11/text.html#TextElement]
 
-Definuje textový grafický element. 
+Definuje textový grafický element.
 Ten je renderován stejnými metodami jako ostatní grafické elementy.
-Bude sloužit ke zobrazení různých názvů, vlastností a popisků v boxech. 
+Bude sloužit ke zobrazení různých názvů, vlastností a popisků v boxech.
 Budeme potřebovat atributy:
 
 * [.property]`x` – reprezentuje absolutní pozici textu, počítanou od prvního znaku, na ose X.
@@ -326,7 +327,7 @@ Budeme potřebovat atributy:
     I zde můžete uvést více hodnot, oddělených mezerou nebo čárkou,
     s významem jako u atributu [.property]`x`.
 
-* [.property]`visibility` – určuje, jestli bude text viditelný, skrýtý, 
+* [.property]`visibility` – určuje, jestli bude text viditelný, skrýtý,
     nebo zdědí viditelnost po svém rodiči.
     Tento atribut bude třeba pro skrývání a odkrývání některých popisků symbolů komponent schématu.
 
@@ -366,7 +367,8 @@ Element `polygon` použijeme pouze v některých grafických symbolech komponent
 ==== <rect>
 footnote:[http://www.w3.org/TR/SVG11/shapes.html#RectElement]
 
-Definuje obdélník. Ten poslouží k vykreslení boxů, jejich stínů a dalších grafických prvků.
+Definuje obdélník.
+Ten poslouží k vykreslení boxů, jejich stínů a dalších grafických prvků.
 Pro klasifikaci použijeme atribut [.property]`class`, dále:
 
 * [.property]`x` – souřadnice strany obdélníku podle osy X, té strany,
@@ -376,13 +378,15 @@ Pro klasifikaci použijeme atribut [.property]`class`, dále:
 * [.property]`width` – šířka obdélníku,
 * [.property]`height` – výška obdélníku,
 * [.property]`rx` – poloměr elipsy, jež tvoří zaoblené rohy obdélníku, podle osy X.
-* [.property]`onclick` – stejný význam jako u elementu `<use>`, atribut bude nastaven u obdélníkových ovládacích tlačítek.
+* [.property]`onclick` – stejný význam jako u elementu `<use>`,
+    atribut bude nastaven u obdélníkových ovládacích tlačítek.
 
 
 ==== <circle>
 footnote:[http://www.w3.org/TR/SVG11/shapes.html#CircleElement]
 
-Definuje kružnici, kruh. Ty ve výstupu aplikace poslouží pouze jako dodatečné grafické prvky. Použijeme atributy:
+Definuje kružnici, kruh. Ty ve výstupu aplikace poslouží pouze jako dodatečné grafické prvky.
+Použijeme atributy:
 
 * [.property]`cx` – souřadnice středu kruhu na ose X,
 * [.property]`cy` – souřadnice středu kruhu na ose Y,
@@ -392,14 +396,16 @@ Definuje kružnici, kruh. Ty ve výstupu aplikace poslouží pouze jako dodateč
 ==== <path>
 footnote:[http://www.w3.org/TR/SVG11/paths.html#PathElement]
 
-Reprezentuje obrys tvaru. Může být vyplněn, obtažen nebo sloužit jako cesta, podle které budou ořezávány jiné objekty.
+Reprezentuje obrys tvaru.
+Může být vyplněn, obtažen nebo sloužit jako cesta, podle které budou ořezávány jiné objekty.
 V této aplikaci bude sloužit jako koncová část propojení boxů.
 
 * Atribut [.property]`d` – definice obrysu tvaru.
-    Obecně je tvořená příkazy _moveto_, _lineto_, _curveto_, _arc_ a _closepath_, buď absolutními, nebo relativními.
+    Obecně je tvořená příkazy _moveto_, _lineto_, _curveto_, _arc_ a _closepath_,
+    buď absolutními, nebo relativními.
         footnote:[Přesun kurzoru na zadanou pozici bez kreslení čáry; s vykreslením úsečky;
-        s vykreslením podrobněji stanovené křivky; s vykreslením oblouku; s vykreslením úsečky vedoucí k počátečnímu
-        bodu tak, aby vznikl uzavřený tvar.]
+        s vykreslením podrobněji stanovené křivky; s vykreslením oblouku;
+        s vykreslením úsečky vedoucí k počátečnímu bodu tak, aby vznikl uzavřený tvar.]
     K příkazům se dále zadávají páry souřadnic podle os X a Y.
 
 
@@ -409,11 +415,13 @@ ECMAScript je skriptovací jazyk, standardizovaný organizací _Ecma Internation
     footnote:[Ecma International: Standard ECMA-262. ECMAScript Language Specification 3rd edition (December 1999).
     http://www.ecma-international.org/publications/standards/Ecma-262.htm]
 Je široce používán na webu a bývá často označován jako _JavaScript_ nebo _JScript_, podle hlavních dialektů tohoto jazyka.
-Syntaxe se záměrně podobá syntaxi _Javy_, ale je uvolněnější, aby se docílilo snazšího použití, například není třeba deklarovat typ proměnných.
+Syntaxe se záměrně podobá syntaxi _Javy_, ale je uvolněnější,
+aby se docílilo snazšího použití, například není třeba deklarovat typ proměnných.
 Zároveň však tento přístup zvyšuje pravděpodobnost výskytu chyby.
 
 ECMAScript je objektově orientovaný programovací jazyk pro provádění výpočtů a manipulaci s objekty _v hostitelském prostředí_.
-Nefunguje tedy samostatně, vstup a výstup dat a zpracovávané objekty poskytuje jiný, existující systém, jehož možnosti jsou rozšiřovány skriptováním.
+Nefunguje tedy samostatně, vstup a výstup dat a zpracovávané objekty poskytuje jiný,
+existující systém, jehož možnosti jsou rozšiřovány skriptováním.
 To je podstatou skriptovacích jazyků. _V této aplikaci bude skript sloužit k zajištění interaktivity SVG modelu schématu v prostředí prohlížeče._
 Konkrétnější informace jsou v oddílu <<INTERACTIVITY>>.
 
@@ -423,8 +431,8 @@ Dále poskytne způsoby, jak spustit skriptovací kód při událostech, napří
 
 My však nepotřebujeme speciální prvky jazyka HTML, ale rozhraní k SVG nebo obecně XML objektům.
 Obecné rozhraní je standardizováno v další specifikaci konsorcia W3C, nazývá se DOM (_Document Object Model_).
-    footnote:[W3C: Document Object Model (DOM). http://www.w3.org/DOM/] DOM existuje v několika úrovních – level 1 až 3.
-V této aplikaci by stačila úroveň druhá.
+    footnote:[W3C: Document Object Model (DOM). http://www.w3.org/DOM/]
+DOM existuje v několika úrovních – level 1 až 3. V této aplikaci by stačila úroveň druhá.
 Pro programovou manipulaci s objekty škálovatelné grafiky vznikl speciální SVG DOM.
 Ten je součástí specifikace SVG
     footnote:[Appendix B: SVG Document Object Model (DOM). http://www.w3.org/TR/SVG/svgdom.html]
@@ -496,7 +504,7 @@ Budeme potřebovat metody a atributy blíže popsané v <<DOM1>> a <<DOM2>>, jej
 
 * [.interface]#Element#
     :
-        `void`[.method]`setAttributeNS`
+        `void` [.method]`setAttributeNS`
     (in
         [.interface]#DOMString#
         [.parameter]`namespaceURI`
@@ -520,6 +528,7 @@ Specifikace definuje jazyk pro popis stylů, který umožňuje tvůrcům i uživ
 Lze tak docílit oddělení definice vzhledu dokumentu od jeho obsahu a zjednodušit tvorbu webu i jeho správu.
 
 Jazyk CSS je navržen tak, aby byl snadno čitelný pro člověka, stylový předpis je vyjádřen v terminologii, jež je běžná v DTP.
+    footnote:[Desktop publishing (DTP), https://en.wikipedia.org/wiki/Desktop_publishing]
 Jednou ze základních vlastností je, že styl je _kaskádový_.
 To znamená, že se na sebe může vrstvit více definic stylu, ale platí pouze ta poslední.
 Tvůrce připojí k dokumentu preferovaný styl, ale uživatel ho může překrýt svým vlastním,
@@ -598,16 +607,17 @@ jako SAX (_Simple API for XML_) a DOM (_Document Object Model_).
 
 Dokument by stačilo načítat pomocí SAXu a přitom vyhledávat typické struktury tvořené převážně názvy elementů a
 hodnotami atributů, důležité pro interpretaci schématu.
-Tyto struktury by byly reprezentovány jako objekty a jejich vlastnosti, a to buď tak aby tyto objekty vyhovovaly
-svému účelu – chceme pouze vizualizovat schéma –, nebo aby odpovídaly specifikaci.
+Tyto struktury by byly reprezentovány jako objekty a jejich vlastnosti,
+a to buď tak aby tyto objekty vyhovovaly svému účelu – chceme pouze vizualizovat schéma –, 
+nebo aby odpovídaly specifikaci.
 Shoda se specifikací zajišťuje kompatibilitu, funkčnost a ulehčuje práci v případě změn.
 Po přečtení souboru je však ještě třeba řešit další úlohy, mezi které patří:
 
 * Načtení importovaných, vložených a předefinovávaných schémat a zajištění, aby přitom nedošlo k zacyklení.
 * Vložení typů, které jsou podle specifikace zabudované jako součást schématu.
 * Musí se řešit redefinice datových typů, skupin elementů a skupin atributů.
-* Je třeba poskládat reference na globálně definované typy, primární a unikátní klíče, globálně deklarované elementy a atributy,
-    globálně definované skupiny elementů a atributů.
+* Je třeba poskládat reference na globálně definované typy, primární a unikátní klíče,
+    globálně deklarované elementy a atributy, globálně definované skupiny elementů a atributů.
 
 I v této oblasti však existují hotové implementace, kterým stačí zadat vstupní soubor, nastavit je několika parametry a nechat načíst schéma.
 Některou z nich určitě využijeme (viz <<XSD-API>>), ušetří to hodně práce.
@@ -715,7 +725,7 @@ která nabízí vykreslení obou typů.
 
 Jako příklad poslouží toto jednoduché XML schéma:
 
-[source, xml]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -1233,7 +1243,7 @@ Výběr může být určen názvem tagu, pokud však chceme jednotně upravit ur
 * [.property]`filled` pro tvary vyplněné, bez obtažení.
 * [.property]`boxelement` pro box symbolu <<SYMBOL-ELEMENT>>.
 * [.property]`boxattribute1` pro box symbolu <<SYMBOL-ATTRIBUTE>>, pokud je použití atributu povinné.
-* [.property]`boxattribute2` pro box symbolu <<3>>, pokud je použití atributu volitelné.
+* [.property]`boxattribute2` pro box symbolu <<SYMBOL-ATTRIBUTE>>, pokud je použití atributu volitelné.
 * [.property]`boxany` pro box symbolu <<SYMBOL-ANY>>.
 * [.property]`boxanyattribute` pro box symbolu <<SYMBOL-ANY-ATTRIBUTE>>.
 * [.property]`boxschema` pro box symbolu <<SYMBOL-SCHEMA>>.
