@@ -299,7 +299,7 @@ footnote:[http://www.w3.org/TR/SVG11/struct.html#UseElement]
 * [.property]`xlink:href` – URI ссылка на объект, реализованная с использованием идентификатора,
 * [.property]`onclick` – запускает скрипт при нажатии на графический объект, который будет _plus_ или _minus_.     Скрипт раскрывает или скрывает поддерево графических символов (блоков).
 
-
+[[g-container]]
 ==== <g>
 footnote:[http://www.w3.org/TR/SVG11/struct.html#Groups]
 
@@ -679,7 +679,7 @@ _Saxon_ – это полная реализация рекомендаций XS
 Он выпущен в двух версиях: Saxon-B является продуктом с открытым исходным кодом, реализует XSLT 2.0 и XQuery так, что
 что он соответствует спецификациям только на базовом уровне требований.
 Saxon-SA является коммерческим продуктом, но он позволяет применять XSLT и XQuery с использованием схем.
-Таким образом, можно импортировать схему и проверять входные или выходные данные и выбирать элементы в соответствии с их типом.
+Таким образом, можно импортировать схему и проверять входне или выходные данные и выбирать элементы в соответствии с их типом.
 Saxon-SA также включает в себя отдельный валидатор схемы XML и другие расширения по сравнению с Saxon-B.
 
 _К сожалению, в версии с открытым исходным кодом нет интерфейса для доступа к компонентам схемы xml, и поэтому мы не можем использовать Saxon.
@@ -917,62 +917,62 @@ image::symbols/attribute_optional.svg[]
 [[SYMBOL-ANY]]
 ==== `any`
 
-[.class]`SymbolAny` představuje divokou kartu (_Wildcard_) pro elementy.
-Na jejím místě mohou být informační položky element s libovolným lokálním jménem, které ale musí vyhovět omezením kladeným na jejich jmenný prostor.
+[.class]`SymbolAny` представляет собой подстановочный символ (_wildcard_) для элементов.
+На его месте могут быть информационные элементы элемента с любым локальным именем, но они должны соответствовать ограничениям, наложенным на их пространство имен.
 
-* Parametr [.parameter]`namespace` je textový řetězec, představující omezení kladené na jmenný prostor informačních položek element.
-    Řetězec je utvořen z vlastnosti [.property]`namespace constraint` komponenty divoká karta.
+* Параметр [.parameter]`namespace` представляет собой текстовую строку, представляющую ограничения, наложенные на элемент пространства имен информационных элементов.
+    Строка формируется из свойства [.property]`namespace constraint` компонента wild card.
 
-* Parametr [.parameter]`processContents` je celé číslo, které slouží k rozlišení způsobů zpracování informačních položek element.
-    Hodnota vychází z vlastnosti [.property]`process contents` divoké karty a závisí na ní vyobrazení symbolu. Parametr nabývá hodnot:
+* Параметр [.parameter]`processContents` это целое число, которое используется для разрешения проблемы способов обработки информационных статей элемента.
+    Значение основано на свойстве [.property]`process contents` подстановочного символа и от него зависит изображение символа. Параметр приобретает значения:
 
-** [.constant]`3` – způsob zpracování `lax`. Pokud existuje unikátní deklarace položky, musí položka této deklaraci vyhovovat.
-** [.constant]`2` – odpovídá způsobu zpracování `skip`. Nevzniká žádné omezení, položka musí být pouze dobře strukturované XML.
-** [.constant]`1` (a ostatní přípustné hodnoty) – způsob zpracování `strict`.
-    Informační položka musí mít přiřazen xsi:type, nebo musí být k dispozici její deklarace, oproti které je prováděna validace.
+** [.constant]`3` – метод обработки "слабый". Если существует уникальная декларация элемента, то элемент должен соответствовать этой декларации.
+** [.constant]`2` – соответствует методу обработки "пропустить". Ограничений нет, элемент должна быть только хорошо структурированным xml.
+** [.constant]`1` (и другие допустимые значения) - метод обработки "строгий".
+    Информационному элементу должен быть присвоен xsi:type или должна быть доступна его декларация, по которой выполняется валидация.
 
-* Parametr [.parameter]`cardinality` je řetězec, který udává minimální a maximální počet výskytů informační položky element.
-    Pokud není uveden, znamená to, že hodnoty jsou implicitní (min = max = 1),
-    a řetězec nebude vykreslen. Minimální a maximální počet výskytů je dán vlastnostmi částice (_Particle_)
-    obsahující tuto divokou kartu. Jejich názvy jsou [.property]`min occurs` a [.property]`max occurs`.
+* Параметр [.parameter]`cardinality` это строка, указывающая минимальное и максимальное количество вхождений информационного элемента.
+    Если он не указан, это означает, что значения являются неявными (min = max = 1), и строка не
+    будет отображаться. Минимальное и максимальное число вхождений определяется свойствами частицы (_Particle_),
+    содержащей эту дикую карту. Им присвоены имена [.property]`min occurs` a [.property]`max occurs`.
 
 
-.Symbol `any` (způsob zpracování `strict`; způsob zpracování `skip`; způsob zpracování `lax`)
+.Symbol `any` (Метод обработки `strict`; Метод обработки `skip`; Метод обработки `lax`)
 image::symbols/any_strict.svg[]
 
 
 [[SYMBOL-ANY-ATTRIBUTE]]
 ==== `anyAttribute`
 
-[.class]`SymbolAnyAttribute` představuje divokou kartu (_Wildcard_) pro atributy.
-Na jejím místě mohou být informační položky atribut s libovolným lokálním jménem, které ale musí vyhovět omezením kladeným na jejich jmenný prostor.
+[.class]`SymbolAnyAttribute` представляет собой подставновочный символ (_wildcard_) для атрибутов.
+Вместо него информационные элементы могут быть атрибутом с любым локальным именем, но они должны соответствовать ограничениям, наложенным на их пространство имен.
 
-* Parametr [.parameter]`namespace` je textový řetězec, představující omezení kladené na jmenný prostor informačních položek atribut.
-    Řetězec je utvořen z vlastnosti [.property]`namespace constraint` komponenty divoká karta.
+* Параметр [.parameter]`namespace` это текстовая строка, представляющая ограничения, наложенные на пространство имен элементов атрибутивной информации.
+    Строка формируется из свойства [.property]`namespace constraint` компонента wild card.
 
-* Parametr [.parameter]`processContents` je celé číslo, které slouží k rozlišení způsobů zpracování informačních položek atribut.
-    Hodnota vychází z vlastnosti [.property]`process contents` divoké karty a závisí na ní vyobrazení symbolu. Parametr nabývá hodnot:
+* Параметр [.parameter]`processContents` это целое число, которое используется для разрешения проблемы способов обработки атрибутов информационных элементов.
+    Значение основано на свойстве [.property]`process contents` wild card и зависит от него изображение символа. Параметр приобретает значения:
 
-** [.constant]`3` – způsob zpracování `lax`. Pokud existuje unikátní deklarace položky, musí položka této deklaraci odpovídat.
-** [.constant]`2` – odpovídá způsobu zpracování `skip`. Nevzniká žádné omezení, položka musí být pouze dobře strukturované XML.
-** [.constant]`1` (a ostatní přípustné hodnoty) – způsob zpracování `strict`.
-    Informační položka musí mít přiřazen xsi:type, nebo musí být k dispozici její deklarace, oproti které je prováděna validace.
+** [.constant]`3` – метод обработки "слабый". Если существует уникальная декларация элемента, то элемент должен соответствовать этой декларации.
+** [.constant]`2` – соответствует методу обработки "пропустить". Ограничений нет, запись должна быть только хорошо структурированным xml.
+** [.constant]`1` (и другие допустимые значения) - метод обработки "строгий".
+    Информационному элементу должен быть присвоен xsi:type или должна быть доступна его декларация, по которой выполняется валидация.
 
 
-.Symbol `anyAttribute` (způsob zpracování `strict`; způsob zpracování `skip`; způsob zpracování `lax`)
+.Symbol `anyAttribute` (Метод обработки `strict`; Метод обработки `skip`; Метод обработки `lax`)
 image::symbols/any_attribute_strict.svg[]
 
 
 [[SYMBOL-ALL]]
 ==== `all`
 
-[.class]`SymbolAll` znázorňuje kompozitor `all` modelové skupiny (_Model group_).
-Ten říká, že se děti informační položky element, definované v modelové skupině jako [.property]`particles`, mohou vyskytovat v libovolném pořadí.
+[.class]`SymbolAll` представляет композит `all` модельной группы (_Model group_).
+Он говорит, что дочерние элементы информационного элемента, определенные в модельной группе как [.property]`particles`, могут встречаться в любом порядке.
 
-* Parametr [.parameter]`cardinality` je řetězec, který udává minimální a maximální počet výskytů dětí informační položky element.
-Pokud není uveden, znamená to, že hodnoty jsou implicitní (min = max = 1), a řetězec nebude vykreslen.
-Minimální a maximální počet výskytů je dán vlastnostmi částice (_Particle_) obsahující tuto modelovou skupinu.
-Jejich názvy jsou [.property]`min occurs` a [.property]`max occurs`.
+Параметр [.parameter]`cardinality` это строка, указывающая минимальное и максимальное количество вхождений информационного элемента.
+Если он не указан, это означает, что значения являются неявными (min = max = 1), и строка не будет нарисована. 
+Минимальное и максимальное число вхождений определяется свойствами частицы (_Particle_),содержащей эту дикую карту. 
+Им присвоены имена [.property]`min occurs` a [.property]`max occurs`.
 
 
 .Symbol `all`
@@ -982,14 +982,14 @@ image::symbols/all.svg[]
 [[SYMBOL-CHOICE]]
 ==== `choice`
 
-[.class]`SymbolChoice` znázorňuje kompozitor `choice` modelové skupiny (_Model group_).
-Pouze jedna z částic (_Particle_), definovaných v modelové skupině jako [.property]`particles`,
-se může v XML dokumentu objevit jako dítě informační položky element.
+[.class]`SymbolChoice` представляет композит `choice` модельной группы (_Model group_).
+Только одна из частиц (_particle_) определенных в модельной группе как [.property]`particles`,
+может появиться в XML-документе как дочерний элемент элемента информации.
 
-* Parametr [.parameter]`cardinality` je řetězec, který udává minimální a maximální počet výskytů dětí informační položky element.
-    Pokud není uveden, znamená to, že hodnoty jsou implicitní (min = max = 1), a řetězec nebude vykreslen.
-    Minimální a maximální počet výskytů je dán vlastnostmi částice (_Particle_) obsahující tuto modelovou skupinu.
-    Jejich názvy jsou [.property]`min occurs` a [.property]`max occurs`.
+* Параметр [.parameter]`cardinality` это строка, указывающая минимальное и максимальное количество вхождений информационного элемента.
+    Если он не указан, это означает, что значения являются неявными (min = max = 1), и строка не
+    будет нарисована. Минимальное и максимальное число вхождений определяется свойствами частицы (_Particle_),
+    содержащей эту дикую карту. Им присвоены имена [.property]`min occurs` a [.property]`max occurs`.
 
 
 .Symbol `choice`
@@ -999,14 +999,14 @@ image::symbols/choice.svg[]
 [[SYMBOL-SEQUENCE]]
 ==== `sequence`
 
-[.class]`SymbolSequence` znázorňuje kompozitor `sequence` modelové skupiny (_Model group_).
-Každá z částic (_Particle_), definovaných v modelové skupině jako [.property]`particles`,
-se může objevit v XML dokumentu jako dítě informační položky element, a to ve specifikovaném pořadí.
+[.class]`SymbolSequence` представляет композит `sequence` модельной группы (_Model group_).
+Каждая из частиц (_particle_) определяется в модельной группе как  [.property]`particles`,
+ может отображаться в XML-документе как дочерний элемент информационного элемента в указанном порядке.
 
-* Parametr [.parameter]`cardinality` je řetězec, který udává minimální a maximální počet výskytů dětí informační položky element.
-    Pokud není uveden, znamená to, že hodnoty jsou implicitní (min = max = 1), a řetězec nebude vykreslen.
-    Minimální a maximální počet výskytů je dán vlastnostmi částice (_Particle_) obsahující tuto modelovou skupinu.
-    Jejich názvy jsou [.property]`min occurs` a [.property]`max occurs`.
+* Параметр [.parameter]`cardinality` это строка, указывающая минимальное и максимальное количество вхождений информационного элемента.
+    Если он не указан, это означает, что значения являются неявными (min = max = 1), и строка не
+    будет нарисована. Минимальное и максимальное число вхождений определяется свойствами частицы (_Particle_),
+    содержащей эту дикую карту. Им присвоены имена [.property]`min occurs` a [.property]`max occurs`.
 
 
 .Symbol `sequence`
@@ -1016,16 +1016,16 @@ image::symbols/sequence.svg[]
 [[SYMBOL-UNIQUE]]
 ==== `unique`
 
-[.class]`SymbolUnique` znázorňuje část definice identitního omezení (_Identity-constraint definition_),
-konkrétně jméno a jmenný prostor kategorie `unique`.
-Ta zajišťuje jedinečnost hodnot v rámci obsahu vymezeného selektorem <<SYMBOL-SELECTOR>>,
-které jsou výsledkem vyhodnocení XPath výrazů uvedených v polích <<SYMBOL-FIELD>>.
+[.class]`SymbolUnique` представляет часть определения ограничения идентичности (_Identity-constraint definition_),
+в частности, имя и пространство имен `unique` категории.
+Это обеспечивает уникальность значений в содержимом, определяемом <<SYMBOL-SELECTOR>>,
+которые являются результатом вычисления XPath выражений, указанных в полях <<SYMBOL-FIELD>>.
 
-* Parametr [.parameter]`name` je textový řetězec, obsahující jméno definice identitního omezení.
-    Hodnotu poskytne tato definice ve vlastnosti [.property]`name`.
-* Parametr [.parameter]`namespace` je řetězec se jmenným prostorem.
-    Ten kvalifikuje definici identitního omezení. Jmenný prostor udává definice svou vlastností [.property]`namespace`.
-    Dvojice jméno a jmenný prostor identifikuje definici identitního omezení, a proto musí být v rámci XML schématu unikátní.
+* Параметр [.parameter]`name` это текстовая строка, содержащая имя определения ограничения идентичности.
+    Значение задается этим определением в свойстве [.property]`name`.
+* Параметр [.parameter]`namespace` это строка с пространством имен.
+    Последнее уточняет определение ограничения идентичности. Пространство имен определяет свое свойство [.property]`namespace`.
+    Имя пары и пространство имен идентифицирует определение ограничения идентификации и поэтому должна быть уникальной в рамках XML-схемы.
 
 
 .Symbol `unique`
@@ -1035,16 +1035,16 @@ image::symbols/unique.svg[]
 [[SYMBOL-KEY]]
 ==== `key`
 
-[.class]`SymbolKey` znázorňuje část definice identitního omezení (_Identity-constraint definition_),
-konkrétně jméno a jmenný prostor kategorie `key`.
-Ta zajišťuje jedinečnost a přítomnost hodnot v rámci obsahu vymezeného selektorem <<SYMBOL-SELECTOR>>,
-které jsou výsledkem vyhodnocení XPath výrazů uvedených v polích <<SYMBOL-FIELD>>.
+[.class]`SymbolKey` представляет часть определения ограничения идентичности (_Identity-constraint definition_),
+в частности, имя и пространство имен `key` категории.
+Это обеспечивает уникальность и наличие значений в содержимом, определяемом селектором <<SYMBOL-SELECTOR>>,
+которые являются результатом вычисления выражений XPath, указанных в полях <<SYMBOL-FIELD>>.
 
-* Parametr [.parameter]`name` je textový řetězec, obsahující jméno definice identitního omezení.
-    Hodnotu poskytne tato definice ve vlastnosti [.property]`name`.
-* Parametr [.parameter]`namespace` je řetězec se jmenným prostorem.
-    Ten kvalifikuje definici identitního omezení. Jmenný prostor udává definice svou vlastností [.property]`namespace`.
-    Dvojice jméno a jmenný prostor identifikuje definici identitního omezení, a proto musí být v rámci XML schématu unikátní.
+* Параметр [.parameter]`name` это текстовая строка, содержащая имя определения ограничения идентичности.
+    Значение задается этим определением в свойстве [.property]`name`.
+* Параметр [.parameter]`namespace` это строка с пространством имен.
+    Последнее уточняет определение ограничения идентичности. Пространство имен определяет свое свойство [.property]`namespace`.
+    Имя пары и пространство имен идентифицирует определение ограничения идентификации и поэтому должна быть уникальной в рамках XML-схемы.
 
 
 .Symbol `key`
@@ -1054,18 +1054,18 @@ image::symbols/key.svg[]
 [[SYMBOL-KEYREF]]
 ==== `keyref`
 
-[.class]`SymbolKeyref` znázorňuje část definice identitního omezení (_Identity-constraint definition_),
-konkrétně jméno a jmenný prostor kategorie `keyref`.
-Ta zajišťuje, že hodnoty, které jsou výsledkem vyhodnocení XPath výrazů uvedených v polích <<SYMBOL-FIELD>>,
-budou odpovídat hodnotám, jež specifikuje vlastnost [.property]`referenced key` definice identitního omezení.
-Tato podmínka se vyhodnocuje v rámci obsahu určeného selektorem <<SYMBOL-SELECTOR>>.
+[.class]`SymbolKeyref` представляет часть определения ограничения идентичности (_Identity-constraint definition_),
+в частности имя и пространство имен категории `keyref`.
+Это гарантирует, что значения, полученные в результате вычисления XPath выражений, указанных в полях <<SYMBOL-FIELD>>,
+будут соответствовать значениям, указанным в определении свойства [.property]`referenced key` ограничения идентичности.
+Это условие вычисляется в содержимом, заданном селектором <<SYMBOL-SELECTOR>>.
 
-* Parametr [.parameter]`name` je textový řetězec, obsahující jméno definice identitního omezení.
-    Hodnotu poskytne tato definice ve vlastnosti [.property]`name`.
-* Parametr [.parameter]`namespace` je řetězec se jmenným prostorem. Ten kvalifikuje definici identitního omezení.
-    Jmenný prostor udává definice svou vlastností [.property]`namespace`. Dvojice jméno a jmenný prostor identifikuje definici identitního omezení, a proto musí být v rámci XML schématu unikátní.
-* Parametr [.parameter]`refer` je řetězec, který slouží jako odkaz na jinou definici identitního omezení
-    kategorie `key` nebo `unique`. Hodnotu poskytne tato definice ve vlastnosti [.property]`referenced key`.
+* Параметр [.parameter]`name` это текстовая строка, содержащая имя определения ограничения идентичности.
+    Значение задается этим определением в свойстве [.property]`name`.
+* Параметр [.parameter]`namespace` это строка с пространством имен.
+    Последнее уточняет определение ограничения идентичности. Пространство имен определяет свое свойство [.property]`namespace`. Имя пары и пространство имен идентифицирует определение ограничения идентификации и поэтому должна быть уникальной в рамках XML-схемы.
+* Параметр [.parameter]`refer` это строка, которая служит ссылкой на другое определение ограничения идентичности
+    категории `key 'или' unique'. Значение задается этим определением в свойстве [.property]`referenced key`.
 
 
 .Symbol `keyref`
@@ -1075,11 +1075,11 @@ image::symbols/keyref.svg[]
 [[SYMBOL-SELECTOR]]
 ==== `selector`
 
-[.class]`SymbolSelector` slouží ke zobrazení vlastnosti [.property]`selector` definice identitního omezení (_Identity-constraint definition_).
+[.class]`SymbolSelector` служит для отображения свойства [.property]`selector` определения ограничения идентичности (_Identity-constraint definition_).
 
-* Parametr [.parameter]`xpath` je textový řetězec. Specifikuje omezený XPath výraz, relativní k instanci deklarovaného elementu.
-    Výraz musí identifikovat množinu uzlů – podřízených elementů, na které se vztahuje omezení.
-    Hodnota parametru se získá z vlastnosti [.property]`selector` definice identitního omezení.
+* Параметр [.parameter]`xpath` это текстовая строка. Задает ограниченное выражение XPath относительно экземпляра объявленного элемента.
+    Выражение должно идентифицировать набор узлов-подчиненных элементов, к которым применяется ограничение.
+    Значение параметра получается из свойства [.property]`selector` ограничения идентичности.
 
 
 .Symbol `selector`
@@ -1089,13 +1089,13 @@ image::symbols/selector.svg[]
 [[SYMBOL-FIELD]]
 ==== `field`
 
-[.class]`SymbolField` slouží ke zobrazení jednoho prvku ze seznamu – vlastnosti [.property]`fields`
-definice identitního omezení (_Identity-constraint definition_).
+[.class]`SymbolField` представляет один элемент из списка - свойства [.property]`fields`
+определения ограничения идентичности (_Identity-constraint definition_).
 
-* Parametr [.parameter]`xpath` je textový řetězec. Specifikuje omezený XPath výraz, relativní ke každému elementu,
-    který je vybrán selektorem <<SYMBOL-SELECTOR>>. Výraz musí identifikovat konkrétní uzel (element nebo atribut),
-    jehož obsah nebo hodnota musí být jednoduchého typu a je použita v omezení. Hodnota parametru se získá z
-    vlastnosti [.property]`fields` definice identitního omezení.
+* Параметр [.parameter]`xpath` это текстовая строка. Задает ограниченное выражение XPath относительно экземпляра объявленного элемента,
+    выбранного селектором <<SYMBOL-SELECTOR>>. Выражение должно идентифицировать конкретный узел (элемент или атрибут),
+    содержимое или значение которого должно иметь простой тип и использоваться в ограничении.  Значение параметра получается из
+    определения [.property]`fields` ограничения идентичности.
 
 
 .Symbol `field`
@@ -1103,32 +1103,32 @@ image::symbols/field.svg[]
 
 
 [[SYMBOL-LOOP]]
-==== smyčka
+==== петля
 
-[.class]`SymbolLoop` je pomocný symbol, který nepatří do XML schématu. Vykreslí se, pokud by mělo dojít k zacyklení.
-Deklarace elementu totiž může nepřímo obsahovat samu sebe, a to za splnění těchto podmínek:
+[.class]`SymbolLoop` это вспомогательный символ, который не принадлежит XML-схеме. Он будет нарисован, если произойдет зацикливание.
+Фактически, объявление элемента может косвенно содержать само себя при условии выполнения следующих условий:
 
-. Deklarace elementu je komplexního typu.
-. Komplexní typ (1) obsahuje částici (_Particle_).
-. Termínem ([.property]`term`) částice (2) je modelová skupina (_ModelGroup_) – vždy složená z dalších částic.
-. Termínem alespoň jedné z částic (3) je deklarace elementu totožná s deklarací uvedenou v bodě (1);
-    nebo je termínem alespoň jedné z částic (3) modelová skupina a v tom případě se postupuje rekurzivně od bodu (3),
-    dokud nebude nalezena deklarace elementu totožná s deklarací uvedenou v bodě (1).
+. Объявление элемента имеет комплексный тип.
+. Комплексный тип (1) содержит частицу (_Particle_).
+. Термин ([.property]`term`) частица (2) является модельной группой (_ModelGroup_) – всегда состоящей из других частиц.
+. Термин по крайней мере одной из частиц (3) является объявлением элемента, идентичным объявлению, упомянутому в пункте (1);
+    или член хотя бы одной из частиц (3) является модельной группой, и в этом случае рекурсивно исходят из точки (3),
+    до тех пор, пока не будет найдено объявление элемента, идентичное тому, что указано в пункте (1).
 
-Nemá parametry.
+У него нет параметров.
 
-.Symbol smyčky
+.Символ петля
 image::symbols/_loop.svg[]
 
 
 [[INTERACTIVITY]]
-=== Interaktivita modelu
+=== Интерактивная модель
 
-Jedním z požadavků kladených na grafický model je jeho interaktivita.
-SVG se dá rozpohybovat pomocí ECMAScriptu (JavaScriptu). Jednoduše půjde zajistit změnu zobrazovaných informací při najetí kurzoru myši na symboly <<SYMBOL-ELEMENT>> a <<SYMBOL-ATTRIBUTE>>.
-Složitější je implementovat rozbalování a skrývání podstromů jednotlivých symbolů.
-Aby to bylo možné, musí SVG dokument znát umístění symbolů v rámci jejich stromu.
-K vysvětlení použiji následující příklad:
+Одним из требований, предъявляемых к графической модели, является ее интерактивность.
+SVG можно перемещать с помощью ECMAScript (JavaScript). Вы можете просто изменить информацию, отображаемую при наведении курсора мыши на символы <<SYMBOL-ELEMENT>> и <<SYMBOL-ATTRIBUTE>>.
+Сложнее реализовать распаковку и скрытие поддеревьев отдельных символов.
+Для этого SVG-документ должен знать расположение символов в дереве.
+Я буду использовать следующий пример, чтобы объяснить:
 
 [source, xml]
 ----
@@ -1146,122 +1146,122 @@ K vysvětlení použiji následující příklad:
 </g>
 ----
 
-Jedná se o XML reprezentaci symbolu `address`.
-Ten se skládá z několika SVG elementů a je zobrazen jako <<ADDRESS-SYMBOL>>.
+Это XML-представление символа "адрес".
+Он состоит из нескольких SVG-элементов и отображается как <<ADDRESS-SYMBOL>>.
 
-* Symbol je tvořen dvěma obdélníky. První je mírně posunutý a tvoří lehký stín.
-    Druhý z nich tvoří hlavní box a je citlivý na najetí myši.
-* Dále symbol obsahuje čtyři textové položky. První dvě s obsahem „nillable: 0"` a „abstract: 0"`
-    jsou teď skryty. Řetězce „address"` a „type: AddressType"` jsou naopak viditelné.
-* Následuje úsečka a na ní navazující křivka, která zleva připojuje symbol ke svému rodiči.
-* Nakonec je použit předem definovaný symbol „plus"`, což je malý čtverec se znakem plus.
-    Je citlivý na kliknutí myši.
+* Символ состоит из двух прямоугольников. Первая слегка сдвинута, образуя легкую тень.
+    Последний образует основную коробку и чувствителен к зависанию мыши.
+* Кроме того, символ содержит четыре текстовых элемента. Первые два содержат "nillable: 0" ` и "abstract: 0"`
+    теперь они спрятаны. Строки „address"` и „type: addressstype"` видны.
+* За ним следует отрезок линии, за которым следует кривая, соединяющая символ с его родителем слева.
+* Наконец, используется заранее определенный символ "плюс", представляющий собой небольшой квадрат со знаком "плюс".
+    Он чувствителен к щелчкам мыши.
 
-Navíc, aby se se symbolem dalo pracovat jako s jedním celkem,
-jsou všechny popsané položky obaleny jako skupina  elementem `<g>`
-Ten dále umožňuje transformaci pozice symbolu a jeho jednoznačnou identifikaci v rámci stromu.
+Кроме того, для того, чтобы работать с символом как единым целым,
+все описанные элементы упаковываются в группу элементом `<g>`
+Последнее также позволяет трансформировать положение символа и его однозначную идентификацию внутри дерева.
 
 [[ADDRESS-SYMBOL]]
-.Symbol elementu address (v normálním režimu; při najetímyši)
+.Символ элемента адреса (в обычном режиме; при наведении мыши)
 image::images/address.svg[]
 
-Pro změnu zobrazovaných položek při najetí myši stačí, aby měl každý symbol jednoznačný identifikátor.
-Ten je předáván ECMAScriptovým metodám [.method]`makeVisible`([.parameter]`id`)
-a [.method]`makeHidden`([.parameter]`id`) při najetí kurzoru myši na hlavní box symbolu, respektive při jeho sjetí z boxu.
-Změna spočívá v tom, že položky, které měly nastavenou třídu ([.property]`class`) na hidden, budou nyní viditelné.
-Jedná se o textové řetězce „nillable: 0"` a „abstract: 0"`. Naopak položky ve třídě visible budou dočasně skryty.
-Sem patří pouze řetězec „type: AddressType"`. Viz obrázek <<ADDRESS-SYMBOL>>.
+Чтобы изменить отображаемые элементы при наведении курсора мыши, достаточно, чтобы каждый символ имел уникальный идентификатор.
+Это передается в ECMAScript методами [.method]`makeVisible`([.parameter]`id`)
+и [.method]`makeHidden`([.parameter]`id`) при наведении курсора мыши на поле основного символа или при его выходе из поля.
+Изменение заключается в том, что элементы, которые имели заданную категорию ([.property]`class`) скрытыми, теперь будут видны.
+Это текстовые строки "nillable: 0"` a "abstract: 0"`. Наоборот, предметы в классе будут временно скрыты.
+Это включает в себя только строку „type: AddressType"`. См. изображение <<ADDRESS-SYMBOL>>.
 
-Zde použitý identifikátor symbolu je poměrně složitý, jedná se o řetězec `_1_1_1_2`.
-Jeho použití je však opodstatněné.
-Už jsem napsal, že pro práci s podstromy symbolů, musí být v SVG dokumentu patrné, do které části stromu symbol spadá.
-To lze jednoznačně určit pomocí takovýchto identifikátorů, uvedením cesty od kořene stromu až ke konkrétnímu symbolu.
-Podívejte se na obrázek <<INTERACTIVITY_MODEL>>.
+Идентификатор символа, используемый здесь, довольно сложен, это строка `_1_1_1_2`.
+Однако его использование оправдано.
+Я уже писал, что для работы с поддеревьями символов в SVG-документе должно быть видно, к какой части дерева относится символ.
+Это можно однозначно определить с помощью таких идентификаторов, указывающих путь от корня дерева к определенному символу.
+Посмотрите на изображение <<INTERACTIVITY_MODEL>>.
 
 [[INTERACTIVITY_MODEL]]
-.Model s kódy symbolů
+.Модель с кодами символов
 image::images/model_interactivity.png[]
 
-Kořenový symbol má identifikátor `_1`.
-Potržítko je nutné kvůli přípustným hodnotám attributu `id`, je tedy zvoleno i jako oddělovač.
-Kořenový symbol má dále dvě děti.
-Jejich identifikátory jsou tvořeny identifikátorem rodiče a přidanou vlastní částí, která udává jejich pozici.
-Dostáváme řetězce `_1_1` a `_1_2`.
-Analogicky symbol `_1_1` má dítě `_1_1_1`.
-Symbol s identifikátorem `_1_1_1` má dvě děti a druhé z nich (`_1_1_1_2`) je popisovaný prvek, symbol elementu `address`.
+Корневой символ имеет идентификатор `_1`.
+Разделитель необходим из-за допустимых значений атрибута `id`, поэтому он также выбирается в качестве разделителя.
+Корневой символ также имеет двух детей.
+Их идентификаторы состоят из идентификатора родительского и добавленной собвстенной части, указывающей их позицию.
+Мы получаем строки `_1_1` a `_1_2`.
+По аналогии, символ `_1_1` имеет дочернее значение `_1_1_1`.
+Символ с идентификатором `_1_1_1` имеет два дочерних элемента, и второй из них (`_1_1_1_2`) является описываемым элементом, символом элемента `address`.
 
-Při kliknutí na symbol minus za boxem `address` se zavolá ECMAScriptová metoda [.method]`show`([.parameter]`"_1_1_1_2"`).
-Ta provede následující:
+Когда вы нажимаете на символ минус после поля `address` используется ECMAScript метод [.method]`show`([.parameter]`"_1_1_1_2"`).
+Последний выполняет следующие функции:
 
-* Změní tu symbol minus na plus, přepsáním atributu `xlink:href` elementu `<use>`
-    tak, aby odkazoval na předem definovaný grafický objekt `plus`.
-* Schová celý podstrom symbolů připojený zprava k boxu. Patří do něj všechny symboly,
-    jejichž identifikátor začíná také na `_1_1_1_2`. U elementů `<g>`
-    obalujících objekty, z nichž se symbol skládá, se nastaví atribut `visibility` na hodnotu [.property]`hidden`.
-* Vzniklý prostor se zaplní vedlejšími větvemi. Ty se posunou směrem nahoru, přenastavením hodnoty atributu `transform`
-    u seskupujícícho elementu `<g>`.
-    Výpočet vzdálenosti, o kterou se mohou symboly posunout, je nutné provést pouze pro jeden symbol, pro ostatní je vzdálenost stejná.
-    Zde poslouží také systém identifikace.
-    Navíc je třeba zkrátit úsečku propojující rodičovské symboly s posouvanou větví.
+* Меняет символ минуса здесь на плюс, переписав атрибут `xlink:href` elementu `<use>`
+    так, что это относится к предопределенному графическому объекту `plus`.
+* Скрывает все поддерево символов, прикрепленное справа от поля. Он включает в себя все символы,
+    чей идентификатор также начинается с `_1_1_1_2`. Для элементов `<<g-container>>`
+    группирующих объекты, составляющие символ, атрибут "видимость" имеет значение [.property]`hidden`.
+* Полученное пространство заполняется боковыми ветвями. Они перемещаются вверх, регулируя значение атрибута `transform`
+    для группирующего элемента `<g>`.
+    Расчет расстояния, на которое могут перемещаться символы, нужно делать только для одного символа, для остальных расстояние такое же.
+    Здесь также будет работать система идентификации.
+    Кроме того, необходимо укоротить отрезок линии, соединяющий родительские символы с прокрученной ветвью.
 
-Výsledek je možné vidět na obrázku <<INTERACTIVITY-MODEL-2>>.
-Pokud teď klikneme na symbol plus, zavolá se opět metoda [.method]`show`([.parameter]`"_1_1_1_2"`).
-Ta teď ale bude pracovat přesně naopak, než bylo popsáno.
+Результат можно увидеть на рисунке <<INTERACTIVITY-MODEL-2>>.
+Если мы сейчас нажмем на символ плюса, то будет снова вызван метод [.method]`show`([.parameter]`"_1_1_1_2"`).
+Но теперь он будет работать прямо противоположно тому, что было описано.
 
-Kromě výše uvedené funkčnosti budou poskytnuta tlačítka pro zobrazení a skrytí všech symbolů, až na kořenový.
-Časem přibudou i škálovací tlačítka _zoom in_ a _zoom out_, zatím se lze obejít bez nich a využít funkce prohlížeče.
+В дополнение к вышеописанному функционалу будут предусмотрены кнопки для отображения и скрытия всех символов, кроме корневого.
+Со временем будут добавлены кнопки масштабирования _zoom in_ и _zoom out_, пока вы можете обойтись без них и использовать функции браузера.
 
 [[INTERACTIVITY-MODEL-2]]
-.Model po skrytí podstromu elementu address
+.Модель после скрытия поддерева элемента адреса
 image::images/model_interactivity2.png[]
 
 
-=== Výsledná SVG reprezentace schématu
+=== Итоговое SVG-представление схемы
 
-Když splním všechny podmínky, získám z aplikace výstup ve formátu SVG,
-jehož grafickou reprezentaci si můžete prohlédnout na obrázku <<MY-MODEL>>.
-V příloze <<EXAMPLES>> je pro přehlednost znovu uvedeno jak vstupní XML schéma,
-tak i SVG výstup v XML i grafické reprezentaci.
+Если все условия выполнены, я получаю вывод SVG из приложения,
+графическое представление которого можно увидеть на рисунке <<MY-MODEL>>.
+В приложении <<EXAMPLES>> для наглядности, снова показано, как вводится XML-схема,
+таким образом, SVG выводится как в XML, так и в графическом представлении.
 
 [float]
 [[STYLE]]
-==== Styl
+==== Стиль
 
-Výsledný diagram se ale dá ještě dodatečně upravovat, jeho vzhled je totiž nastaven v CSS stylu.
-Aplikace dokáže styl generovat jako součást SVG dokumentu nebo zvlášť, nebo pouze připojit existující externí styl.
-Kaskádové styly využívají selektory pro výběr určitých elementů, kterým pak nastaví vzhled.
-Výběr může být určen názvem tagu, pokud však chceme jednotně upravit určité logické celky, lze využít jejich zařazení do tříd ([.property]`class`). V SVG výstupu vznikly tyto třídy:
+Однако полученную диаграмму можно дополнительно модифицировать, поскольку ее внешний вид задан в стиле CSS.
+Приложение может сгенерировать стиль как часть SVG-документа или отдельно, или только прикрепить существующий внешний стиль.
+Каскадные стили используют селекторы для выбора определенных элементов, которые затем задают внешний вид.
+Выбор может быть определен именем тега, но если мы хотим единообразно редактировать определенные логические единицы, мы можем использовать их включение в классы ([.property]`class`). В выходных данных SVG были созданы следующие классы:
 
-* [.property]`strong` pro důležité nápisy jako jsou názvy elementů a atributů. Písmo je větší a tučné.
-* [.property]`small` pro text, jenž je součástí grafiky, psaný menším písmem.
-* [.property]`big` pro text, jenž je součástí grafiky, psaný větším písmem.
-* [.property]`button` pro tlačítka; podstatou je, že má v parametru [.property]`pointer-events`
-    zapnutou citlivost na určité události, především nám jde o kliknutí myši.
-* [.property]`shadow` je třída pro stín zobrazovaný za některými boxy.
-* [.property]`connection` zahrnuje úsečky a křivky propojující jednotlivé grafické symboly (boxy).
-* [.property]`empty` pro tvary obtažené, bez výplně.
-* [.property]`filled` pro tvary vyplněné, bez obtažení.
-* [.property]`boxelement` pro box symbolu <<SYMBOL-ELEMENT>>.
-* [.property]`boxattribute1` pro box symbolu <<SYMBOL-ATTRIBUTE>>, pokud je použití atributu povinné.
-* [.property]`boxattribute2` pro box symbolu <<SYMBOL-ATTRIBUTE>>, pokud je použití atributu volitelné.
-* [.property]`boxany` pro box symbolu <<SYMBOL-ANY>>.
-* [.property]`boxanyattribute` pro box symbolu <<SYMBOL-ANY-ATTRIBUTE>>.
-* [.property]`boxschema` pro box symbolu <<SYMBOL-SCHEMA>>.
-* [.property]`boxcompositor` pro boxy symbolů <<SYMBOL-ALL>>, <<SYMBOL-CHOICE>>, <<SYMBOL-SEQUENCE>>.
-* [.property]`boxloop` pro box symbolu <<SYMBOL-LOOP>>.
-* [.property]`boxidc` pro boxy symbolů <<SYMBOL-UNIQUE>>, <<SYMBOL-KEY>>, <<SYMBOL-KEYREF>>.
-* [.property]`boxselector` pro box symbolu <<SYMBOL-SELECTOR>>.
-* [.property]`boxfield` pro box symbolu <<SYMBOL-FIELD>>.
-* [.property]`lax` slouží k dalšímu nastavení vzhledu u boxů <<SYMBOL-ANY>> a <<SYMBOL-ANY-ATTRIBUTE>>,
-    pokud je u nich způsob zpracování nastaven na _lax_.
-* [.property]`skip` slouží k dalšímu nastavení vzhledu u boxů <<SYMBOL-ANY>> a <<SYMBOL-ANY-ATTRIBUTE>>,
-    pokud je u nich způsob zpracování nastaven na _skip_.
-* [.property]`strict` slouží k dalšímu nastavení vzhledu u boxů <<SYMBOL-ANY>> a <<SYMBOL-ANY-ATTRIBUTE>>,
-    pokud je u nich způsob zpracování nastaven na _strict_.
+* [.property]`strong` для важных надписей, таких как названия элементов и атрибутов. Шрифт больше и жирнее.
+* [.property]`small` для текста, который является частью графики, написанной более мелким шрифтом.
+* [.property]`big` для текста, который является частью графики, написанной более крупным шрифтом.
+* [.property]`button` для кнопок; суть в том, что он имеет в параметре [.property]`pointer-events`
+    включается чувствительность к определенным событиям, в первую очередь речь идет о щелчках мыши.
+* [.property]`shadow` это класс для тени, отображаемой за некоторыми блоками.
+* [.property]`connection` включает в себя сегменты и кривые, соединяющие отдельные графические символы (боксы).
+* [.property]`empty` для форм обтаженных, без заливки.
+* [.property]`filled` для форм, заполненных, без границы.
+* [.property]`boxelement` для поля символов <<SYMBOL-ELEMENT>>.
+* [.property]`boxattribute1` для поля символов <<SYMBOL-ATTRIBUTE>>, если использование атрибута является обязательным.
+* [.property]`boxattribute2` для поля символов <<SYMBOL-ATTRIBUTE>>, если использование атрибута является необязательны
+* [.property]`boxany` для поля символов <<SYMBOL-ANY>>.
+* [.property]`boxanyattribute` для поля символов <<SYMBOL-ANY-ATTRIBUTE>>.
+* [.property]`boxschema` для поля символов <<SYMBOL-SCHEMA>>.
+* [.property]`boxcompositor` для поля символов <<SYMBOL-ALL>>, <<SYMBOL-CHOICE>>, <<SYMBOL-SEQUENCE>>.
+* [.property]`boxloop` для поля символов <<SYMBOL-LOOP>>.
+* [.property]`boxidc` для поля символов <<SYMBOL-UNIQUE>>, <<SYMBOL-KEY>>, <<SYMBOL-KEYREF>>.
+* [.property]`boxselector` для поля символов <<SYMBOL-SELECTOR>>.
+* [.property]`boxfield` для поля символов <<SYMBOL-FIELD>>.
+* [.property]`lax` служит для дальнейшей регулировки внешнего вида блоков <<SYMBOL-ANY>> a <<SYMBOL-ANY-ATTRIBUTE>>,
+    если их метод обработки установлен на _lax_.
+* [.property]`skip` служит для дальнейшей регулировки внешнего вида блоков <<SYMBOL-ANY>> a <<SYMBOL-ANY-ATTRIBUTE>>,
+    если их метод обработки установлен на _skip_.
+* [.property]`strict` служит для дальнейшей регулировки внешнего вида блоков <<SYMBOL-ANY>> a <<SYMBOL-ANY-ATTRIBUTE>>,
+    если их метод обработки установлен на _strict_.
 
 
 [float]
-==== Původní styl generovaný aplikací
+==== Оригинальный стиль, сгенерированный приложением
 
 [source, css]
 ----
@@ -1292,7 +1292,7 @@ line, polyline, polygon {fill: none; stroke: black;}
 ----
 
 [[MY-MODEL]]
-.Výstup aplikace pro výše uvedený příklad XML schématu
+.Вывод приложения для приведенного выше примера XML-схемы
 image::images/model_my.svg[]
 
 
@@ -1681,171 +1681,171 @@ nebo integrovat do systému pro generování kompletních dokumentací.
 
 [bibliography]
 [float]
-=== Hlavní
-- [[[XSD0,1]]] Fallside, D. C., Walmsley, P. a kol.:
+=== Главное
+- [[[XSD0,1]]] Фоллсайд, Д. К., Уолмсли, П. a kol.:
     _XML Schema Part 0: Primer Second Edition_
-    [online]. W3C, 2004. Dostupný z WWW: http://www.w3.org/TR/xmlschema-0/
+    [online]. W3C, 2004. Доступно с сайта: http://www.w3.org/TR/xmlschema-0/
 
-- [[[XSD1,2]]] Thompson, H. S., Beech, D., Maloney, M., Mendelsohn, N. a kol.:
+- [[[XSD1,2]]] Томпсон, Х. С., Бук, Д., Малони, M., Мендельсон, N. a kol.:
     _XML Schema Part 1: Structures Second Edition_
-    [online]. W3C, 2004. Dostupný z WWW: http://www.w3.org/TR/xmlschema-1/
+    [online]. W3C, 2004. Доступно с сайта: http://www.w3.org/TR/xmlschema-1/
 
-- [[[XSD2,3]]] Biron, P. V., Malhotra, A. a kol.:
+- [[[XSD2,3]]] Бирон, П. В., Малхотра, А. a kol.:
     _XML Schema Part 2: Datatypes Second Edition_
-    [online]. W3C, 2004. Dostupný z WWW: http://www.w3.org/TR/xmlschema-2/
+    [online]. W3C, 2004. Доступно с сайта: http://www.w3.org/TR/xmlschema-2/
 
-- [[[XSD-VLIST,4]]] van der Vlist, E.:
+- [[[XSD-VLIST,4]]] ван дер Влист, Е.:
     _Using W3C XML Schema. XML.com, 2001._
-    Dostupný z WWW: http://www.xml.com/pub/a/2000/11/29/schemas/part1.html?page=1
+    Доступно с сайта: http://www.xml.com/pub/a/2000/11/29/schemas/part1.html?page=1
 
-- [[[SVG,5]]] Ferraiolo, J., Fujisawa, J., Jackson, D.: Scalable Vector Graphics (SVG) 1.1 Specification
-    [online]. W3C, 2003. Dostupný z WWW: http://www.w3.org/TR/SVG/
+- [[[SVG,5]]] Феррайоло, Дж., Фудзисава, Дж., Джексон, Д.: 
+    _Scalable Vector Graphics (SVG) 1.1 Specification_
+    [online]. W3C, 2003. Доступно с сайта: http://www.w3.org/TR/SVG/
 
 [bibliography]
 
 [float]
-=== Vedlejší a doplňková
-- [[[XML,6]]] Bray, T., Paoli, J., Sperberg-McQueen, C. M., Maler, E., Yergeau, F. a kol.:
+=== Вторичные и дополнительные
+- [[[XML,6]]] Брей, Т., Паоли, Дж., Сперберг-Маккуин, С. М., Малер Э., Йерго, Ф. a kol.:
     _Extensible Markup Language (XML) 1.0 (Fourth Edition)_
-    [online]. W3C, 2006. Dostupný z WWW: http://www.w3.org/TR/REC-xml/
+    [online]. W3C, 2006. Доступно с сайта: http://www.w3.org/TR/REC-xml/
 
-- [[[INFOSET,7]]] Cowan, J., Tobin, R.:
+- [[[INFOSET,7]]] Коуэн, Дж., Тобин, Р.:
     _XML Information Set (Second Edition)_
-    [online]. W3C, 2004. Dostupný z WWW: http://www.w3.org/TR/xml-infoset/
+    [online]. W3C, 2004. Доступно с сайта: http://www.w3.org/TR/xml-infoset/
 
-- [[[NAMESPACE,8]]] Bray, T., Hollander, D., Layman, A., Tobin, R.:
+- [[[NAMESPACE,8]]] Брэй, Т., Холландер, Д., Лейман, А., Тобин, Р.:
     _Namespaces in XML 1.0 (Second Edition)_
-    [online]. W3C, 2006. Dostupný z WWW: http://www.w3.org/TR/REC-xml-names/
+    [online]. W3C, 2006. Доступно с сайта: http://www.w3.org/TR/REC-xml-names/
 
-- [[[DOM1,9]]] Wood, L. a kol.:
+- [[[DOM1,9]]] Вуд, Л. a kol.:
     _Document Object Model (DOM) Level 1 Specification_
-    [online]. W3C, 1998. Dostupný z WWW: http://www.w3.org/TR/REC-DOM-Level-1/
+    [online]. W3C, 1998. Доступно с сайта: http://www.w3.org/TR/REC-DOM-Level-1/
 
-- [[[DOM2,10]]] Wood, L. a kol.:
+- [[[DOM2,10]]] Вуд, Л. a kol.:
     _Document Object Model (DOM) Level 2 Core Specification_
-    [online]. W3C, 2000. Dostupný z WWW: http://www.w3.org/TR/DOM-Level-2-Core/
+    [online]. W3C, 2000. Доступно с сайта: http://www.w3.org/TR/DOM-Level-2-Core/
 
-- [[[CSS,11]]] Lie, H. W., Bos, B.:
+- [[[CSS,11]]] Лие Х. В., Бос, Б.:
     _Cascading Style Sheets, level 1_
-    [online]. W3C, 1996. Dostupný z WWW: http://www.w3.org/TR/CSS1/
+    [online]. W3C, 1996. Доступно с сайта: http://www.w3.org/TR/CSS1/
 
-- [[[M254,12]]] Hall, W., Keynes, M.:
-    _M254 Java everywhere_
-    [online]. The Open University, 2005. Dostupný z WWW: http://computing.open.ac.uk/m254/
+- [[[M254,12]]] Холл, У., Кейнс, М.:
+итм    _M254 Java everywhere_
+    [online]. The Open University, 2005. Доступно с сайта: http://computing.open.ac.uk/m254/
 
 :sectnums:
 
 :sectnums!:
 
 [appendix]
-== Termíny
+== Термины
 [glossary]
 API:: Application Programming Interface,
-    rozhraní aplikačních programů. Sada procedur, funkcí nebo tříd
-    určité knihovny, programu nebo jádra operačního systému, která může
-    být využita v aplikacích.
+    интерфейс прикладных программ. Набор процедур, функций или классов
+    конкретная библиотека, программа или ядро операционной системы, которые могут
+    быть использованным в приложениях.
 
-CSS:: Cascading Style Sheets, kaskádové styly.
-    Jednoduchý mechanismus pro přidání grafické úpravy webovým
-    dokuentům. Standard organizace W3C mimo jiné v <<CSS>>.
+CSS:: Cascading Style Sheets, каскадные стили.
+    Простой механизм добавления графического редактирования в сеть
+    докуранты. Стандарт W3C, в частности, в <<CSS>>.
 
-Data binding:: Převod dat mezi různými formáty. Například mezi XML dokumenty,
-    objekty objektově orientovaných systémů a relačními tabulkami
-    databázových systémů.
+Data binding:: Конвертируемые данные между различными форматами. Например, между XML-документами,
+    объекты объектно-ориентированных систем и реляционные таблицы
+    систем баз данных.
 
-DOM:: Document Object Model, objektový model
-    dokumentu. Rozhraní nezávislé na platformě a jazyku, které umožňuje
-    programům a skriptům dynamický přístup k obsahu, struktuře a stylu
-    dokumentu a jeho editaci. Poskytuje objektově orientovanou
-    reprezentaci XML nebo HTML dokumentu. Specifikace W3C v <<DOM1>>, <<DOM2>> a dalších.
+DOM:: Document Object Model, объектная модель
+    документов. Независимый от платформы и языка интерфейс, который позволяет
+    программам и скриптам динамического доступа к контенту, структуре и стилю
+    документа, и его редактирование. Обеспечивает объектно-ориентированное
+    представление документа XML или HTML. Спецификации W3C в <<DOM1>>, <<DOM2>> и др.
 
-DTD:: Document Type Definition, definice typu
-    dokumentu. DTD poskytuje nástroje pro definování povolených struktur
-    elementů a atributů, umožňuje stanovení implicitních hodnot
-    atributů. V rámci DTD lze také definovat znovupoužitelný obsah
-    (entity) a dodatečné informace (notace). Specifikace je součástí
-    doporučení organizace W3C o XML – <<XML>> a
-    další.
+DTD:: Document Type Definition, определение типа
+    документа. DTD предоставляет инструменты для определения разрешенных структур
+    элементов и атрибутов, позволяющих устанавливать значения атрибутов по умолчанию. Повторно используемое содержимое также может быть определено в DTD
+    (entity) и дополнительная информация (notace). Спецификация 
+    является частью рекомендации W3C по XML – <<XML>> и
+    другие.
 
-ECMAScript:: Skriptovací (programovací) jazyk, standardizován organizací
-    Ecma International ve specifikaci
-    ECMA-262. Je široce používán na webu a bývá
-    často označován jako JavaScript nebo JScript, podle hlavních
-    dialektů tohoto jazyka.
+ECMAScript:: Язык сценариев (программирования), стандартизированный организацией
+    Ecma International в спецификации
+    ECMA-262. Он широко используется в интернете и часто
+    упоминается как JavaScript или JScript, в соответствии с основными
+    диалектами этого языка.
 
-Framework:: Základní konceptuální struktura užívaná k řešení nebo zaměření
-    se na komplexní problémy. V oblasti softwaru se často jedná
-    o knihovny, podpůrné programy, návrhové vzory a doporučené postupy.
-    Framework řeší typické úlohy, které jsou ve většině aplikací shodné,
-    a usnadňuje tak vývoj.
+Framework:: Базовая концептуальная структура, используемая для решения или фокусировки
+    внимания на сложных проблемах. В области программного обеспечения это часто
+    библиотеки, вспомогательные программы, шаблоны проектирования и лучшие практики.
+    Фреймворк решает типичные задачи, которые идентичны в большинстве приложений,
+    что облегчает разработку.
 
-HTML:: HyperText Markup Language, hypertextový
-    značkovací jazyk. Jazyk pro tvorbu webových stránek, aplikace SGML.
-    Specifikaci vydala organizace W3C.
+HTML:: HyperText Markup Language, язык
+    разметки гиперссылок. Язык для создания сайтов, приложений SGML.
+    Спецификация была выпущена организацией W3C.
 
-Informační položka:: Information item. Představuje uzel
-    stromové struktury XML infosetu. Specifikace <<INFOSET>> definuje jedenáct různých typů položek. Každá
-    má určité vlastnosti jako je rodičovský element, lokální jméno atd.
-    V této práci se zmiňuji o znakové informační položce, informační
-    položce element a atribut.
+Информационный элемент:: Information item. Представляет узел
+    древовидной структуры XML infosetu. Спецификация <<INFOSET>> определяет одиннадцать различных типов элементов. Каждый
+    из них имеет определенные свойства, такие как родительский элемент, локальное имя и т. д.
+    В этой работе я упоминаю информационный элемент персонажа, 
+    атрибут информационного элемента.
 
-Infoset:: XML Information Set je abstraktní datový
-    model XML dokumentu, skládá se z jednotlivých informačních položek.
-    Specifikace W3C <<INFOSET>>.
+Infoset:: XML Information Set это абстрактная модель
+    данных XML документа, состоящая из отдельных информационных элементов.
+    Спецификация W3C <<infoset>>.
 
-Java:: Objektově orientovaný, silně typový, na platformě nezávislý
-    programovací jazyk od společnosti Sun Microsystems.
+Java:: Объектно-ориентированный, строго наборный, платформенно-независимый
+    язык программирования от Sun Microsystems.
 
-Namespace:: Jmenný prostor. XML poskytuje jednoduchou metodu pro
-    kvalifikování jmen elementů a atributů jejich zařazením do jmenného
-    prostoru s URI identifikátorem. Specifikace W3C <<NAMESPACE>>.
+Namespace:: Пространство имен. XML обеспечивает простой метод для
+    квалификация наименований элементов и атрибутов путем их включения в в пространство имен
+    с идентификатором URI. Спецификация W3C <<NAMESPACE>>.
 
-Parsování:: Analýza předložených dat a vyhledávání prvků odpovídajících
-    definici určitého jazyka. Obvykle jde o syntaktickou analýzu
-    zdrojových kódů napsaných v daném programovacím jazyce.
+Разбор:: Анализ представленных данных и поиск элементов,
+    соответствующих определению того или иного языка. Обычно это синтаксический анализ
+    исходных кодов, написанных на заданном языке программирования.
 
-PSVI:: Post Schema Validation Infoset, infoset
-    po validaci dokumentu oproti schématu. Je to infoset XML dokumentu
-    rozšířený o informace o datových typech položek. Příspěvky k PSVI
-    jsou definovány ve specifikaci XML schématu <<XSD1>>
-    a <<XSD2>>.
+PSVI:: Post Schema Validation Infoset, информационный пакет (инфосеть?)
+    после проверки документа по схеме. Это информационный набор XML - документов,
+    дополненный информацией о типах элементов данных. Вклады PSVI
+    определяются в спецификации XML-схемы <<XSD1>>
+    и < < xsd2>>.
 
-Renderování:: Rendering, proces, při němž se vykresluje
-    obraz ze zadaných dat.
+Визуализация:: Рендеринг-процесс, с помощью которого
+    изображение визуализируется из введенных данных.
 
-SAX:: Simple API for XML, jednoduché aplikační
-    rozhraní pro XML. Poskytuje mechanismus pro čtení dat z XML
-    dokumentů. Čtení probíhá sekvenčně a je založeno na událostech
-    (přečtení počátečního tagu, přečtení ukončujícího tagu atd.) Není
-    proto možná modifikace struktury dokumentu, na rozdíl od DOM.
+SAX:: Simple API for XML, простой интерфейс
+    приложения для XML. Предоставляет механизм для чтения данных из XML
+    документов. Чтение происходит последовательно и основано на событиях
+    (чтение начального тега, чтение конечного тега и т. д.). Поэтому
+    модификация структуры документа, в отличие от Dom, невозможна.
 
-SVG:: Scalable Vector Graphics, škálovatelná
-    vektorová grafika. SVG je jazyk pro popis dvourozměrné grafiky a
-    grafických aplikací pomocí XML. Základ vývoje tvoří specifikace SVG
-    1.1, vydaná jako doporučení konsorcia W3C 14. ledna 2003 <<SVG>>.
+SVG:: Scalable Vector Graphics, масштабируемая
+    векторная графика. SVG-это язык для описания двумерной графики и
+    графических приложений с использованием XML. Разработка основана на спецификации SVG
+    1.1, выпущенной в качестве рекомендации консорциума W3C 14. 1 января 2003 года <<SVG>>.
 
-Tag:: Značka vymezující začátek a/nebo konec elementu.
+Tag:: Метка, определяющая начало и/или конец элемента.
 
-Validace:: Ověření shody XML dokumentu se schématem.
+Validace:: Верификация XML-документа в соответствии со схемой.
 
-W3C:: World Wide Web Consortium. Zabývá se
-    vývojem interoperabilních technologií – specifikací, směrnic,
-    softwaru a nástrojů – s cílem sjednotit používané technologie
-    a dosáhnout plného rozvoje a využití možností webu.
+W3C:: World Wide Web Consortium. Она занимается
+    разработкой совместимых технологий-спецификаций, руководств,
+    программного обеспечения и инструментов с целью унификации используемых технологий
+    и достижения полного развития и использования возможностей интернета.
 
 XHTML:: Extensible HyperText Markup Language,
-    rozšiřitelný hypertextový značkovací jazyk. Jazyk pro tvorbu
-    webových stránek, aplikace XML. Specifikaci vydala organizace
+    расширяемый язык разметки гипертекста. Язык для создания 
+    веб-страниц, xml-приложений. Спецификация была выпущена организацией
     W3C.
 
-XML:: Extensible Markup Language, rozšiřitelný
-    značkovací jazyk. Umožňuje vývojářům vytvářet vlastní formáty pro
-    uchování a sdílení dat. Specifikaci vydalo konsorcium W3C, <<XML>> a další.
+XML:: Extensible Markup Language, расширяемый
+    язык разметки. Позволяет разработчикам создавать пользовательские форматы хранения и обмена данными.
+    Спецификация была опубликована консорциумом W3C, <<XML>> и другими.
 
-XML schéma:: XML schémata poskytují prostředky pro definování struktury,
-    obsahu a sémantiky XML dokumentů. XML schéma bylo schváleno jako
-    doporučení organizace W3C 2. května 2001 a druhá, upravená verze
-    byla vydána 28. října 2004 <<XSD0>>, <<XSD1>>, <<XSD2>>.
+XML schéma:: XML-схемы предоставляют средства для определения структуры,
+    содержания и семантики XML-документов. Xml-схема была одобрена в качестве
+    рекомендации W3C 2 мая 2001 года, а вторая, измененная версия
+    была выпущена 28 октября 2004 года <<XSD0>>, <<XSD1>>, <<XSD2>>.
 
 
 :sectnums:
@@ -1854,35 +1854,35 @@ XML schéma:: XML schémata poskytují prostředky pro definování struktury,
 
 [appendix]
 [[_CD]]
-== Obsah CD-ROM
+== Содержимое компакт-диска
 
-Součástí této práce je přiložený CD-ROM s textem práce, zdrojovými kódy a hotovou aplikací.
-Poslední verze bude přístupná na webové stránce: http://st.vse.cz/~XSLAV14/.
-Konkrétně na CD naleznete následující strukturu adresářů a souborů:
+Эта работа включает в себя прилагаемый компакт-диск с текстом работы, исходные коды и готовое приложение.
+Последняя версия будет доступна по адресу: http://st.vse.cz/~XSLAV14/.
+В частности, на компакт-диске вы найдете следующую структуру каталогов и файлов:
 
-. [.path]_/thesis_ – adresář týkající se psaní bakalářské práce, obsahuje:
-** [.path]_/images_ – složka použitých obrázků kromě symbolů komponent schématu
-** [.path]_/symbols_ – složka s obrázky symbolů komponent schématu ve formátu SVG
-** [.path]_thesis.xml_ – vlastní text práce ve formátu DocBook
-** [.path]_thesis.xsl_, [.path]_tp-fo.xsl_ – styly upravující standardní výstup DocBooku
-** [.path]_kizi.pdf_ – logo katedry pro titulní stranufootnote:[Upravené styly a logo katedry pochází ze stránek Jiřího Koska, věnovaných výuce na VŠE: http://www.kosek.cz/vyuka/.]
-** [.path]_thesis.pdf_ – vygenerované PDF s touto prací
-. [.path]_/src_ – adresář zdrojových kódů Javy, struktura vychází ze zařazení tříd do balíčků
-. [.path]_/res_ – adresář dalších zdrojů obsahující:
-** [.path]_/examples_ – složka s příklady XSD vstupů
-** [.path]_/licenses_ – složka s licencemi parseru Xerces
-** [.path]_readme.txt_ – textový dokument, popisuje uživatelské rozhraní
-. [.path]_/lib_ – adresář obsahuje implementaci parseru Xerces – [.path]_xercesImpl.jar_
-. [.path]_/dist_ – složka s aplikací připravenou k použití, obsahuje:
-** [.path]_/examples_ – překopírováno z adresáře [.path]_/res_
-** [.path]_/licenses_ – překopírováno z adresáře [.path]_/res_
-** [.path]_/lib_ – adresář knihoven:
-... kopie souboru [.path]_xercesImpl.jar_ a případných dalších z adresáře [.path]_/lib_
-... archiv s vlastní aplikací [.path]_xsdvi.jar_
-** [.path]EXAMPLES.bat_ – spouští transformaci příkladů, schémat ze složky examples
-** [.path]_readme.txt_ – překopírováno z adresáře [.path]_/res_
-. [.path]_build.properties_ – nastavení vlastností využívaných v [.path]_build.xml_
-. [.path]_build.xml_ – XML skript pro sestavovací program Ant
+. [.path]_/thesis_ – справочник, связанный с написанием бакалаврской диссертации, содержит:
+** [.path]_/images_ – папку используемых изображений за исключением символов компонентов схемы
+** [.path]_/symbols_ – папку с изображениями символов компонентов схемы в формате SVG
+** [.path]_thesis.xml_ – пользовательский текст работы в формате DocBook
+** [.path]_thesis.xsl_, [.path]_tp-fo.xsl_ – стили, изменяющие стандартный вывод DocBook
+** [.path]_kizi.pdf_ – логотип отдела для первой страницы footnote:[Upravené styly a logo katedry pochází ze stránek Jiřího Koska, věnovaných výuce na VŠE: http://www.kosek.cz/vyuka/.]
+** [.path]_thesis.pdf_ – сгенерированный PDF файл с этой работой
+. [.path]_/src_ – Каталог исходного кода Java, структура которого основана на включении классов в пакеты
+. [.path]_/res_ – каталог других ресурсов, содержащих:
+** [.path]_/examples_ – папку с примерами XSD-входов
+** [.path]_/licenses_ – лицензионную папку Xerces 
+** [.path]_readme.txt_ – текстовый документ, описывающий пользовательский интерфейс
+. [.path]_/lib_ – каталог содержащий реализацию парсера Xerces – [.path]_xercesImpl.jar_
+. [.path]_/dist_ – папка с готовым к использованию приложением содержит:
+** [.path]_/examples_ – скопировано из каталога [.path]_/res_
+** [.path]_/licenses_ – скопировано из каталога [.path]_/res_
+** [.path]_/lib_ – библиотечный каталог:
+... копия файла [.path]_xercesImpl.jar_ и любые другие файлы из каталога [.path]_/lib_
+... архив с приложением [.path]_xsdvi.jar_
+** [.path]EXAMPLES.bat_ – запуск преобразования примеров, схем из папки examples
+** [.path]_readme.txt_ – скопировано из каталога [.path]_/res_
+. [.path]_build.properties_ – настройку свойств, используемых в [.path]_build.xml_
+. [.path]_build.xml_ – XML skript для программы сборки Ant
 
 
 :sectnums:
