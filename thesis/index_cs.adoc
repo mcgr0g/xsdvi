@@ -299,7 +299,7 @@ Kromě obvyklých atributů zde využijeme:
 * [.property]`xlink:href` – URI odkaz na objekt, realizováno pomocí identifikátoru,
 * [.property]`onclick` – spouští skript při kliknutí na grafický objekt, tím bude symbol _plus_ nebo _minus_. Skript provede rozbalení nebo skrytí podstromu grafických symbolů (boxů).
 
-
+[[g-container]]
 ==== <g>
 footnote:[http://www.w3.org/TR/SVG11/struct.html#Groups]
 
@@ -1169,7 +1169,7 @@ Pro změnu zobrazovaných položek při najetí myši stačí, aby měl každý 
 Ten je předáván ECMAScriptovým metodám [.method]`makeVisible`([.parameter]`id`)
 a [.method]`makeHidden`([.parameter]`id`) při najetí kurzoru myši na hlavní box symbolu, respektive při jeho sjetí z boxu.
 Změna spočívá v tom, že položky, které měly nastavenou třídu ([.property]`class`) na hidden, budou nyní viditelné.
-Jedná se o textové řetězce „nillable: 0"` a „abstract: 0"`. Naopak položky ve třídě visible budou dočasně skryty.
+Jedná se o textové řetězce "nillable: 0" a "abstract: 0". Naopak položky ve třídě visible budou dočasně skryty.
 Sem patří pouze řetězec „type: AddressType"`. Viz obrázek <<ADDRESS-SYMBOL>>.
 
 Zde použitý identifikátor symbolu je poměrně složitý, jedná se o řetězec `_1_1_1_2`.
@@ -1196,7 +1196,7 @@ Ta provede následující:
 * Změní tu symbol minus na plus, přepsáním atributu `xlink:href` elementu `<use>`
     tak, aby odkazoval na předem definovaný grafický objekt `plus`.
 * Schová celý podstrom symbolů připojený zprava k boxu. Patří do něj všechny symboly,
-    jejichž identifikátor začíná také na `_1_1_1_2`. U elementů `<g>`
+    jejichž identifikátor začíná také na `_1_1_1_2`. U elementů <<g-container>>
     obalujících objekty, z nichž se symbol skládá, se nastaví atribut `visibility` na hodnotu [.property]`hidden`.
 * Vzniklý prostor se zaplní vedlejšími větvemi. Ty se posunou směrem nahoru, přenastavením hodnoty atributu `transform`
     u seskupujícícho elementu `<g>`.
@@ -1698,7 +1698,8 @@ nebo integrovat do systému pro generování kompletních dokumentací.
     _Using W3C XML Schema. XML.com, 2001._
     Dostupný z WWW: http://www.xml.com/pub/a/2000/11/29/schemas/part1.html?page=1
 
-- [[[SVG,5]]] Ferraiolo, J., Fujisawa, J., Jackson, D.: Scalable Vector Graphics (SVG) 1.1 Specification
+- [[[SVG,5]]] Ferraiolo, J., Fujisawa, J., Jackson, D.: 
+    _Scalable Vector Graphics (SVG) 1.1 Specification_
     [online]. W3C, 2003. Dostupný z WWW: http://www.w3.org/TR/SVG/
 
 [bibliography]
