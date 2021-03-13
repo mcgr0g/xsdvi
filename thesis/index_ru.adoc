@@ -1297,382 +1297,383 @@ image::images/model_my.svg[]
 
 
 [[XSD-PROCESSING]]
-== Zpracování XML schématu
+== Обработка XML-схемы
 
-V této kapitole ukážu způsob procházení mezi komponentami schématu a vytvořím tak koncept jádra aplikace.
-Jednotlivé oddíly se věnují zpracování konkrétních komponent a vedle algoritmu zpracování obsahují také popis převzatý ze specifikace <<XSD1>>.
-Odkaz na konkrétní část specifikace uvádím u každého oddílu v poznámce pod čarou.
+В этой главе я покажу, как переключаться между компонентами схемы для создания концепции ядра приложения.
+Отдельные разделы посвящены обработке конкретных компонентов, и в дополнение к алгоритму обработки они также содержат описание, взятое из спецификации <<XSD1>>.
+Я ссылаюсь на конкретную часть спецификации в сноске для каждого раздела.
 
-Jako základní knihovnu, na které postavím aplikaci, jsem po předchozím uvážení zvolil open-source parser Xerces.
-Ten poskytuje plnou podporu XML schémat podle <<XSD0>>, <<XSD1>> a <<XSD2>>, až na několik omezení,
-které v naprosté většině případů nebudou tvořit překážku.
+В качестве базовой библиотеки, на которой я буду строить приложение, я выбрал парсер с открытым исходным кодом Xerces после предварительного рассмотрения.
+Он обеспечивает полную поддержку XML-схем согласно <<XSD0>>, <<XSD1>> a <<XSD2>>, с некоторыми ограничениями,
+что в подавляющем большинстве случаев не станет препятствием.
     footnote:[The Apache XML Project: Xerces2 Java Parser Readme. XML Schema. http://xerces.apache.org/xerces2-j/xml-schema.html]
-Implementace Xerces tak bude pracovat v souladu se specifikací W3C a bude užívat její termíny.
+Таким образом, реализация Xerces будет работать в соответствии со спецификацией W3C и будет использовать ее условия.
 
-Obrázek <<DIAGRAM_KOMPONENT>> nám umožní udělat si snadno představu o vazbách a základních vlastnostech jednotlivých
-komponent XML schématu, jež jsou definovány v třetí části specifikace.
+Иллюстрация <<DIAGRAM_KOMPONENT>> позволит нам легко составить представление о связях и основных свойствах каждого из 
+компонентов XML-схемы, определенных в третьей части спецификации.
     footnote:[Schema Component Details. http://www.w3.org/TR/xmlschema-1/#components]
 
 [[PROCESS-MODEL]]
-=== Zpracování samotného schématu
+=== Обработка самой схемы
 footnote:[http://www.w3.org/TR/xmlschema-1/#Schemas]
 
-Schéma (_Schema_, v Xercesu třída [.class]`XSModel`) slouží na abstraktní úrovni jako kontejner pro jednotlivé komponenty.
-Jedná se o komponenty globální, tedy pojmenované a anotace.
+Схема (_Schema_, в классе Xerces [.class]`XSModel`) служит на абстрактном уровне контейнером для отдельных компонентов.
+Это компоненты Глобальные, то есть именованные и аннотированные.
 
-Metoda [.method]`processModel`([.class]`XSModel`[.parameter]`model`) bude mít na starost zpracování schématu.
+Метод [.method]`processModel`([.class]`XSModel`[.parameter]`model`) будет отвечать за обработку схемы.
 
-. Vytvoří se symbol <<SYMBOL-SCHEMA>> a bude vložen jako kořen do stromové struktury symbolů.
-. Bude volána pomocná metoda [.method]`processElementDeclarations`([.parameter]`elementDeclarations`)
-    [<<PROCESS-ELEMENT-DECLARATIONS>>], parametrem jsou všechny globálně deklarované elementy.
+. Символ <<SYMBOL-SCHEMA>> создается и вставляется как корень в структуру дерева символов.
+. Вспомогательный метод [.method]`processElementDeclarations`([.parameter]`elementDeclarations`)
+    [<<PROCESS-ELEMENT-DECLARATIONS>>], будет называться параметром всех глобально объявленных элементов.
 
-Ostatní vlastnosti schématu ([.property]`attribute declarations`, [.property]`model group definitions`,
+Другие свойства схемы ([.property]`attribute declarations`, [.property]`model group definitions`,
     [.property]`attribute group definitions`, [.property]`type definitions`, [.property]`notation declarations`,
-    [.property]`annotations`) pro tvorbu logického modelu grafické reprezentace takto přímo nevyužijeme;
-    Xerces nám některé z nich poskytne později skrze reference jako globálně definované typy, atributy, elementy a jejich skupiny.
-Při vykreslování tedy vůbec nebudeme muset pracovat s komponentami definice skupiny atributů
-    (_Attribute group definition_), definice modelové skupiny (_Model group definition_) a deklarace notace
-    (_Notation declaration_), které jsou dostupné pouze ze schématu, a nebudeme potřebovat ani anotace (_Annotation_).
+    [.property]`annotations`) для создания логической модели графического представления непосредственно не используются напрямую;
+    Xerces предоставит нам некоторые из них позже через ссылки, как глобально определенные типы, атрибуты, элементы и их группы.
+Таким образом, при рендеринге нам вообще не придется работать с компонентами определения группы атрибутов
+    (_Attribute group definition_), определением группы моделей (_Model group definition_) и декларации обозначения
+    (_Notation declaration_), которые доступны только из схемы, и нам также не понадобится аннотация (_Annotation_).
 
 [[PROCESS-ELEMENT-DECLARATIONS]]
-=== Zpracování kolekce deklarací elementů
+=== Обработка коллекции объявлений элементов
 
-Kolekce deklarací elementů (v Xercesu obalené obecnou třídou [.class]`XSNamedMap`).
+Коллекция объявлений элементов (объявленная в общем классе Xerces [.class]`XSNamedMap`).
 
-Metoda [.method]`processElementDeclarations`([.class]`XSNamedMap`[.parameter]`map`) provádí zpracování globálních
-deklarací elementů.Metoda obsahuje cyklus.
+Метод [.method]`processElementDeclarations`([.class]`XSNamedMap`[.parameter]`map`) выполняет глобальную обработку
+объявления элементов. Метод включает в себя цикл.
 
-. Prochází se kolekcí deklarací elementů:
+. Совершает обход коллекции объявлений элементов:
 
-.. Pro každý prvek kolekce se volá [.method]`processElementDeclaration`([.parameter]`elementDeclaration`, `null`)
-    [<<PROCESS-ELEMENT-DECLARATION>>]. První parametr je konkrétní deklarace elementu (_Element declaration_), druhý je řetězec vyjadřující kardinalitu elementu. V případě globální deklarace má vždy hodnotu `null`.
+.. Для каждого элемента коллекции вызывается [.method]`processElementDeclaration`([.parameter]`elementDeclaration`, `null`)
+    [<<PROCESS-ELEMENT-DECLARATION>>]. Первый параметр-это конкретное объявление элемента (_Element declaration_), второй-строка, выражающая мощность элемента. В случае глобального объявления оно всегда имеет значение `null`.
 
 [[PROCESS-ELEMENT-DECLARATION]]
-=== Zpracování deklarace elementu
+=== Обработка объявления элемента
 footnote:[http://www.w3.org/TR/xmlschema-1/#cElement_Declarations]
 
-Deklarace elementu (_Element declaration_, v Xercesu třída [.class]`XSElementDeclaration`) umožňuje:
+Объявление элемента (_Element declaration_, в классе Xerces [.class]`XSElementDeclaration`) позволяет:
 
-* lokální validaci hodnot informační položky element za použití definice typu;
-* specifikování defaultních nebo fixních hodnot pro informační položku element;
-* zajištění jedinečnosti hodnot a nastavení referenčních omezení v rámci hodnot příbuzných elementů a atributů;
-* kontrolování vzájemné nahraditelnosti elementů pomocí mechanismu substitučních skupin (_element substitution groups_).
+* локальная проверка значений информационных элементов Element с использованием определений типов;
+* указание значений по умолчанию или фиксированных значений для информационных элементов Element;
+* обеспечение уникальности значений и установление контрольных ограничений в пределах значений связанных элементов и атрибутов;
+* проверка подстановочности элементов с помощью механизма групп подстановок (_element substitution groups_).
 
-Metoda [.method]`processElementDeclaration`([.class]`XSElementDeclaration`[.parameter]`elementDeclaration`,
-    [.class]`String`[.parameter]`cardinality`) zpracuje deklaraci elementu:
+Метод [.method]`processElementDeclaration`([.class]`XSElementDeclaration`[.parameter]`elementDeclaration`,
+    [.class]`String`[.parameter]`cardinality`) будет обрабатывать объявление элемента:
 
-. Dojde k vytvoření symbolu <<SYMBOL-ELEMENT>> a jeho připojení na odpovídající místo stromové struktury.
-    U symbolu je třeba nastavit základní informace, poskytované přímo objektem [.parameter]`elementDeclaration`,
-    ale také některé dodatečné informace, například řetězec s typem elementu, získaný voláním pomocné metody
-    [.method]`getTypeString`([.parameter]`typeDefinition`) [<<PROCESS-SIMPLE-TYPE>>], a řetězec uvádějící
-    minimální a maximální počet výskytů, získaný z parametru [.parameter]`cardinality`.
-    Popis jednotlivých položek naleznete u grafického návrhu symbolu `element`.
+. Символ <<SYMBOL-ELEMENT>> создается и прикрепляется к соответствующему месту древовидной структуры.
+    В символе должна быть задана основная информация, предоставляемая непосредственно объектом [.parameter]`elementDeclaration`,
+    но также и некоторая дополнительная информация, например, строка с типом элемента, полученная вызовом вспомогательного метода
+    [.method]`getTypeString`([.parameter]`typeDefinition`) [<<PROCESS-SIMPLE-TYPE>>],  и строка, указывающая
+    минимальное и максимальное число вхождений, полученных из параметра [.parameter]`cardinality`.
+    Описание каждого элемента можно найти в графическом оформлении символа `element`.
 
-. Zjišťuje se, zda se stejná deklarace nevyskytuje mezi předky této deklarace.
-    Došlo by k zacyklení a vykreslování modelu by se nikdy řádně neukončilo. Kontrolu provádí metoda
+. Должно быть установлено, не существует ли одного и того же объявления между предками этого объявления.
+    Там будет цикл, и рендеринг модели никогда не закончится должным образом. Контроль осуществляется по методу
     [.method]`processLoop`([.class]`XSElementDeclaration`[.parameter]`elementDeclaration`),
-    která má za úkol v případě objevení cyklu připojit symbol <<SYMBOL-LOOP>> a zastavit zpracování následníků.
+    который имеет задачу прикрепления символа <<SYMBOL-LOOP>> в случае появления цикла и остановки обработки потомков.
 
-. Pokud má element komplexní datový typ, proběhne na tomto místě zpracování jeho definice.
-    To obstarává metoda [.method]`processComplexTypeDefinition`([.parameter]`complexTypeDefinition`) [<<PROCESS-COMPLEX-TYPE>>]
+. Если элемент имеет сложный тип данных, его определение будет обработано на текущем этапе.
+    Это обеспечивается методом [.method]`processComplexTypeDefinition`([.parameter]`complexTypeDefinition`) [<<PROCESS-COMPLEX-TYPE>>]
 
-. Bude volána pomocná metoda [.method]`processIdentityConstraints`([.parameter]`IdentityConstraints`)
-    [<<PROCESS-IDENTITY-CONSTRAINTS>>], parametrem jsou všechna identitní omezení definovaná v rámci této deklarace.
+. Будет вызван вспомогательный метод [.method]`processIdentityConstraints`([.parameter]`IdentityConstraints`)
+    [<<PROCESS-IDENTITY-CONSTRAINTS>>], параметром которого являются все ограничения идентичности, определенные в этой декларации.
 
 
 [[PROCESS-ATTRIBUTE-USES]]
-=== Zpracování kolekce užití atributů
+=== Обработка коллекции использования атрибутов
 
-Kolekce užití atributů (v Xercesu obalené obecnou třídou [.class]`XSObjectList`).
+Коллекция атрибутов (объявленная в общем классе Xerces [.class]`XSObjectList`).
 
-Metoda [.method]`processAttributeUses`([.class]`XSObjectList`[.parameter]`attributeUses`) provádí zpracování kolekce užití atributů.
-Metoda obsahuje cyklus.
+Метод [.method]`processAttributeUses`([.class]`XSObjectList`[.parameter]`attributeUses`) выполняет обработку коллекции с утилитными атрибутами.
+Метод включает в себя цикл.
 
-. Prochází se kolekcí:
+. Совершает обход коллекции:
 
-.. Pro každý prvek kolekce se volá metoda [.method]`processAttributeUse`([.parameter]`attributeUse`)
-    [<<PROCESS-ATTRIBUTE-USE>>]. Parametr je konkrétní užití atributu (_Attribute use_).
+.. Для каждого элемента коллекции вызывается метод [.method]`processAttributeUse`([.parameter]`attributeUse`)
+    [<<PROCESS-ATTRIBUTE-USE>>]. Параметр-это конкретное использование атрибута (_Attribute use_).
 
 [[PROCESS-ATTRIBUTE-USE]]
-=== Zpracování užití atributu{blank}footnote:[http://www.w3.org/TR/xmlschema-1/#cAttributeUse]
+=== Использование атрибутов обработки
+footnote:[http://www.w3.org/TR/xmlschema-1/#cAttributeUse]
 
-Užití atributu (_Attribute use_, v Xercesu třída [.class]`XSAttributeUse`) je pomocná komponenta,
-která kontroluje výskyt a defaultní chování deklarace atributu.
-Pro deklaraci atributu plní v rámci komplexního typu podobnou úlohu jako částice (_Particle_) pro deklaraci elementu.
+Компонент "использование атрибута" (_Attribute use_, в классе Xerces [.class]`XSAttributeUse`) является вспомогательным,
+который управляет появлением и поведением по умолчанию объявлений атрибутов.
+Для объявления атрибута он выполняет аналогичную роль в сложном типе, как частица (_Particle_) для объявления элемента.
 
-Metoda [.method]`processAttributeUse`([.class]`XSAttributeUse`[.parameter]`attributeUse`)
-slouží ke zpracování užití atributu a zároveň i samotné deklarace atributu:
+Метод [.method]`processAttributeUse`([.class]`XSAttributeUse`[.parameter]`attributeUse`)
+используется для обработки задействия атрибута, а также самого объявления атрибута:
 
-. Na tomto místě proběhne zpracování deklarace atributu [<<PROCESS-ATTRIBUTE-DECLARATION>>].
+. На этом этапе будет обработана декларация атрибута [<<PROCESS-ATTRIBUTE-DECLARATION>>].
 
 
 [[PROCESS-ATTRIBUTE-DECLARATION]]
-=== Zpracování deklarace atributu
+=== Обработка объявлений атрибутов
 footnote:[http://www.w3.org/TR/xmlschema-1/#cAttribute_Declarations]
 
-Deklarace atributu (_Attribute declaration_, v Xercesu třída [.class]`XSAttributeDeclaration`) umožňuje:
+Декларация атрибута (_Attribute declaration_, v Xercesu třída [.class]`XSAttributeDeclaration`) позволяет:
 
-* lokální validaci hodnot informační položky atribut za použití definice jednoduchého typu;
-* specifikování defaultních nebo fixních hodnot pro informační položku atribut.
+* локальная проверка значений элементов атрибутивной информации с использованием простых определений типов;
+* указание значений по умолчанию или фиксированных значений для элемента атрибутивной информации.
 
-Pro jednoduchost je deklarace atributu zpracována uvnitř metody
+Для простоты декларация атрибута обрабатывается внутри метода
 [.method]`processAttributeUse`([.class]`XSAttributeUse`[.parameter]`attributeUse`) [<<PROCESS-ATTRIBUTE-USE>>].
 
-. Dojde k vytvoření symbolu <<SYMBOL-ATTRIBUTE>> a jeho připojení do stromové struktury.
-    Předtím se musí zjistit základní informace, poskytované přímo deklarací atributu,
-    a také dodatečná informace o typu atributu, získaná voláním pomocné metody
+. Символ <<SYMBOL-ATTRIBUTE>> создается и присоединяется к древовидной структуре.
+    Перед этим необходимо найти основную информацию, предоставленную непосредственно декларацией атрибута,
+    а также дополнительная информация о типе атрибута, полученная при вызове вспомогательного метода
     [.method]`getTypeString`([.parameter]`typeDefinition`) [<<PROCESS-SIMPLE-TYPE>>].
-    Popis jednotlivých položek naleznete u grafického návrhu symbolu `attribute`.
+   Описание каждого элемента можно найти в графическом оформлении символа `attribute`.
 
 
 [[PROCESS-WILDCARD]]
-=== Zpracování divoké karty
+=== Обработка подстановочного символа
 footnote:[http://www.w3.org/TR/xmlschema-1/#Wildcards]
 
-Divoká karta (_Wildcard_, v Xercesu třída [.class]`XSWildcard`)
-umožňuje validaci informačních položek element a atribut, závisející na jmenném prostoru, ale nezávislou na lokálním jméně.
+Подстановочный знак (_Wildcard_, v Xercesu třída [.class]`XSWildcard`)
+позволяет проверять элементы информации об элементах и атрибутах в зависимости от пространства имен, но независимо от локального имени.
 
-Metoda [.method]`processElementWildcard`([.class]`XSWildcard`[.parameter]`wildcard`,
-[.class]`String`[.parameter]`cardinality`) slouží ke zpracování divoké karty pro element:
+Метод [.method]`processElementWildcard`([.class]`XSWildcard`[.parameter]`wildcard`,
+[.class]`String`[.parameter]`cardinality`) используется для обработки карты для элемента:
 
-. Vytvoří symbol <<SYMBOL-ANY>> a připojí ho na odpovídající pozici ve stromové struktuře.
-    Pomocná metoda [.method]`getNamespaceString`([.class]`XSWildcard`[.parameter]`wildcard`)
-    umožní sestavit řetězec, uvádějící omezení jmenných prostorů,
-    parametr `cardinality` dodá informaci o minimálním a maximálním počtu výskytů.
+. Создает символ <<SYMBOL-ANY>> и прикрепляет его к соответствующей позиции в древовидной структуре.
+    Вспомогательный метод [.method]`getNamespaceString`([.class]`XSWildcard`[.parameter]`wildcard`)
+    позволяет построить строку, указывающую на ограничения пространства имен,
+    параметр `cardinality` предоставляет информацию о минимальном и максимальном количестве вхождений.
 
-Metoda [.method]`processAttributeWildcard`([.class]`XSWildcard`[.parameter]`wildcard`)
-slouží ke zpracování divoké karty pro atribut:
+Метод [.method]`processAttributeWildcard`([.class]`XSWildcard`[.parameter]`wildcard`)
+используйте для обработки подстановочного символа для атрибута:
 
-. Vytvoří symbol <<SYMBOL-ANY-ATTRIBUTE>> a připojí ho na odpovídající pozici ve stromové struktuře.
-    Pomocná metoda [.method]`getNamespaceString`([.class]`XSWildcard`[.parameter]`wildcard`)
-    umožní sestavit řetězec, uvádějící omezení jmenných prostorů.
+. Создает символ <<SYMBOL-ANY-ATTRIBUTE>> и прикрепляет его к соответствующей позиции в древовидной структуре.
+    Вспомогательный метод [.method]`getNamespaceString`([.class]`XSWildcard`[.parameter]`wildcard`)
+    позволяет построить строку, указывающую на ограничения пространств имен.
 
 
 [[PROCESS-SIMPLE-TYPE]]
-=== Zpracování definice jednoduchého typu
+=== Обработка определения простого типа
 footnote:[http://www.w3.org/TR/xmlschema-1/#Simple_Type_Definitions]
 
-Definice jednoduchého typu (_Simple type definition_, v Xercesu třída [.class]`XSSimpleTypeDefinition`)
-umožňuje omezení znakových informačních položek – dětí informačních položek element a atribut.
+Определение простого типа (_Simple type definition_, в классе Xerces [.class]`XSSimpleTypeDefinition`)
+допускает ограничение символьных информационных элементов – дочерних элементов элемента и атрибута информационных элементов.
 
-Pomocná metoda [.method]`getTypeString`([.class]`XSTypeDefinition`[.parameter]`typeDefinition`)
-je volána při zpracování deklarací elementů a atributů.
-U jednoduchého typu je pouze třeba zjistit název, nebo název základního typu a ten zobrazit jako typ elementu / atributu.
+Вспомогательный метод [.method]`getTypeString`([.class]`XSTypeDefinition`[.parameter]`typeDefinition`)
+вызывается при обработке объявлений элементов и атрибутов.
+Для простого типа вам нужно только найти имя или имя базового типа и отобразить его как тип элемента / атрибута.
 
-. Pokud je typ pojmenovaný (může být i komplexní), vrátí jméno typu.
-. Pokud je typ anonymní a zároveň je jednoduchý, vrátí jméno základního typu, ze kterého je tento typ odvozen.
-. Jinak vrátí `null`.
+. Если тип имеет имя (оно может быть сложным), он возвращает имя типа.
+. Если тип является анонимным и простым, он возвращает имя базового типа, из которого он получен.
+. В противном случае возвращает `null`.
 
 
 [[PROCESS-COMPLEX-TYPE]]
-=== Zpracování definice komplexního typu
+=== Обработка определения комплексного типа
 footnote:[http://www.w3.org/TR/xmlschema-1/#Complex_Type_Definitions]
 
-Definice komplexního typu (_Complex type definition_, v Xercesu třída [.class]`XSComplexTypeDefinition`) umožňuje:
+Определение сложного типа (_Complex type definition_, в классе Xerces [.class]`XSComplexTypeDefinition`) позволяет:
 
-* omezení informačních položek element, přidáním deklarací atributů, určujících výskyt a obsah atributů;
-* omezení informačních položek element tak, že musí mít buď prázdný obsah, nebo musí vyhovět specifikovanému
-    obsahu smíšenému, nebo tvořenému pouze elementy; nebo omezuje znakové informační položky tak,
-    aby vyhověly specifikované definici jednoduchého typu;
-* využití mechanismu hierarchie definic typů (_Type definition hierarchy_)
-    k odvození komplexního typu z jiného jednoduchého či komplexního typu;
-* specifikování příspěvků k post-schema-validation infosetu elementů;
-* omezení možnosti odvozovat další typy z tohoto komplexního typu;
-* kontrolovat nahrazování elementů odvozeného typu za elementy deklarované v modelu obsahu,
-    který je tohoto komplexního typu.
+* ограничение элементов информационных элементов, добавление объявлений атрибутов, указание вхождения и содержания атрибутов;
+* ограничивает элементы информации об элементах таким образом, чтобы они либо имели пустое содержимое, либо соответствовали заданному
+    содержимому, смешанному или состоящему только из элементов; или ограничивает элементы информации о символах,
+    чтобы они соответствовали заданному определению простого типа;
+* использование механизма иерархии определений типов (_Type definition hierarchy_)
+    для получения сложного типа из другого простого или сложного типа;
+* спецификация вклада в инфосеть элементов после проверки схемы;
+* ограничение возможности получения других типов из этого сложного типа;
+* управление заменой элементов производного типа элементами, 
+    объявленными в содержательной модели этого сложного типа.
 
-Definice komplexního typu je zpracována metodou [.method]`processComplexTypeDefinition`
+Определение сложного типа обрабатывается методом [.method]`processComplexTypeDefinition`
     ([.class]`XSComplexTypeDefinition`[.parameter]`complexTypeDefinition`).
 
-. Zjistí se, zda definice obsahuje částici (_Particle_), pokud ano, volá se metoda
+. Он определяет, содержит ли определение частицу (_Particle_), если да, то вызывается метод
     [.method]`processParticle`([.parameter]`particle`) [<<PROCESS-PARTICLE>>].
-    Parametrem je částice získaná z definice komplexního typu.
-. Volá se pomocná metoda [.method]`processAttributeUses`([.parameter]`attributeUses`) [<<PROCESS-ATTRIBUTE-USES>>],
-    parametrem je kolekce užití atributů.
-. Pokud je definována divoká karta (_Wildcard_) pro atributy, zavolá se metoda [.method]`processAttributeWildcard`
-    ([.parameter]`wildcard`) [<<PROCESS-WILDCARD>>]. Parametrem je divoká karta získaná z definice komplexního typu.
+    Параметр-это частица, полученная из определения сложного типа.
+. Этот параметр [.method]`processAttributeUses`([.parameter]`attributeUses`) [<<PROCESS-ATTRIBUTE-USES>>],
+    является коллекцией использования атрибутов.
+.  Если для атрибутов определен подстановочный знак (_Wildcard_) то вызывается метод [.method]`processAttributeWildcard`
+    ([.parameter]`wildcard`) [<<PROCESS-WILDCARD>>]. Параметр-это подстановочный знак, полученный из определения сложного типа.
 
 
 [[PROCESS-IDENTITY-CONSTRAINTS]]
-=== Zpracování kolekce identitních omezení
+=== Обработка набора ограничений идентичности
 
-Kolekce deklarací identitních omezení (v Xercesu obalené obecnou třídou [.class]`XSNamedMap`).
+Коллекция объявлений ограничений идентичности (включенная в класс Xerces [.class]`XSNamedMap`).
 
-Metoda [.method]`processIdentityConstraints`([.class]`XSNamedMap`[.parameter]`identityConstraints`)
-provádí zpracování deklarací identitních omezení. Metoda obsahuje cyklus.
+Метод [.method]`processIdentityConstraints`([.class]`XSNamedMap`[.parameter]`identityConstraints`)
+выполняет обработку деклараций об ограничении идентификации. Метод включает в себя цикл.
 
-. Prochází se kolekcí:
+. Совершает обход коллекции:
 
-.. Pro každý prvek kolekce se volá metoda [.method]`processIdentityConstraintDefinition`
+.. Для каждого элемента коллекции вызывается метод [.method]`processIdentityConstraintDefinition`
     ([.parameter]`identityConstraintDefinition`) [<<PROCESS-IDENTITY-CONSTRAINT>>].
-    Parametrem je konkrétní definice identitního omezení (_Identity-constraint definition_).
+    Параметр представляет собой конкретное определение ограничения идентичности (_Identity-constraint definition_).
 
 
 [[PROCESS-IDENTITY-CONSTRAINT]]
-=== Zpracování definice identitního omezení
+=== Обработка определения ограничения идентичности
 footnote:[http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions]
 
-Definice identitního omezení (_Identity-constraint definition_, v Xercesu třída [.class]`XSIDCDefinition`)
-zajištuje jedinečnost a referenční omezení v rámci hodnot množiny elementů a atributů.
+Определение ограничения идентичности (_Identity-constraint definition_, в классе Xerces [.class]`XSIDCDefinition`)
+обеспечивает уникальность и ссылочное ограничение в пределах значений набора элементов и атрибутов.
 
-Metoda [.method]`processIdentityConstraintDefinition`
+Метод [.method]`processIdentityConstraintDefinition`
 ([.class]`XSIDCDefinition`[.parameter]`identityConstraintDefinition`)
-má na starost zpracování definice identitního omezení.
+отвечает за обработку определения ограничения идентичности.
 
-. Zjistí se kategorie této definice:
+. Идентефицируется категория этого определения:
+.. Если найден уникального ключа (`unique`), то создается символ <<SYMBOL-UNIQUE>>.
+.. Если найден первичного ключа (`key`), то создается символ <<SYMBOL-KEY>>.
+.. Если найден внешнего ключа (`keyref`), то создается символ <<SYMBOL-KEYREF>>.
 
-.. Pokud jde o unikátní klíč (`unique`), vytvoří se symbol <<SYMBOL-UNIQUE>>.
-.. Pokud jde o primární klíč (`key`), vytvoří se symbol <<SYMBOL-KEY>>.
-.. Pokud jde o cizí klíč (`keyref`), vytvoří se symbol <<SYMBOL-KEYREF>>.
-. Vytvoří se symbol <<SYMBOL-SELECTOR>>.
-. Prochází se kolekcí polí (`field`):
+. Cоздается символ <<SYMBOL-SELECTOR>>.
 
-.. Pro každý prvek kolekce se vytvoří symbol <<SYMBOL-FIELD>>.
+. Обходит коллекцию полей (`field`):
+.. Для каждого элемента коллекции создается символ <<SYMBOL-FIELD>>.
 
-Potřebné informace pro vykreslení všech symbolů poskytne přímo objekt [.parameter]`identityConstraintDefinition`.
-Jejich přehled naleznete u návrhu jednotlivých symbolů.
-Každý ze symbolů je připojen na odpovídající místo stromové struktury.
+Необходимая информация для изображения всех символов предоставляется непосредственно объектом [.parameter]`identityConstraintDefinition`.
+Их перечень можно найти в предложении отдельных символов.
+Каждый из символов привязан к соответствующему месту древовидной структуры.
 
 [[PROCESS-PARTICLES]]
-=== Zpracování kolekce částic
+=== Обработка коллекции частиц
 
-Kolekce částic (v Xercesu obalené obecnou třídou [.class]`XSObjectList`).
+Коллекция частиц (в Xercesu выделенных общим классом [.class]`XSObjectList`).
 
-Metoda [.method]`processParticles`([.class]`XSObjectList`[.parameter]`particles`) provádí zpracování kolekce částic.
-Metoda obsahuje cyklus:
+Метод [.method]`processParticles`([.class]`XSObjectList`[.parameter]`particles`) осуществляет обработку коллекции частиц.
+Метод включает в себя цикл:
 
-. Prochází se kolekcí částic:
+. Совершает обход коллекции:
 
-.. Pro každý prvek kolekce se volá [.method]`processParticle`([.parameter]`particle`) [<<PROCESS-PARTICLE>>].
-    Parametrem je konkrétní částice (_Particle_).
+.. Для каждого элемента коллекции вызывается [.method]`processParticle`([.parameter]`particle`) [<<PROCESS-PARTICLE>>].
+    Параметр-это конкретная частица (_Particle_).
 
 
 [[PROCESS-PARTICLE]]
-=== Zpracování částice
+=== Обработка частиц
 footnote:[http://www.w3.org/TR/xmlschema-1/#cParticles]
 
-Částice (_Particle_, v Xercesu třída [.class]`XSParticle`) přidává dodatečné informace o minimálním a 
-maximálním počtu výskytů k definici modelu obsahu.
+Частица (_Particle_, в классе Xerces [.class]`XSParticle`)  добавляет дополнительную информацию о минимальном и
+максимальном количестве вхождений в определение модели содержимого.
 
-Metoda [.method]`processParticle`([.class]`XSParticle`[.parameter]`particle`) zpracuje částici následujícím způsobem:
+Метод [.method]`processParticle`([.class]`XSParticle`[.parameter]`particle`) обрабатывает частицу следующим образом:
 
-. Pomocná metoda [.method]`getCardinalityString`([.class]`XSParticle`[.parameter]`particle`)
-    sestaví řetězec `cardinality`, obsahující informaci o minimálním ([.property]`minOccurs`)
-    a maximálním ([.property]`maxOccurs`) počtu výskytů částicí obaleného termínu ([.property]`term`).
-. Zavolá pomocnou metodu [.method]`processTerm`([.parameter]`term`, [.parameter]`cardinality`) [<<PROCESS-TERM>>],
-    která termín zpracuje, a pošle jí i řetězec `cardinality`.
+. Вспомогательный метод [.method]`getCardinalityString`([.class]`XSParticle`[.parameter]`particle`)
+    компилирует строку `cardinality`, содержащую информацию о минимуме ([.property]`minOccurs`)
+    и максимальном ([.property]`maxOccurs`) числе вхождений обернутого частицей термина ([.property]`term`).
+. Вызывает вспомогательный метод [.method]`processTerm`([.parameter]`term`, [.parameter]`cardinality`) [<<PROCESS-TERM>>],
+    который обрабатывает термин и отправляет ему строку `cardinality`.
 
 
 [[PROCESS-TERM]]
-=== Zpracování termínu
+=== Тремин обработка
 
-Termín (_Term_, v Xercesu třída [.class]`XSTerm`) je obecná vlastnost zastupující modelovou skupinu,
-deklaraci elementu, nebo divokou kartu pro elementy.
+Термин (_Term_, v Xercesu třída [.class]`XSTerm`) это универсальное свойство, представляющее группу моделей,
+объявление элемента или подстановочный знак для элементов.
 
-Metoda [.method]`processTerm`([.class]`XSTerm`[.parameter]`term`, [.class]`String`[.parameter]`cardinality`)
-provádí tento algoritmus:
+Метод [.method]`processTerm`([.class]`XSTerm`[.parameter]`term`, [.class]`String`[.parameter]`cardinality`)
+выполняет следующий алгоритм:
 
-. Zjistí se typ termínu:
+. Установка типа термина:
 
-.. Pokud se jedná o modelovou skupinu (_Model group_), volá se metoda
+.. Если это группа моделей (_Model group_), то вызывается метод
     [.method]`processModelGroup`([.parameter]`modelGroup`, [.parameter]`cardinality`) [<<_process_model_group>>].
-    Prvním parametrem je termín – modelová skupina, druhým parametrem se předává dál informace o kardinalitě.
+    Первый параметр-это термин - группа моделей, второй параметр передает информацию о мощности.
 
-.. Pokud jde o deklaraci elementu (_Element declaration_), volá se [.method]`processElementDeclaration`
+.. Если это объявление элемента (_Element declaration_), то оно называется [.method]`processElementDeclaration`
     ([.parameter]`elementDeclaration`, [.parameter]`cardinality`) [<<PROCESS-ELEMENT-DECLARATION>>].
-    Prvním parametrem je termín – deklarace elementu, druhým parametrem se předává dál informace o kardinalitě.
+    Первый параметр-это термин-декларация элемента, второй параметр передает информацию о мощности.
 
-.. Pokud jde o divokou kartu (_Wildcard_) pro elementy, volá se metoda [.method]`processElementWildcard`
+..  Если это wild card (_Wildcard_) для элементов, то метод называется [.method]`processElementWildcard`
     ([.parameter]`wildcard`, [.parameter]`cardinality`) [<<PROCESS-WILDCARD>>].
-    Prvním parametrem je termín – divoká karta, druhým parametrem se předává dál informace o kardinalitě.
+    Первый параметр-это термин-wild card, второй параметр передает информацию о мощности.
 
 
 [[_process_model_group]]
-=== Zpracování modelové skupiny
-{blank}footnote:[http://www.w3.org/TR/xmlschema-1/#Model_Groups]
+=== Обработка группы моделей
+footnote:[http://www.w3.org/TR/xmlschema-1/#Model_Groups]
 
-Modelová skupina (_Model group_, v Xercesu třída [.class]`XSModelGroup`).
-Pokud není definováno, že mají být děti informační položky element prázdné,
-nebo že mají vyhovovat určité definici jednoduchého typu, může být obsah posloupnosti dětí informační položky element
-specifikován detailněji pomocí modelové skupiny.
-Díky tomu, že součástí částice může být modelová skupina a modelová skupina obsahuje částice,
-může modelová skupina nepřímo obsahovat jiné modelové skupiny.
+Модельная группа (_Model group_, v Xercesu třída [.class]`XSModelGroup`).
+Если не определено, что дочерние элементы информационного элемента элемента должны быть пустыми
+или соответствуют простому определению типа, содержимое дочерних элементов последовательности информационного элемента элемента может быть
+более подробно указано с помощью группы моделей.
+Из-за того, что часть частицы может быть модельной группой, а модельная группа содержит частицы,
+группа моделей может косвенно содержать другие группы моделей.
 
-Metoda [.method]`processModelGroup`([.class]`XSModelGroup`[.parameter]`modelGroup`,
-[.class]`String`[.parameter]`cardinality`) provádí algoritmus:
+Метод [.method]`processModelGroup`([.class]`XSModelGroup`[.parameter]`modelGroup`,
+[.class]`String`[.parameter]`cardinality`) выполняет алгоритм:
 
-. Zjistí se typ kompozitoru ([.property]`compositor`):
+. Найти тип композитора ([.property]`compositor`):
 
-.. Pokud se jedná o kompozitor `all`, vytvoří se symbol <<SYMBOL-ALL>>.
-.. Pokud jde o kompozitor `choice`, vytvoří se symbol <<SYMBOL-CHOICE>>.
-.. Jinak jde o kompozitor `sequence`, vytvoří se symbol <<SYMBOL-SEQUENCE>>.
+.. Если это составное `all`, то создается символ <<SYMBOL-ALL>>.
+.. Что касается `choice`, то создается символ <<SYMBOL-CHOICE>>.
+.. В противном случае `sequence`, то создается символ <<SYMBOL-SEQUENCE>>.
 
-. Zavolá se pomocná metoda [.method]`processParticles`([.parameter]`particles`)
-    [<<PROCESS-PARTICLES>>], parametrem je kolekce částic, obsažených uvnitř modelové skupiny.
+. Вспомогательный метод [.method]`processParticles`([.parameter]`particles`)
+    [<<PROCESS-PARTICLES>>], параметр-это совокупность частиц, содержащихся в модельной группе.
 
-U každého ze symbolů bude vypsán řetězec `cardinality` s informací o minimálním a maximálním počtu výskytů.
-Vytvořený symbol je vždy připojen na odpovídající pozici stromové struktury.
+Для каждого из символов будет напечатана строка "мощности" с информацией о минимальном и максимальном количестве вхождений.
+Созданный символ всегда прикрепляется к соответствующей позиции древовидной структуры.
 
 [float]
-==== Konečné uložení připravené struktury do SVG
+==== Окончательное хранение готовой конструкции в SVG
 
-Poté, co se dokončí procházení abstraktního datového modelu XML schématu a připravené symboly utvoří stromovou
-strukturu, dojde k uložení stromu do SVG souboru.
-Nejprve se vypíše jakási hlavička s XML deklarací, doctypem, titulkem, přidá se skript, předem definované symboly a
-popřípadě styl; následují jednotlivé symboly komponent.
-Přesný průběh vypadá tak, že se vezme kořenový symbol, nastaví se u něj správné rozměry a umístění na pomyslném plátně
-a uloží se, totéž se pak opakuje se všemi dětmi a jejich potomky, až se dojde k listům stromu.
-Tím jsou symboly vloženy do souboru a následuje už jen koncový tag `<svg>`
+После того, как абстрактная модель данных XML-схемы закончена и подготовленные символы образуют древовидную структуру,
+дерево сохраняется в SVG-файл.
+Сначала пишется заголовок с XML-декларацией, тип документа, заголовок, добавляется скрипт, предопределенные символы и, при необходимости, стиль;
+затем добавляются отдельные символы компонентов.
+Корректный процесс выглядит как установка корневого символа, установка правильных размеров и расположения на воображаемом холсте
+и это сохраняется, то же самое затем повторяется со всеми детьми и их потомством, пока не появятся листья дерева.
+Ими являются символы, вложенные в документ, за которыми следует только конечный тег `<svg>`
 
-== Závěr
+== Вывод
 
-Cílem práce bylo navrhnout a implementovat aplikaci pro převod XML schématu do interaktivního diagramu ve formátu SVG.
-Bylo proto třeba nastudovat principy, na kterých staví specifikace W3C XML schématu.
-Ta silně odděluje abstraktní datový model od XML reprezentace.
-Právě abstraktní datový model, jeho komponenty a vlastnosti komponent poskytují přímý a jednoduchý přístup k důležitým údajům.
-Abych nemusel vše programovat od začátku, vybíral jsem mezi hotovými open source implementacemi modelu a zvolil
-procesor tvořící součást parseru Xerces.
-Ten vyhovuje specifikaci; zpřístupnil komponenty schématu a jejich struktury programovým prostředkům jazyka Java.
+Целью работы была разработка и реализация приложения для преобразования XML-схемы в интерактивную диаграмму в формате SVG.
+Поэтому было необходимо изучить принципы, на которых основана спецификация XML-схемы W3C.
+Последнее сильно отделяет абстрактную модель данных от представления XML.
+Именно абстрактная модель данных, ее компоненты и свойства компонентов обеспечивают прямой и легкий доступ к важным данным.
+Чтобы не пришлось программировать все с нуля, я выбрал среди готовых реализаций модели с открытым исходным кодом и подобрал
+процессор, который является частью парсера Xerces.
+Последний соответствует спецификации; он сделал компоненты схемы и их структуры доступными для ресурсов Java-программ.
 
-Dále bylo třeba rozhodnout se pro vhodný způsob zobrazení struktur definovaných schématem.
-Zde jsem se inspiroval výstupy úspěšného XML editoru oXygen.
-Z představy grafického modelu vzešel návrh tříd objektů – obecného abstraktního symbolu a konkrétních symbolů
-komponent schématu –, návrh jejich vzhledu, parametrů a propojení i ve vazbě k zajištění interaktivity modelu.
-Přitom bylo nutné alespoň v základu poznat možnosti formátu SVG.
+Далее необходимо было выбрать подходящий способ отображения структур, определенных схемой.
+Здесь меня вдохновили результаты успешного XML - редактора oXygen.
+Из идеи графической модели возникло оформление классов объектов – общего абстрактного символа и специфических символов
+компоненты схемы - дизайн их внешнего вида, параметры, взаимосвязь и привязка для обеспечения интерактивности модели.
+В то же время необходимо было хотя бы в общих чертах знать возможности формата SVG.
 
-Po načtení instance XML schématu do objektové reprezentace jazyka Java se spustí procházení těmito objekty a
-začne se vytvářet stromová struktura definovaných symbolů.
-Ta je nakonec uložena do SVG souboru.
-Na něj jsou ale ještě vázány další technologie.
-Především jde o ECMAScript, který je součástí souboru a provádí jeho zpracování při otevření v prohlížeči.
-Zajišťuje interaktivitu reakcemi na události spuštěné pohybem a klikáním myši.
-Aby skript mohl pracovat s elementy SVG dokumentu, potřebuje k nim získat přístup.
-Přístup zajišťuje DOM úrovně 2.
-Poslední technologií jsou kaskádové styly, které mohou tvořit součást SVG souboru nebo mohou být připojeny z
-externího souboru a umožňují drobné úpravy výsledného vzhledu.
+Когда экземпляр XML-схемы загружается в представление объекта Java, он начинает просматривать эти объекты и
+начинает формироваться древовидная структура определенных символов.
+В конечном итоге это сохраняется в файле SVG.
+Но другие технологии все еще привязаны к нему.
+Прежде всего, это ECMAScript, который является частью файла и выполняет его обработку при открытии в браузере.
+Он обеспечивает интерактивность, реагируя на события, вызванные перемещением и щелчком мыши.
+Для того чтобы скрипт мог работать с SVG-элементами документа, ему необходимо получить к ним доступ.
+Доступ осуществляется через DOM 2-го уровня.
+Новейшая технология-это каскадные стили, которые могут быть частью SVG-файла или могут быть подключены из
+внешнего файла и разрешать незначительные корректировки полученного внешнего вида.
 
-Na závěr mohu konstatovat, že se podařilo splnit cíl práce.
-Praktickým produktem je funkční program, jehož výstupem je přehledný, interaktivní diagram zobrazující
-strukturu XML souborů, vyhovujících schématu.
-Konkrétně je to struktura použitelných elementů a atributů, jejich jména, jmenné prostory, datové typy,
-kardinalita elementů, definované klíče atd.
-Postromy symbolů lze zobrazovat a skrývat.
-Dle mého názoru může diagram skutečně usnadnit orientaci a pochopení struktur, může tvořit kvalitní doplněk dokumentace.
+В заключение могу сказать, что цель работы была достигнута.
+Практический продукт-это функциональная программа, выход которой представляет собой четкую интерактивную диаграмму, показывающую
+структуру XML-файлов соответствующую схеме.
+В частности, это структура используемых элементов и атрибутов, их имена, пространства имен, типы данных,
+мощность элементов, определенные ключи и т. д.
+Символы могут отображаться и скрываться.
+На мой взгляд, схема действительно может облегчить ориентацию и понимание структур, она может стать качественным дополнением к документации.
 
-I zde však existují určitá omezení.
-První vyplývá z pomalé implementce SVG a ECMAScriptu v prohlížečích.
-Projevuje se v pomalejší reakci na události a obecně v pomalejším vykreslování velkých diagramů.
-V této oblasti lze jen doufat, že do budoucna vznikne lepší podpora.
-Další problém se může vyskytnout při programovém zpracování schémat, popisujících velmi rozsáhlé struktury.
-Může dojít k pádu aplikace v důsledku překročení paměťového prostoru.
-Tento problém lze odstranit úpravou aplikace, vzhledem k prvnímu omezení však není nutné s úpravou moc spěchat.
+Однако и здесь есть некоторые ограничения.
+Первый возникает из-за медленной реализации SVG и ECMAScript в браузерах.
+Это проявляется в более медленной реакции на события и, в общем, в более медленном отображении больших диаграмм.
+В этой области можно только надеяться на лучшую поддержку в будущем.
+Другая проблема может возникнуть при программировании схем, описывающих очень большие структуры.
+Приложение может выйти из строя из-за превышения объема памяти.
+Эту проблему можно решить, изменив приложение, но из-за первого ограничения спешить с модификацией не стоит.
 
-Tím se dostávám k faktu, že aplikace včetně zdrojových kódů bude šířena jako svobodný software.
-Momentálně je dostupná na přiloženém CD (viz <<_CD>>) a na webové stránce http://st.vse.cz/~XSLAV14/.
-To přináší možnost budoucího rozvoje aplikace v podobě vylepšování nebo rozšiřování funkčnosti.
-Například by šla přidělat tlačítka pro zoom in a zoom out; rozšířit program o podporu dalších schémových jazyků
-(pokud vím, je jejich vizualizace předmětem jiných bakalářských prací);
-nebo integrovat do systému pro generování kompletních dokumentací.
+Это подводит меня к тому, что приложение, включая исходный код, будет распространяться как свободное программное обеспечение.
+В настоящее время он доступен на прилагаемом компакт-диске (viz <<_CD>>) и на веб-сайте http://st.vse.cz/~XSLAV14/.
+Это дает возможность дальнейшего развития приложения в виде доработок или расширения функционала.
+Например, можно было бы выделить кнопки для увеличения и уменьшения масштаба; расширить программу с поддержкой других схематических языков
+(насколько я знаю, их визуализация является предметом других бакалаврских диссертаций);
+или интегрировать в систему для создания полной документации.
 
 :sectnums!:
 
@@ -1762,7 +1763,8 @@ DOM:: Document Object Model, объектная модель
 
 DTD:: Document Type Definition, определение типа
     документа. DTD предоставляет инструменты для определения разрешенных структур
-    элементов и атрибутов, позволяющих устанавливать значения атрибутов по умолчанию. Повторно используемое содержимое также может быть определено в DTD
+    элементов и атрибутов, позволяющих устанавливать значения атрибутов по умолчанию. 
+    Повторно используемое содержимое также может быть определено в DTD
     (entity) и дополнительная информация (notace). Спецификация 
     является частью рекомендации W3C по XML – <<XML>> и
     другие.
@@ -1865,7 +1867,7 @@ XML schéma:: XML-схемы предоставляют средства для 
 ** [.path]_/symbols_ – папку с изображениями символов компонентов схемы в формате SVG
 ** [.path]_thesis.xml_ – пользовательский текст работы в формате DocBook
 ** [.path]_thesis.xsl_, [.path]_tp-fo.xsl_ – стили, изменяющие стандартный вывод DocBook
-** [.path]_kizi.pdf_ – логотип отдела для первой страницы footnote:[Upravené styly a logo katedry pochází ze stránek Jiřího Koska, věnovaných výuce na VŠE: http://www.kosek.cz/vyuka/.]
+** [.path]_kizi.pdf_ – логотип отдела для первой страницы footnote:[Измененные стили и логотип кафедры взяты с сайта Иржи Коска, посвященного обучению в ВШЭ: http://www.kosek.cz/vyuka/]
 ** [.path]_thesis.pdf_ – сгенерированный PDF файл с этой работой
 . [.path]_/src_ – Каталог исходного кода Java, структура которого основана на включении классов в пакеты
 . [.path]_/res_ – каталог других ресурсов, содержащих:
@@ -1879,10 +1881,10 @@ XML schéma:: XML-схемы предоставляют средства для 
 ** [.path]_/lib_ – библиотечный каталог:
 ... копия файла [.path]_xercesImpl.jar_ и любые другие файлы из каталога [.path]_/lib_
 ... архив с приложением [.path]_xsdvi.jar_
-** [.path]EXAMPLES.bat_ – запуск преобразования примеров, схем из папки examples
+** [.path]EXAMPLES.bat_ – запуск преобразования примеров, схем из папки examples_
 ** [.path]_readme.txt_ – скопировано из каталога [.path]_/res_
 . [.path]_build.properties_ – настройку свойств, используемых в [.path]_build.xml_
-. [.path]_build.xml_ – XML skript для программы сборки Ant
+. [.path]_build.xml_ – XML скрипт для программы сборки Ant
 
 
 :sectnums:
@@ -1891,9 +1893,9 @@ XML schéma:: XML-схемы предоставляют средства для 
 
 [appendix]
 [[EXAMPLES]]
-== Příklad
+== Пример
 
-=== XML schéma – ukázkový vstup
+=== XML schéma – пример входных данных
 
 [source, xml]
 ----
@@ -1921,7 +1923,7 @@ XML schéma:: XML-схемы предоставляют средства для 
 ----
 
 [[EXAMPLES-SVG-XML]]
-=== SVG výstup (XML reprezentace)
+=== выходные данные SVG  (XML представления)
 
 [source, xml]
 ----
@@ -2321,10 +2323,10 @@ line, polyline, polygon {fill: none; stroke: black;}
 </svg>
 ----
 
-=== SVG výstup (grafická reprezentace)
+=== выходные данные SVG (графическое представление)
 
 [[MY-MODEL-APPENDIX]]
-.Grafický výstup
+.Графический вывод
 image::images/model_my.svg[]
 
 
