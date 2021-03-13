@@ -1340,7 +1340,7 @@ Při vykreslování tedy vůbec nebudeme muset pracovat s komponentami definice 
 Kolekce deklarací elementů (v Xercesu obalené obecnou třídou [.class]`XSNamedMap`).
 
 Metoda [.method]`processElementDeclarations`([.class]`XSNamedMap`[.parameter]`map`) provádí zpracování globálních
-deklarací elementů.Metoda obsahuje cyklus.
+deklarací elementů. Metoda obsahuje cyklus.
 
 . Prochází se kolekcí deklarací elementů:
 
@@ -1394,7 +1394,8 @@ Metoda obsahuje cyklus.
     [<<PROCESS-ATTRIBUTE-USE>>]. Parametr je konkrétní užití atributu (_Attribute use_).
 
 [[PROCESS-ATTRIBUTE-USE]]
-=== Zpracování užití atributu{blank}footnote:[http://www.w3.org/TR/xmlschema-1/#cAttributeUse]
+=== Zpracování užití atributu
+footnote:[http://www.w3.org/TR/xmlschema-1/#cAttributeUse]
 
 Užití atributu (_Attribute use_, v Xercesu třída [.class]`XSAttributeUse`) je pomocná komponenta,
 která kontroluje výskyt a defaultní chování deklarace atributu.
@@ -1520,13 +1521,13 @@ Metoda [.method]`processIdentityConstraintDefinition`
 má na starost zpracování definice identitního omezení.
 
 . Zjistí se kategorie této definice:
-
 .. Pokud jde o unikátní klíč (`unique`), vytvoří se symbol <<SYMBOL-UNIQUE>>.
 .. Pokud jde o primární klíč (`key`), vytvoří se symbol <<SYMBOL-KEY>>.
 .. Pokud jde o cizí klíč (`keyref`), vytvoří se symbol <<SYMBOL-KEYREF>>.
-. Vytvoří se symbol <<SYMBOL-SELECTOR>>.
-. Prochází se kolekcí polí (`field`):
 
+. Vytvoří se symbol <<SYMBOL-SELECTOR>>.
+
+. Prochází se kolekcí polí (`field`):
 .. Pro každý prvek kolekce se vytvoří symbol <<SYMBOL-FIELD>>.
 
 Potřebné informace pro vykreslení všech symbolů poskytne přímo objekt [.parameter]`identityConstraintDefinition`.
@@ -1866,7 +1867,7 @@ Konkrétně na CD naleznete následující strukturu adresářů a souborů:
 ** [.path]_/symbols_ – složka s obrázky symbolů komponent schématu ve formátu SVG
 ** [.path]_thesis.xml_ – vlastní text práce ve formátu DocBook
 ** [.path]_thesis.xsl_, [.path]_tp-fo.xsl_ – styly upravující standardní výstup DocBooku
-** [.path]_kizi.pdf_ – logo katedry pro titulní stranufootnote:[Upravené styly a logo katedry pochází ze stránek Jiřího Koska, věnovaných výuce na VŠE: http://www.kosek.cz/vyuka/.]
+** [.path]_kizi.pdf_ – logo katedry pro titulní stranufootnote:[Upravené styly a logo katedry pochází ze stránek Jiřího Koska, věnovaných výuce na VŠE: http://www.kosek.cz/vyuka/]
 ** [.path]_thesis.pdf_ – vygenerované PDF s touto prací
 . [.path]_/src_ – adresář zdrojových kódů Javy, struktura vychází ze zařazení tříd do balíčků
 . [.path]_/res_ – adresář dalších zdrojů obsahující:
