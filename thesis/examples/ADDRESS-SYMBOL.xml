@@ -1,0 +1,12 @@
+<g id='_1_1_1_2' class='box' transform='translate(395,121)'>
+    <rect class='shadow' x='3' y='3' width='117' height='46'/>
+    <rect class='boxelement' x='0' y='0' width='117' height='46'
+        onmouseover='makeVisible("_1_1_1_2")' onmouseout='makeHidden("_1_1_1_2")'/>
+    <text class='hidden' visibility='hidden' x='5' y='13'>nillable: 0</text>
+    <text class='hidden' visibility='hidden' x='5' y='41'>abstract: 0</text>
+    <text class='strong' x='5' y='27'>address</text>
+    <text class='visible' x='5' y='41'>type: AddressType</text>
+    <line class='connection' id='p_1_1_1_2' x1='-35' y1='-48' x2='-35' y2='-40'/>
+    <path class='connection' d='M-35,-40 Q-35,15 0,23'/>
+    <use x='116' y='17' xlink:href='#plus' id='s_1_1_1_2' onclick='show("_1_1_1_2")'/>
+</g>
